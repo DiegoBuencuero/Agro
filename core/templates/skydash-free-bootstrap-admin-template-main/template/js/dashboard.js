@@ -630,7 +630,7 @@
       '</table>';
   }
   var table = $('#example').DataTable( {
-    "ajax": "js/data.txt",
+    "ajax": "/home/seven/Work/Django/agroinnova/core/templates/skydash-free-bootstrap-admin-template-main/template/js/data.txt",
     "columns": [
         { "data": "Quote" },
         { "data": "Product" },
