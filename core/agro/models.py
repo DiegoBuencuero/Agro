@@ -74,3 +74,25 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+class Campo(models.Model):
+    class Meta:
+        pass
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE, null=True, blank=True)
+    nombre = models.CharField(max_length=100)
+
+class Lote(models.Model):
+    class Meta:
+        pass
+    campo = models.ForeignKey("Campo", verbose_name=("Campo"), on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100)
+    ha_totales = models.DecimalField(max_digits=6, decimal_places=2)
+    ha_productivas = models.DecimalField(max_digits=6, decimal_places=2)
+
+class Actividad(models.Model):
+    class Meta:
+        pass
+    nombre = models.CharField(max_length=50)
+    
+    
