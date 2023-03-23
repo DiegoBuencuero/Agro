@@ -47,7 +47,7 @@ class Profile(models.Model):
     class Meta:
         pass
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE, null=True, blank=True)
     image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     tipo = models.CharField(max_length=1, default='A') 
     direccion = models.CharField(max_length=100, default='')
