@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils import timezone
+from choices import unidad_medida, densidad
 
 # Create your models here.
 class Tipodoc(models.Model):
@@ -94,5 +95,95 @@ class Actividad(models.Model):
     class Meta:
         pass
     nombre = models.CharField(max_length=50)
-    
+
+class Trazabilidad(models.Model):
+    class Meta:
+        pass
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
+    actividad = models.ForeignKey("Actividad", on_delete=models.CASCADE) 
+    fecha = models.DateField(null=True, blank=True)
+    producto = models.ForeignKey("Producto", on_delete=models.CASCADE) #armar tabla producto
+    cantidad = models.DecimalField(max_digits=4, decimal_places=1)
+    precio_unitario = models.DecimalField(max_digits=5, decimal_places=1)
+    unidad_medida = models.CharField(max_length=1, choices = unidad_medida, default='')#chequear
+    id_mov = models.models.ForeignKey("Movo", verbose_name=_("Movimiento"), on_delete=models.CASCADE)
+    usuario = models.models.ForeignKey("Profile", verbose_name=_(""), on_delete=models.CASCADE)
+
+class Producto(models.Model):
+    class Meta:
+        pass
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    id = models.IntegerField(max_digits=3)#autoincremental
+    nombre = models.CharField(max_length=100)
+    tipo = models.ForeignKey("Tipo", on_delete=models.CASCADE) 
+    rubro = models.ForeignKey("Rubro", on_delete=models.CASCADE) 
+
+class Tipo(models.Model):
+    class Meta:
+        pass
+    usuario = models.models.ForeignKey("Profile", verbose_name=_(""), on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100)
+
+class Rubro(models.Model):
+    class Meta:
+        pass
+    usuario = models.models.ForeignKey("Profile", verbose_name=(""), on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100)
+
+class Deposito (models.Model):
+    class Meta:
+        pass
+    nombre = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=100)
+    telefono = models.CharField(max_length=30, default='')
+
+class Movimiento (models.Model):
+    class Meta:
+        pass
+    telefono = models.CharField(max_length=30, default='')    
+    tipo = models.ForeignKey( "Producto", verbose_name=(""), on_delete=models.CASCADE)#chequear
+    deposito=models.ForeignKey("Deposito", verbose_name=(""), on_delete=models.CASCADE)
+    deposito1=models.ForeignKey("Deposito", verbose_name=(""), on_delete=models.CASCADE)
+
+class Movimiento1 (models.Model):
+    class Meta:
+        pass
+    id = models.IntegerField(max_digits=3)#autoincremental
+    producto= models;models.ForeignKey("Producto", verbose_name=("Producto"), on_delete=models.CASCADE)
+    cantidad = models.DecimalField(max_digits=4, decimal_places=1)
+
+class Planificacion (models.Model):
+    class Meta:
+        pass
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    cultivo = models.ForeignKey("Cultivo", on_delete=models.CASCADE)  
+    desnsidad = models.CharField(max_length=1, choices = densidad, default='')#chequear
+    profundidad = models.IntegerField(max_digits=1)
+
+class Cultivo (models.Model):
+    class Meta:
+        pass
+    nombre = models.CharField(max_length=100)
+    producto_semilla = models.CharField(max_length=100)
+    producto_cultivo = models.CharField(max_length=100)
+
+class Plnificacion_Insumos (models.Model):
+    class Meta:
+        pass
+    id = models.IntegerField(max_digits=3)#autoincremental
+    Insumo = models.CharField(max_length=100)
+    Cantidad = models.DecimalField(max_digits=4, decimal_places=1)
+
+class Calendario (models.Model):
+    class Meta:
+        pass
+    lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
+    fecha_ini = models.DateField()#chequear
+    fecha_final = models.DateField()#chequear
+    planificacion = models.ForeignKey("Planificacion", on_delete=models.CASCADE)
+
+
+
+        
     
