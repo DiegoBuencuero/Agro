@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils import timezone
-from choices import unidad_medida, densidad
+from .choices import *
 
 # Create your models here.
 class Tipodoc(models.Model):
@@ -96,6 +96,12 @@ class Actividad(models.Model):
         pass
     nombre = models.CharField(max_length=50)
 
+class UM(models.Model):
+    class Meta:
+        pass
+    nombre = models.CharField(max_length=50)
+    abreviado = models.CharField(max_length=5)
+
 class Trazabilidad(models.Model):
     class Meta:
         pass
@@ -104,17 +110,17 @@ class Trazabilidad(models.Model):
     actividad = models.ForeignKey("Actividad", on_delete=models.CASCADE) 
     fecha = models.DateField(null=True, blank=True)
     producto = models.ForeignKey("Producto", on_delete=models.CASCADE) #armar tabla producto
-    cantidad = models.DecimalField(max_digits=4, decimal_places=1)
-    precio_unitario = models.DecimalField(max_digits=5, decimal_places=1)
-    unidad_medida = models.CharField(max_length=1, choices = unidad_medida, default='')#chequear
-    id_mov = models.models.ForeignKey("Movo", verbose_name=_("Movimiento"), on_delete=models.CASCADE)
-    usuario = models.models.ForeignKey("Profile", verbose_name=_(""), on_delete=models.CASCADE)
+    cantidad = models.DecimalField(max_digits=6, decimal_places=2)
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
+    unidad_medida = models.ForeignKey("UM", on_delete=models.CASCADE) 
+    id_mov = models.ForeignKey("Mov", verbose_name=("Movimiento stock"), on_delete=models.CASCADE)
+    perfil = models.ForeignKey("Profile", on_delete=models.CASCADE)
 
 class Producto(models.Model):
     class Meta:
         pass
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
-    id = models.IntegerField(max_digits=3)#autoincremental
+    codigo = models.CharField(max_length=30)
     nombre = models.CharField(max_length=100)
     tipo = models.ForeignKey("Tipo", on_delete=models.CASCADE) 
     rubro = models.ForeignKey("Rubro", on_delete=models.CASCADE) 
@@ -122,66 +128,96 @@ class Producto(models.Model):
 class Tipo(models.Model):
     class Meta:
         pass
-    usuario = models.models.ForeignKey("Profile", verbose_name=_(""), on_delete=models.CASCADE)
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
 
 class Rubro(models.Model):
     class Meta:
         pass
-    usuario = models.models.ForeignKey("Profile", verbose_name=(""), on_delete=models.CASCADE)
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
 
 class Deposito (models.Model):
     class Meta:
         pass
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
     direccion = models.CharField(max_length=100)
     telefono = models.CharField(max_length=30, default='')
 
-class Movimiento (models.Model):
-    class Meta:
-        pass
-    telefono = models.CharField(max_length=30, default='')    
-    tipo = models.ForeignKey( "Producto", verbose_name=(""), on_delete=models.CASCADE)#chequear
-    deposito=models.ForeignKey("Deposito", verbose_name=(""), on_delete=models.CASCADE)
-    deposito1=models.ForeignKey("Deposito", verbose_name=(""), on_delete=models.CASCADE)
+class Num(models.Model):
+    def __str__(self):
+        return self.descrpcion
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    descrpcion = models.CharField(max_length=50)
+    numero = models.IntegerField()
 
-class Movimiento1 (models.Model):
+class Com(models.Model):
+    def __str__(self):
+        return self.descrpcion
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    descripcion = models.CharField(max_length=50)
+    abreviada = models.CharField(max_length=10)
+    automatico = models.BooleanField(default=False)
+    num = models.ForeignKey("Num", on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=1, choices=[('S', 'Stock'), ('V', 'Facturacion ventas'), ('P', 'Proveedores')])
+    signo = models.CharField(max_length=1, choices=[('D', 'Debe'), ('H', 'Haber'), ('T', 'Transferencia')])
+
+
+class Mov (models.Model):
     class Meta:
         pass
-    id = models.IntegerField(max_digits=3)#autoincremental
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    com = models.ForeignKey("COM", on_delete=models.CASCADE)
+    n_suc = models.IntegerField()
+    n_com = models.IntegerField()
+    fecha = models.DateField()
+    telefono = models.CharField(max_length=30, default='')    
+    tipo = models.ForeignKey( "Producto", on_delete=models.CASCADE)#chequear
+    deposito1=models.ForeignKey("Deposito", on_delete=models.CASCADE)
+    deposito2=models.ForeignKey("Deposito", related_name="deposito2", on_delete=models.CASCADE)
+
+class Movo (models.Model):
+    class Meta:
+        pass
+    mov = models.ForeignKey("Mov", on_delete=models.CASCADE)
+    o = models.IntegerField()
     producto= models;models.ForeignKey("Producto", verbose_name=("Producto"), on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=4, decimal_places=1)
+    precio_u = models.DecimalField(max_digits=12, decimal_places=2)
 
 class Planificacion (models.Model):
     class Meta:
         pass
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     cultivo = models.ForeignKey("Cultivo", on_delete=models.CASCADE)  
-    desnsidad = models.CharField(max_length=1, choices = densidad, default='')#chequear
-    profundidad = models.IntegerField(max_digits=1)
-
-class Cultivo (models.Model):
-    class Meta:
-        pass
-    nombre = models.CharField(max_length=100)
-    producto_semilla = models.CharField(max_length=100)
-    producto_cultivo = models.CharField(max_length=100)
+    desnsidad = models.CharField(max_length=1, choices = CH_DENSIDAD, default='1')
+    profundidad = models.IntegerField()
 
 class Plnificacion_Insumos (models.Model):
     class Meta:
         pass
-    id = models.IntegerField(max_digits=3)#autoincremental
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     Insumo = models.CharField(max_length=100)
     Cantidad = models.DecimalField(max_digits=4, decimal_places=1)
+
+class Cultivo (models.Model):
+    class Meta:
+        pass
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100)
+    producto_semilla = models.ForeignKey("Producto", on_delete=models.CASCADE)
+    producto_cultivo = models.ForeignKey("Producto", related_name='cultivo_producto_cultivo', on_delete=models.CASCADE)
+
 
 class Calendario (models.Model):
     class Meta:
         pass
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
-    fecha_ini = models.DateField()#chequear
-    fecha_final = models.DateField()#chequear
     planificacion = models.ForeignKey("Planificacion", on_delete=models.CASCADE)
+    fecha_ini = models.DateField()
+    fecha_final = models.DateField()
 
 
 
