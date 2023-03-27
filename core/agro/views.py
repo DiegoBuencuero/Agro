@@ -35,7 +35,7 @@ def login_page(request):
                 return redirect('/')
         
         # form is not valid or user is not authenticated
-        messages.error(request,f'Invalid username or password')
+        messages.error(request,'Invalid username or password')
         return render(request,'login.html',{'form': form})
 
 

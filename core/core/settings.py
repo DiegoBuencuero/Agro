@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
-
+#from django.contrib.messages import constants as messages
+ 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -64,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+               
             ],
         },
     },
@@ -142,3 +144,11 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = ''  
 EMAIL_HOST_PASSWORD = ''  
 EMAIL_PORT = 587  
+
+# MEESSAGW_TAGS={
+#     messages.DEBUG:'debug', #posibles mensajes
+#     messages.INFO:'info', 
+#     messages.SUCCESS:'success', 
+#     messages.WARNING:'warning', 
+#     messages.ERROR:'danger', 
+# }

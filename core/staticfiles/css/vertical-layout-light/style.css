@@ -30592,4 +30592,10 @@ div.tagsinput span.tag a {
   }
 }
 
+.menssageErr{
+  color: red;
+  padding: 10px;
+  padding-bottom: 10px;
+
+}
 /*# sourceMappingURL=../maps/vertical-layout-light/style.css.map */

@@ -16,19 +16,12 @@
   <!-- End plugin css for this page -->
   <!-- inject:css -->
   <link rel="stylesheet" href="{% static 'css/vertical-layout-light/style.css' %}">
-  <!-- endinject -->
+   <!-- endinject -->
   <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" />
 </head>
 
 <body>
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}    
-
+    
   <div class="container-scroller">
     <div class="container-fluid page-body-wrapper full-page-wrapper">
       <div class="content-wrapper d-flex align-items-center auth px-0">
@@ -38,9 +31,20 @@
               <div class="brand-logo">
                 <img src="../../images/logo.svg" alt="logo">
               </div>
+              <div class="menssageErr"> 
+              {% if messages %}
+
+              {% for message in messages %}
+        
+              <h4>{{message}}</h4>
+              
+              {% endfor %}
+              {% endif %} 
+              </div>
               <h4>Hello! let's get started</h4>
               <h6 class="font-weight-light">Sign in to continue.</h6>
-              <form class="pt-3">
+              <form class='pt-3' method='post'>
+                {% csrf_token %}
                 <div class="form-group">
                     {{form.username}}
                 </div>
