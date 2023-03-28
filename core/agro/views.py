@@ -39,6 +39,7 @@ def login_page(request):
         return render(request,'login.html',{'form': form})
 
 
+##Nuevo para loguear con google
 
 def signup(request):  
     if request.method == 'POST':  

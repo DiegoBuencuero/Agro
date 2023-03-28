@@ -15,12 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from agro.views import home, login_page, signup
+from agro.views import home, login_page, signup,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('login', login_page),
     path('signup/', signup),
+    # path('accounts/', include('allauth.urls')), # new
 
 ]

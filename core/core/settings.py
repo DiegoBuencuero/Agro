@@ -40,6 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'agro',
+    # 'django.contrib.sites',#nuevo
+    # 'allauth',#nuevo
+    # 'allauth.account',#nuevo
+    # 'allauth.socialaccount',#nuevo
+    # 'allauth.socialaccount.providers.google',#nuevo
 ]
 
 MIDDLEWARE = [
@@ -70,6 +75,19 @@ TEMPLATES = [
         },
     },
 ]
+
+# # config/settings.py
+# AUTHENTICATION_BACKENDS = (
+#     "django.contrib.auth.backends.ModelBackend",
+#     "allauth.account.auth_backends.AuthenticationBackend",
+# )
+
+# SITE_ID = 1
+
+# ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+# LOGIN_REDIRECT_URL = 'home'
+
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
