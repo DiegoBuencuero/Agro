@@ -11,6 +11,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.http import HttpResponse  
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
+from .models import Empresa
 
 
 # Create your views here.
@@ -49,9 +50,14 @@ def signup(request):
             user = form.save(commit=False)  
             user.is_active = False  
             user.save()  
-            user.profile.tipo = form.cleaned_data['perfil']
-            if form.cleaned_data['perfil'] == 'A':
-                user.profile.status = 'A'
+            user.profile.direccion1 = form.cleaned_data['direccion1']
+            user.profile.direccion2 = form.cleaned_data['direccion1']
+            user.profile.pais = form.cleaned_data['pais']
+            user.profile.telefono = form.cleaned_data['telefono']
+            user.profile.celular = form.cleaned_data['celular']
+            empresa = Empresa(nombre = form.cleaned_data['nombre_empresa'], razon_social = form.cleaned_data['razon_social'], cuit = form.cleaned_data['cuit'])
+            empresa.save()
+            user.profile.empresa = empresa
             user.save()
             # to get the domain of the current site  
             current_site = get_current_site(request)  

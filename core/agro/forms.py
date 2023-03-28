@@ -10,11 +10,35 @@ class SignupForm(UserCreationForm):
         super(SignupForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control form-control-lg'
+        self.fields['password1'].widget = forms.PasswordInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Password'})
+        self.fields['password2'].widget = forms.PasswordInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Password confirmation'})        
+        self.fields['email'].widget = forms.EmailInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Email'})        
+        self.fields['direccion1'].widget = forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Direccion 1'})        
+        self.fields['direccion2'].widget = forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Direccion 2'})        
+        self.fields['nombre_empresa'].widget = forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Nombre de la empresa'})        
+        self.fields['razon_social'].widget = forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Razon social'})        
+        self.fields['cuit'].widget = forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'CUIT'})        
+        self.fields['telefono'].widget = forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Telefono'})        
+        self.fields['celular'].widget = forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Celular'})        
     email = forms.EmailField(max_length=200, help_text='Required')  
-    pais = forms.ModelChoiceField(queryset=Pais.objects.all(), help_text='Required')
+    pais = forms.ModelChoiceField(queryset=Pais.objects.all(), empty_label='Seleccione pais', help_text='Required')
+    observaciones = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Observaciones. Indiquenos todo lo que crea necesario para completar su perfil', 'rows': 5}))
+    direccion1 = forms.CharField(max_length=100)
+    direccion2 = forms.CharField(max_length=100)
+    nombre_empresa = forms.CharField(max_length=100)
+    razon_social = forms.CharField(max_length=100)
+    cuit = forms.CharField(max_length=50)
+    telefono = forms.CharField(max_length=30)
+    celular = forms.CharField(max_length=30)
+    
     class Meta:  
         model = User  
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')  
+        widgets = {
+            'username': forms.TextInput({'placeholder': 'User Name'}),
+            'first_name': forms.TextInput({'placeholder': 'First Name'}),
+            'last_name': forms.TextInput({'placeholder': 'Last Name'}),
+        }
 
 class BaseForm(ModelForm):
     def __init__(self, *args, **kwargs):

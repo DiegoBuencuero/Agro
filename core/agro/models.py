@@ -23,6 +23,8 @@ class Genero(models.Model):
     descripcion = models.CharField(max_length=50)
 
 class Pais(models.Model):
+    def __str__(self):
+        return self.nombre
     nombre = models.CharField(max_length=100)
 
 class Provincia(models.Model):
@@ -65,6 +67,7 @@ class Profile(models.Model):
     documento = models.CharField(max_length=50, default='')
     fecha_nacimiento = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=1, choices=[('N', 'Ingresado'), ('A', 'Aprobado'), ('S', 'Suspendido'), ], default='N')
+    observaciones = models.CharField(null=True, blank=True, max_length=1000)
     add_date = models.DateTimeField(default=timezone.now)
 
 @receiver(post_save, sender=User)
