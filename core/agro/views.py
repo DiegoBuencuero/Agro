@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa
+from .forms import PersonalInfoForm
 
 
 # Create your views here.
@@ -21,7 +22,8 @@ def home(request):
 
 @login_required
 def personal_details(request):
-    return render(request, 'personal_details.html', {})
+    form = PersonalInfoForm()
+    return render(request, 'personal_details.html', {'form': form})
 
 
 def login_page(request):
