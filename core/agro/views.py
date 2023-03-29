@@ -19,6 +19,10 @@ from .models import Empresa
 def home(request):
     return render(request, 'index.html', {})
 
+@login_required
+def personal_details(request):
+    return render(request, 'personal_details.html', {})
+
 
 def login_page(request):
     if request.method == 'GET':

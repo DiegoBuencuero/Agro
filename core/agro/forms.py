@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm  
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
-from .models import Pais
+from .models import Pais, Profile
 
 
 class SignupForm(UserCreationForm):  
@@ -55,3 +55,22 @@ class LoginForm(forms.Form):
             field.widget.attrs['class'] = 'form-control form-control-lg'
     username = forms.CharField(max_length=63)
     password = forms.CharField(max_length=63, widget=forms.PasswordInput)
+
+
+class BaseForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BaseForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class PersonalInfoForm(BaseForm):
+    class Meta:
+        model = Profile
+        fields = ['fecha_nacimiento', 'image', 'direccion', 'direccion2', 'pais', 'provincia', 'ciudad', 'cp', 'telefono', 'celular', 
+                  'nacionalidad', 'tipodoc','documento']
+        widgets = {
+                'fecha_nacimiento': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+            }
+    apellido = forms.CharField(max_length=150)
+    nombre = forms.CharField(max_length=150)
