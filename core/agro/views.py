@@ -22,8 +22,25 @@ def home(request):
 
 @login_required
 def personal_details(request):
-    form = PersonalInfoForm()
-    return render(request, 'personal_details.html', {'form': form})
+    if request.method == 'POST':
+        form = PersonalInfoForm(request.POST, request.FILES, instance = request.user.profile)
+        if form.is_valid():
+            perfil = form.save(commit=False)
+            perfil.user.first_name = form.cleaned_data['nombre']
+            perfil.user.last_name = form.cleaned_data['apellido']
+            perfil.save()
+            perfil.user.save()
+            return redirect('/')
+        else:
+            messages.error(request, form.errors.as_data() )
+            return render(request, 'personal_details.html', {'form': form})
+    else:
+        perfil = request.user.profile
+        form = PersonalInfoForm(instance = perfil, initial={'apellido': request.user.last_name, 'nombre': request.user.first_name})
+        return render(request, 'personal_details.html', {'form': form})
+
+
+
 
 
 def login_page(request):

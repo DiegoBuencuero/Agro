@@ -68,7 +68,7 @@ class PersonalInfoForm(BaseForm):
     class Meta:
         model = Profile
         fields = ['fecha_nacimiento', 'image', 'direccion', 'direccion2', 'pais', 'provincia', 'ciudad', 'cp', 'telefono', 'celular', 
-                  'nacionalidad', 'tipodoc','documento']
+                  'nacionalidad', 'tipodoc','documento', 'genero']
         widgets = {
                 'fecha_nacimiento': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }

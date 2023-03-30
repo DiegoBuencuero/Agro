@@ -28,10 +28,14 @@ class Pais(models.Model):
     nombre = models.CharField(max_length=100)
 
 class Provincia(models.Model):
+    def __str__(self):
+        return self.nombre
     nombre = models.CharField(max_length=100)
     pais = models.ForeignKey("Pais", verbose_name=("Pais"), on_delete=models.CASCADE)
 
 class Ciudad(models.Model):
+    def __str__(self):
+        return self.nombre
     nombre = models.CharField(max_length=100)
     provincia = models.ForeignKey("Provincia", verbose_name=("Provincia"), on_delete=models.CASCADE)
 
@@ -59,8 +63,8 @@ class Profile(models.Model):
     provincia = models.ForeignKey("Provincia", verbose_name=("Provincia"), on_delete=models.CASCADE, null=True, blank=True)
     ciudad = models.ForeignKey("Ciudad", verbose_name=("Ciudad"), on_delete=models.CASCADE, null=True, blank=True)
     cp = models.CharField(max_length=10, default='')
-    telefono = models.CharField(max_length=30, default='')
-    celular = models.CharField(max_length=30, default='')
+    telefono = models.CharField(max_length=30, default='', null=True, blank=True)
+    celular = models.CharField(max_length=30, default='', null=True, blank=True)
     nacionalidad = models.ForeignKey("Nacionalidad", verbose_name=("Nacionalidad"), on_delete=models.CASCADE, null=True, blank=True)
     genero = models.ForeignKey("Genero", verbose_name=("Genero"), on_delete=models.CASCADE, null=True, blank=True)
     tipodoc = models.ForeignKey("Tipodoc", verbose_name=("Tipo documento"), on_delete=models.CASCADE, null=True, blank=True)

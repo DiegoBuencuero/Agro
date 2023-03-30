@@ -2,19 +2,28 @@
 {% load static %}
 {% block plugin_css%}
 {% endblock %}                          
-{% block content %}
+{% block content %} 
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
 <div class="col-12 grid-margin">
   <div class="card">
     <div class="card-body">
-      <h4 class="card-title">Horizontal Two column</h4>
-      <form class="form-sample" methon='post'>
+      <h4 class="card-title">Actualizacion de datos</h4>
+      <form class="form-sample" method='post'>
+        {% csrf_token %}
         <p class="card-description">
-          Personal info
+          Datos personales
         </p>
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">First Name</label>
+              <label class="col-sm-3 col-form-label">Nombre</label>
               <div class="col-sm-9">
                 {{form.nombre}}
               </div>
@@ -22,9 +31,9 @@
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Last Name</label>
+              <label class="col-sm-3 col-form-label">Apellido</label>
               <div class="col-sm-9">
-                <input type="text" class="form-control" />
+                {{form.apellido}}
               </div>
             </div>
           </div>
@@ -32,20 +41,17 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Gender</label>
+              <label class="col-sm-3 col-form-label">Genero</label>
               <div class="col-sm-9">
-                <select class="form-control">
-                  <option>Male</option>
-                  <option>Female</option>
-                </select>
+                {{form.genero}}
               </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Date of Birth</label>
+              <label class="col-sm-3 col-form-label">F. Nacimiento</label>
               <div class="col-sm-9">
-                <input class="form-control" placeholder="dd/mm/yyyy"/>
+                {{form.fecha_nacimiento}}
               </div>
             </div>
           </div>
@@ -53,56 +59,57 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Category</label>
+              <label class="col-sm-3 col-form-label">Nacionalidad</label>
               <div class="col-sm-9">
-                <select class="form-control">
-                  <option>Category1</option>
-                  <option>Category2</option>
-                  <option>Category3</option>
-                  <option>Category4</option>
-                </select>
+                {{form.nacionalidad}}
               </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Membership</label>
-              <div class="col-sm-4">
-                <div class="form-check">
-                  <label class="form-check-label">
-                    <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios1" value="" checked>
-                    Free
-                  </label>
-                </div>
-              </div>
-              <div class="col-sm-5">
-                <div class="form-check">
-                  <label class="form-check-label">
-                    <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2" value="option2">
-                    Professional
-                  </label>
-                </div>
+              <label class="col-sm-3 col-form-label">Imagen</label>
+              <div class="col-sm-9">
+                {{form.image}}
               </div>
             </div>
           </div>
         </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">T. Documento</label>
+              <div class="col-sm-9">
+                {{form.tipodoc}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Documento</label>
+              <div class="col-sm-9">
+                {{form.documento}}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <p class="card-description">
-          Address
+          Direccion
         </p>
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Address 1</label>
+              <label class="col-sm-3 col-form-label">Direccion 1</label>
               <div class="col-sm-9">
-                <input type="text" class="form-control" />
+                {{form.direccion}}
               </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">State</label>
+              <label class="col-sm-3 col-form-label">Direccion 2</label>
               <div class="col-sm-9">
-                <input type="text" class="form-control" />
+                {{form.direccion2}}
               </div>
             </div>
           </div>
@@ -110,17 +117,17 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Address 2</label>
+              <label class="col-sm-3 col-form-label">Pais</label>
               <div class="col-sm-9">
-                <input type="text" class="form-control" />
+                {{form.pais}}
               </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Postcode</label>
+              <label class="col-sm-3 col-form-label">Provincia</label>
               <div class="col-sm-9">
-                <input type="text" class="form-control" />
+                {{form.provincia}}
               </div>
             </div>
           </div>
@@ -128,27 +135,25 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">City</label>
+              <label class="col-sm-3 col-form-label">Ciudad</label>
               <div class="col-sm-9">
-                <input type="text" class="form-control" />
+                {{form.ciudad}}
               </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Country</label>
+              <label class="col-sm-3 col-form-label">CP</label>
               <div class="col-sm-9">
-                <select class="form-control">
-                  <option>America</option>
-                  <option>Italy</option>
-                  <option>Russia</option>
-                  <option>Britain</option>
-                </select>
+                {{form.cp}}
               </div>
             </div>
           </div>
         </div>
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/';">Cancel</button>
       </form>
+
     </div>
   </div>
 </div>
