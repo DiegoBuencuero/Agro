@@ -16,7 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from agro.views import home, login_page, signup, activate, personal_details
-
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
@@ -27,3 +28,6 @@ urlpatterns = [
     path("personal-info/", personal_details, name='personal_details'),
 
 ]
+# Only add this when we are in debug mode.
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
