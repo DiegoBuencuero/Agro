@@ -158,18 +158,21 @@ def editar_campos(request, id_campo):
     campos = Campo.objects.filter(empresa = request.user.profile.empresa)
     campo = Campo.objects.get(id = id_campo)
     empresa = request.user.profile.empresa
-    if request.method == 'POST':
-        form = CampoForm(request.POST, request.FILES, instance = campo)
-        if form.is_valid():
-            campo = form.save(commit=False)
-            if request.POST.get('borrar') == '':
-                campo.delete()
+    if campo.empresa ==empresa:
+        if request.method == 'POST':
+            form = CampoForm(request.POST, request.FILES, instance = campo)
+            if form.is_valid():
+                campo = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    campo.delete()
+                else:
+                    campo.empresa = empresa
+                    campo.save()
+                return redirect('/01')
             else:
-                campo.empresa = empresa
-                campo.save()
-            return redirect('/01')
+                messages.error(request, form.errors.as_data() )
         else:
-            messages.error(request, form.errors.as_data() )
+            form = CampoForm(instance = campo)
+        return render(request, 'vista_campo.html', {'form': form, 'campos': campos, 'empresa': empresa, 'modificacion': 'S'})
     else:
-        form = CampoForm(instance = campo)
-    return render(request, 'vista_campo.html', {'form': form, 'campos': campos, 'empresa': empresa, 'modificacion': 'S'})
+        return redirect('/01')
