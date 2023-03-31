@@ -1,8 +1,8 @@
 from django import forms  
-from django.contrib.auth.forms import UserCreationForm  
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
-from .models import Pais, Profile
+from .models import Pais, Profile, Campo
 
 
 class SignupForm(UserCreationForm):  
@@ -74,3 +74,17 @@ class PersonalInfoForm(BaseForm):
             }
     apellido = forms.CharField(max_length=150)
     nombre = forms.CharField(max_length=150)
+
+
+class MyPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super(MyPasswordChangeForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class CampoForm(BaseForm):
+    class Meta:
+        model = Campo
+        fields = ['nombre', 'descripcion', 'image', 'observaciones']
+

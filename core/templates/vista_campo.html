@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block plugin_css%}
+{% endblock %}                          
+{% block content %} 
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+        {% include 'mensajes.html' %}
+      <h4 class="card-title">Campo</h4>
+      <form class="form-sample" method='post' enctype="multipart/form-data">
+        {% csrf_token %}
+        <p class="card-description">
+          Informacion general
+        </p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Nombre</label>
+              <div class="col-sm-9">
+                {{form.nombre}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Descripcion</label>
+              <div class="col-sm-9">
+                {{form.descripcion}}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Imagen</label>
+                <div class="col-sm-9">
+                  {{form.image}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Observaciones</label>
+                <div class="col-sm-9">
+                  {{form.observaciones}}
+                </div>
+              </div>
+            </div>
+          </div>
+  
+        {% if modificacion %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+        {% else %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+        {% endif %}
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/01';">Cancel</button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Campos</h4>
+        <p class="card-description">
+          {{empresa.nombre}}
+        </p>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>
+                  Imagen
+                </th>
+                <th>
+                  Nombre
+                </th>
+                <th>
+                  Progress
+                </th>
+                <th>
+                  Importe 1
+                </th>
+                <th>
+                  Fecha
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for campo in campos %}
+                    <tr>
+                        <td class="py-1">
+                        <img src={{campo.image.url}} alt="image"/>
+                        </td>
+                        <td>
+                        <a href="/01/{{campo.id}}">{{campo.nombre}}</a> 
+                        </td>
+                        <td>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        </td>
+                        <td>
+                        $ 77.99
+                        </td>
+                        <td>
+                        May 15, 2015
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}
+
+{% block plugin_js %}
+{% endblock %}
+
+{% block custom_js %}
+{% endblock %}
+
+
+

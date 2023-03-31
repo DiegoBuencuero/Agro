@@ -89,6 +89,9 @@ class Campo(models.Model):
         pass
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE, null=True, blank=True)
     nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
+    image = models.ImageField(default='default.jpg', upload_to='campos')
+    observaciones = models.TextField(null=True, blank=True)
 
 class Lote(models.Model):
     class Meta:

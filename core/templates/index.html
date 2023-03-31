@@ -11,7 +11,7 @@
     <div class="col-md-12 grid-margin">
       <div class="row">
         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-          <h3 class="font-weight-bold">Welcome Aamir</h3>
+          <h3 class="font-weight-bold">Welcome {{ user.get_full_name }}</h3>
           <h6 class="font-weight-normal mb-0">All systems are running smoothly! You have <span class="text-primary">3 unread alerts!</span></h6>
         </div>
         <div class="col-12 col-xl-4">
@@ -39,12 +39,13 @@
           <img src="{% static 'images/dashboard/people.svg' %}" alt="people">
           <div class="weather-info">
             <div class="d-flex">
-              <div>
-                <h2 class="mb-0 font-weight-normal"><i class="icon-sun mr-2"></i>31<sup>C</sup></h2>
+              <div class="d-flex">
+                <img id='id_imgclima' src="" alt="">
+                <h2 id='id_temperatura' class="mb-0 font-weight-normal"></h2>
               </div>
               <div class="ml-2">
-                <h4 class="location font-weight-normal">Bangalore</h4>
-                <h6 class="font-weight-normal">India</h6>
+                <h4 id='id_ciudad' class="location font-weight-normal">Pinamar</h4>
+                <h6 id='id_pais' class="font-weight-normal">Argentina</h6>
               </div>
             </div>
           </div>
@@ -621,7 +622,49 @@
       </div>
     </div>
   </div>
+  <script>
 
+
+    function clima_now() {
+      fetch("https://api.weatherapi.com/v1/current.json?key=5dca93e91ec2457d8ea161903232903 &q={{ubicacion}}&aqi=no", {
+        method: 'GET', 
+        headers: {
+       
+        },
+                 
+      }).then(response => {
+        if (!response.ok) {
+          throw response; //check the http response code and if isn't ok then throw the response as an error
+        }
+                  
+        return response.json(); //parse the result as JSON
+      
+      }).then(response => {
+        //response now contains parsed JSON ready for use
+        imagen = document.getElementById("id_imgclima");
+        imagen.src = response.current.condition.icon; 
+        ciudad = document.getElementById("id_ciudad");
+        pais = document.getElementById("id_pais");
+        ciudad.innerHTML = response.location.name;
+        pais.innerHTML = response.location.country;
+        
+        document.getElementById("id_temperatura").innerHTML = response.current.temp_c +"<sup>C</sup>"
+        //console.log(response.location); 
+      
+      }).catch((errorResponse) => {
+        if (errorResponse.text) { //additional error information
+          errorResponse.text().then( errorMessage => {
+            //errorMessage now returns the response body which includes the full error message
+          })
+        } else {
+          //no additional error information 
+        } 
+      });
+    }
+    clima_now();
+    var interval = setInterval(clima_now, 100000); //100 segundos
+
+  </script>
 
 {% endblock %}
 {% block nav %}

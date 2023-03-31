@@ -101,11 +101,15 @@
               <img src={{user.profile.image.url}} alt=""/>
             </a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-              <a class="dropdown-item">
-                <i class="ti-settings text-primary"></i>
-                Settings
+              <a class="dropdown-item" href="/personal-info/">
+                <i class="ti-user text-primary"></i>
+                Datos personales
               </a>
-              <a class="dropdown-item">
+              <a class="dropdown-item" href="/password-reset/">
+                <i class="ti-key text-primary"></i>
+                Cambiar password
+              </a>
+              <a class="dropdown-item" href="{% url 'logout' %}">
                 <i class="ti-power-off text-primary"></i>
                 Logout
               </a>
@@ -146,18 +150,15 @@
       <div id="right-sidebar" class="settings-panel">
         <i class="settings-close ti-close"></i>
         <ul class="nav nav-tabs border-top" id="setting-panel" role="tablist">
-          {% comment %} <li class="nav-item">
-            <a class="nav-link active" id="todo-tab" data-toggle="tab" href="#todo-section" role="tab" aria-controls="todo-section" aria-expanded="true">TO DO LIST</a>
-          </li> {% endcomment %}
           <li class="nav-item">
-            <a class="nav-link active" id="pdata-tab" data-toggle="tab" href="#pdata-section" role="tab" aria-controls="pdata-section">INFO</a>
+            <a class="nav-link active" id="todo-tab" data-toggle="tab" href="#todo-section" role="tab" aria-controls="todo-section" aria-expanded="true">TO DO LIST</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" id="chats-tab" data-toggle="tab" href="#chats-section" role="tab" aria-controls="chats-section">CHATS</a>
           </li>
         </ul>
         <div class="tab-content" id="setting-content">
-          {% comment %} <div class="tab-pane fade show active scroll-wrapper" id="todo-section" role="tabpanel" aria-labelledby="todo-section">
+          <div class="tab-pane fade show active scroll-wrapper" id="todo-section" role="tabpanel" aria-labelledby="todo-section">
             <div class="add-items d-flex px-3 mb-0">
               <form class="form w-100">
                 <div class="form-group d-flex">
@@ -232,34 +233,8 @@
               <p class="mb-0 font-weight-thin text-gray">Meeting with Alisa</p>
               <p class="text-gray mb-0 ">Call Sarah Graves</p>
             </div>
-          </div> {% endcomment %}
+          </div> 
           <!-- To do section tab ends -->
-          <div class="tab-pane fade show active" id="pdata-section" role="tabpanel" aria-labelledby="pdata-section">
-            <nav class="sidebar sidebar-offcanvas" id="sidebar">
-              <ul class="nav">
-
-                <li class="nav-item">
-                  <a class="nav-link" href="/personal-info/">
-                    <i class="mdi mdi-account-card-details  menu-icon"></i>
-                    <span class="menu-title">Informacion personal</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <i class="mdi mdi-account-card-details  menu-icon"></i>
-                    <span class="menu-title">Cambiar password</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'logout' %}">
-                    <i class="mdi mdi-account-card-details  menu-icon"></i>
-                    <span class="menu-title">Logout</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-
           <div class="tab-pane fade" id="chats-section" role="tabpanel" aria-labelledby="chats-section">
             <div class="d-flex align-items-center justify-content-between border-bottom">
               <p class="settings-heading border-top-0 mb-3 pl-3 pt-0 border-bottom-0 pb-0">Friends</p>

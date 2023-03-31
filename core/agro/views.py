@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, SignupForm
-from django.contrib.auth import login, authenticate  
+from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib import messages
 from django.contrib.sites.shortcuts import get_current_site  
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode  
@@ -11,14 +11,19 @@ from django.utils.encoding import force_bytes, force_str
 from django.http import HttpResponse  
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
-from .models import Empresa
-from .forms import PersonalInfoForm
-
+from .models import Empresa, Campo
+from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
 @login_required
 def home(request):
-    return render(request, 'index.html', {})
+    if request.user.profile.ciudad is None:
+        ubicacion = 'Pinamar'
+    else:
+        ubicacion = request.user.profile.ciudad.nombre
+    return render(request, 'index.html', {'ubicacion': ubicacion})
 
 @login_required
 def personal_details(request):
@@ -115,3 +120,56 @@ def activate(request, uidb64, token):
         return HttpResponse('Thank you for your email confirmation. Now you can login your account.')  
     else:  
         return HttpResponse('Activation link is invalid!')
+
+
+
+@login_required
+def ChangePassword(request):
+   form = MyPasswordChangeForm(user=request.user, data=request.POST or None)
+   if form.is_valid():
+     form.save()
+     update_session_auth_hash(request, form.user)
+     return render(request, 'password_confirm.html', {})
+   return render(request, 'password.html', {'form': form})
+
+
+
+
+@login_required
+def vista_campos(request):
+    campos = Campo.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = CampoForm(request.POST, request.FILES)
+        if form.is_valid():
+            campo = form.save(commit=False)
+            campo.empresa = empresa
+            campo.save()
+            form = CampoForm()
+        else:
+            messages.error(request, form.errors.as_data() )
+    else:
+        form = CampoForm()
+    return render(request, 'vista_campo.html', {'form': form, 'campos': campos, 'empresa': empresa })
+
+
+@login_required
+def editar_campos(request, id_campo):
+    campos = Campo.objects.filter(empresa = request.user.profile.empresa)
+    campo = Campo.objects.get(id = id_campo)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = CampoForm(request.POST, request.FILES, instance = campo)
+        if form.is_valid():
+            campo = form.save(commit=False)
+            if request.POST.get('borrar') == '':
+                campo.delete()
+            else:
+                campo.empresa = empresa
+                campo.save()
+            return redirect('/01')
+        else:
+            messages.error(request, form.errors.as_data() )
+    else:
+        form = CampoForm(instance = campo)
+    return render(request, 'vista_campo.html', {'form': form, 'campos': campos, 'empresa': empresa, 'modificacion': 'S'})
