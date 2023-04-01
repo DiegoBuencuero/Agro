@@ -2,9 +2,11 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
-from .models import Pais, Profile, Campo
+from .models import Pais, Profile, Campo, Lote
+from django.utils.safestring import mark_safe
+from string import Template
 
-
+    
 class SignupForm(UserCreationForm):  
     def __init__(self, *args, **kwargs):
         super(SignupForm, self).__init__(*args, **kwargs)
@@ -88,3 +90,11 @@ class CampoForm(BaseForm):
         model = Campo
         fields = ['nombre', 'descripcion', 'image', 'observaciones']
 
+class LoteForm(BaseForm):
+    def __init__(self,company,*args,**kwargs):
+        super (LoteForm,self ).__init__(*args,**kwargs) # populates the post
+        self.fields['campo'].queryset = Campo.objects.filter(empresa=company)
+
+    class Meta:
+        model = Lote
+        fields = ['campo', 'nombre', 'image', 'ha_totales', 'ha_productivas']

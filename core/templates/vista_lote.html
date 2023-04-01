@@ -3,39 +3,34 @@
 {% block plugin_css%}
 {% endblock %}                          
 {% block content %} 
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    {% endfor %}
-{% endif %}
+{% include 'mensajes.html' %}
 <div class="col-12 grid-margin">
   <div class="card">
     <div class="card-body">
         {% include 'mensajes.html' %}
-      <h4 class="card-title">Campo</h4>
+      <h4 class="card-title">Lote</h4>
       <form class="form-sample" method='post' enctype="multipart/form-data">
         {% csrf_token %}
         <p class="card-description">
           Informacion general
         </p>
+        {{ form.non_field_errors }}
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Nombre</label>
+              <label class="col-sm-3 col-form-label">Campo</label>
               <div class="col-sm-9">
-                {{form.nombre}}
-                {{form.nombre.errors}}
+                {{form.campo}}
+                {{form.campo.errors}}
               </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Descripcion</label>
+              <label class="col-sm-3 col-form-label">Nombre</label>
               <div class="col-sm-9">
-                {{form.descripcion}}
+                {{form.nombre}}
+                {{form.nombre.erros}}
               </div>
             </div>
           </div>
@@ -47,18 +42,41 @@
                 <label class="col-sm-3 col-form-label">Imagen</label>
                 <div class="col-sm-9">
                   {{form.image}}
+                  {{form.image.erros}}
                 </div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Observaciones</label>
+                <label class="col-sm-3 col-form-label">Vista previa</label>
                 <div class="col-sm-9">
-                  {{form.observaciones}}
+                    <div class='card'>
+                        <img id= 'id_preview' src="" alt="">
+                    </div>
                 </div>
               </div>
             </div>
-          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Has Totales</label>
+                <div class="col-sm-9">
+                    {{form.ha_totales}}
+                    {{form.ha_totales.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Has Productivas</label>
+                <div class="col-sm-9">
+                    {{form.ha_productivas}}
+                    {{form.ha_productivas.errors}}
+                </div>
+              </div>
+            </div>
+        </div>
   
         {% if modificacion %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
@@ -76,7 +94,7 @@
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Campos</h4>
+        <h4 class="card-title">Lotes</h4>
         <p class="card-description">
           {{empresa.nombre}}
         </p>
@@ -88,38 +106,44 @@
                   Imagen
                 </th>
                 <th>
+                  Campo
+                </th>
+                <th>
                   Nombre
                 </th>
                 <th>
-                  Progress
+                  Has totales
                 </th>
                 <th>
-                  Importe 1
+                  Has productivas
                 </th>
                 <th>
-                  Fecha
+                  Utilizable
                 </th>
               </tr>
             </thead>
             <tbody>
-                {% for campo in campos %}
+                {% for lote in lotes %}
                     <tr>
                         <td class="py-1">
-                        <img src={{campo.image.url}} alt="image"/>
+                        <img src={{lote.image.url}} alt="image"/>
                         </td>
                         <td>
-                        <a href="/01/{{campo.id}}">{{campo.nombre}}</a> 
+                         {{lote.campo.nombre}}
+                        </td>
+                        <td>
+                        <a href="/0101/{{lote.id}}">{{lote.nombre}}</a> 
+                        </td>
+                        <td>
+                        {{lote.ha_totales}}
+                        </td>
+                        <td>
+                        {{lote.ha_productivas}}
                         </td>
                         <td>
                         <div class="progress">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="{{lote.ha_productivas}}" aria-valuemin="0" aria-valuemax="{{lote.ha_totales}}"></div>
                         </div>
-                        </td>
-                        <td>
-                        $ 77.99
-                        </td>
-                        <td>
-                        May 15, 2015
                         </td>
                     </tr>
                 {% endfor %}
@@ -129,7 +153,26 @@
       </div>
     </div>
   </div>
+    <script type="text/javascript">
+        const archivo = document.getElementById("id_image");
+        const preview = document.getElementById("id_preview");
+        archivo.addEventListener("change", function() { 
+            getImgData();
+        });
+        function getImgData() {
+            const files = archivo.files[0];
+            if (files) {
+              const fileReader = new FileReader();
+              fileReader.readAsDataURL(files);
+              fileReader.addEventListener("load", function () {
+                preview.src = this.result;
+                {% comment %} preview.style.display = "block";
+                preview.innerHTML = '<img src="' + this.result + '" />'; {% endcomment %}
+              });    
+            }
+          }        
 
+    </script>
 {% endblock %}
 {% block nav %}
 {% include 'nav_home.html' %}

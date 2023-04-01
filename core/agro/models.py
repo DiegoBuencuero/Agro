@@ -87,6 +87,8 @@ def save_user_profile(sender, instance, **kwargs):
 class Campo(models.Model):
     class Meta:
         pass
+    def __str__(self):
+        return self.nombre
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE, null=True, blank=True)
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
@@ -96,8 +98,12 @@ class Campo(models.Model):
 class Lote(models.Model):
     class Meta:
         pass
+    def __str__(self):
+        return self.nombre
+
     campo = models.ForeignKey("Campo", verbose_name=("Campo"), on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
+    image = models.ImageField(default='default.jpg', upload_to='lotes')
     ha_totales = models.DecimalField(max_digits=6, decimal_places=2)
     ha_productivas = models.DecimalField(max_digits=6, decimal_places=2)
 

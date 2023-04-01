@@ -11,8 +11,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.http import HttpResponse  
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
-from .models import Empresa, Campo
-from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm
+from .models import Empresa, Campo, Lote
+from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -146,8 +146,6 @@ def vista_campos(request):
             campo.empresa = empresa
             campo.save()
             form = CampoForm()
-        else:
-            messages.error(request, form.errors.as_data() )
     else:
         form = CampoForm()
     return render(request, 'vista_campo.html', {'form': form, 'campos': campos, 'empresa': empresa })
@@ -176,3 +174,20 @@ def editar_campos(request, id_campo):
         return render(request, 'vista_campo.html', {'form': form, 'campos': campos, 'empresa': empresa, 'modificacion': 'S'})
     else:
         return redirect('/01')
+    
+
+@login_required
+def vista_lotes(request):
+    campos = Campo.objects.filter(empresa = request.user.profile.empresa)
+    lotes = Lote.objects.filter(campo__in = campos)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = LoteForm(empresa, request.POST, request.FILES)
+        if form.is_valid():
+            lote = form.save(commit=False)
+            lote.save()
+            form = LoteForm(empresa)
+    else:
+        form = LoteForm(empresa)
+    return render(request, 'vista_lote.html', {'form': form, 'campos': campos, 'lotes':lotes, 'empresa':empresa })
+
