@@ -6,6 +6,19 @@ from django.utils import timezone
 from .choices import *
 
 # Create your models here.
+
+class Moneda(models.Model):
+    def __str__(self):
+        return self.descripcion
+    nomnbre = models.CharField(max_length=50)
+    corto = models.CharField(max_length=3)
+
+class Cotizacion(models.Model):
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE, null=True, blank=True)
+    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE)
+    fecha = models.DateTimeField()
+    cotizacion = models.DecimalField(max_digits=12, decimal_places=3)
+
 class Tipodoc(models.Model):
     def __str__(self):
         return self.descripcion
@@ -47,6 +60,7 @@ class Empresa(models.Model):
     cuit = models.CharField(max_length=50)
     status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ('S', 'Suspendido'), ], default='O')
     add_date = models.DateTimeField(default=timezone.now)
+    moneda = models.ForeignKey(Moneda, null=True, blank=True, on_delete=models.CASCADE)
     
 
 
@@ -110,11 +124,15 @@ class Lote(models.Model):
 class Actividad(models.Model):
     class Meta:
         pass
+    def __str__(self):
+        return self.nombre
     nombre = models.CharField(max_length=50)
 
 class UM(models.Model):
     class Meta:
         pass
+    def __str__(self):
+        return self.nombre
     nombre = models.CharField(max_length=50)
     abreviado = models.CharField(max_length=5)
 
@@ -127,7 +145,10 @@ class Trazabilidad(models.Model):
     fecha = models.DateField(null=True, blank=True)
     producto = models.ForeignKey("Producto", on_delete=models.CASCADE) #armar tabla producto
     cantidad = models.DecimalField(max_digits=6, decimal_places=2)
+    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
+    cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
+
     unidad_medida = models.ForeignKey("UM", on_delete=models.CASCADE) 
     id_mov = models.ForeignKey("Mov", verbose_name=("Movimiento stock"), on_delete=models.CASCADE)
     perfil = models.ForeignKey("Profile", on_delete=models.CASCADE)
@@ -201,6 +222,8 @@ class Movo (models.Model):
     producto= models;models.ForeignKey("Producto", verbose_name=("Producto"), on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=4, decimal_places=1)
     precio_u = models.DecimalField(max_digits=12, decimal_places=2)
+    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
+    cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
 
 class Planificacion (models.Model):
     class Meta:

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from agro.views import home, login_page, signup, activate, personal_details, ChangePassword, vista_campos, editar_campos, vista_lotes
+from agro.views import home, login_page, signup, activate, personal_details, ChangePassword, vista_campos, editar_campos, vista_lotes, editar_lote
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
@@ -30,6 +30,7 @@ urlpatterns = [
     path('01/', vista_campos, name='vista_campos'),
     path('01/<int:id_campo>', editar_campos, name='editar_campos'),
     path('0101/', vista_lotes, name='vista_lotes'),
+    path('0101/<int:id_lote>', editar_lote, name='editar_lote'),
 ]
 # Only add this when we are in debug mode.
 if settings.DEBUG:

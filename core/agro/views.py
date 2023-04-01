@@ -191,3 +191,27 @@ def vista_lotes(request):
         form = LoteForm(empresa)
     return render(request, 'vista_lote.html', {'form': form, 'campos': campos, 'lotes':lotes, 'empresa':empresa })
 
+
+
+
+@login_required
+def editar_lote(request, id_lote):
+    campos = Campo.objects.filter(empresa = request.user.profile.empresa)
+    lotes = Lote.objects.filter(campo__in = campos)
+    lote = Lote.objects.get(id = id_lote)
+    empresa = request.user.profile.empresa
+    if lote.campo.empresa == empresa:
+        if request.method == 'POST':
+            form = LoteForm(empresa, request.POST, request.FILES, instance = lote)
+            if form.is_valid():
+                lote = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    lote.delete()
+                else:
+                    lote.save()
+                return redirect('/0101')
+        else:
+            form = LoteForm(empresa, instance = lote)
+        return render(request, 'vista_lote.html', {'form': form, 'empresa': empresa, 'lotes':lotes, 'modificacion': 'S'})
+    else:
+        return redirect('/0101')
