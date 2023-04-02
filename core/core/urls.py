@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from agro.views import home, login_page, signup, activate, personal_details, ChangePassword, vista_campos, editar_campos, vista_lotes, editar_lote
+from agro.views import vista_producto, vista_tipo_producto, editar_producto, editar_tipo_producto, vista_rubro_producto, editar_rubro_producto
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
@@ -31,6 +32,12 @@ urlpatterns = [
     path('01/<int:id_campo>', editar_campos, name='editar_campos'),
     path('0101/', vista_lotes, name='vista_lotes'),
     path('0101/<int:id_lote>', editar_lote, name='editar_lote'),
+    path('02/', vista_producto, name='vista_producto'),
+    path('02/<int:id_prod>', editar_producto, name='editar_producto'),
+    path('02-tipo/', vista_tipo_producto, name='vista_tipo_producto'),
+    path('02-tipo/<int:id_tipo>', editar_tipo_producto, name='editar_tipo_producto'),
+    path('02-rubro/', vista_rubro_producto, name='vista_rubro_producto'),
+    path('02-rubro/<int:id_rubro>', editar_rubro_producto, name='editar_rubro_producto'),
 ]
 # Only add this when we are in debug mode.
 if settings.DEBUG:

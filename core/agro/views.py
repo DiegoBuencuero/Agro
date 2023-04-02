@@ -11,8 +11,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.http import HttpResponse  
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
-from .models import Empresa, Campo, Lote
-from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm
+from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro
+from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -154,7 +154,10 @@ def vista_campos(request):
 @login_required
 def editar_campos(request, id_campo):
     campos = Campo.objects.filter(empresa = request.user.profile.empresa)
-    campo = Campo.objects.get(id = id_campo)
+    try:
+        campo = Campo.objects.get(id = id_campo)
+    except:
+        return redirect('/01')
     empresa = request.user.profile.empresa
     if campo.empresa ==empresa:
         if request.method == 'POST':
@@ -198,7 +201,10 @@ def vista_lotes(request):
 def editar_lote(request, id_lote):
     campos = Campo.objects.filter(empresa = request.user.profile.empresa)
     lotes = Lote.objects.filter(campo__in = campos)
-    lote = Lote.objects.get(id = id_lote)
+    try:
+        lote = Lote.objects.get(id = id_lote)
+    except:
+        return redirect('/0101')
     empresa = request.user.profile.empresa
     if lote.campo.empresa == empresa:
         if request.method == 'POST':
@@ -212,6 +218,134 @@ def editar_lote(request, id_lote):
                 return redirect('/0101')
         else:
             form = LoteForm(empresa, instance = lote)
-        return render(request, 'vista_lote.html', {'form': form, 'empresa': empresa, 'lotes':lotes, 'modificacion': 'S'})
+        return render(request, 'vista_lote.html', {'form': form, 'empresa': empresa, 'lotes':lotes, 'registro_lote':lote, 'modificacion': 'S'})
     else:
         return redirect('/0101')
+
+
+@login_required
+def vista_tipo_producto(request):
+    tipos = Tipo.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = TipoProdForm(request.POST)
+        if form.is_valid():
+            tipo = form.save(commit=False)
+            tipo.empresa = empresa
+            tipo.save()
+            form = TipoProdForm()
+        else:
+            print(form.errors.as_data())
+    else:
+        form = TipoProdForm()
+    return render(request, 'vista_tipo.html', {'form': form, 'tipos': tipos, 'empresa': empresa })
+
+@login_required
+def editar_tipo_producto(request, id_tipo):
+    tipos = Tipo.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        tipo = Tipo.objects.get(id = id_tipo)
+    except:
+        return redirect('vista_tipo_producto')
+    empresa = request.user.profile.empresa
+    if tipo.empresa == empresa:
+        if request.method == 'POST':
+            form = TipoProdForm(request.POST, instance = tipo)
+            if form.is_valid():
+                tipo = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    tipo.delete()
+                else:
+                    tipo.save()
+                return redirect('vista_tipo_producto')
+        else:
+            form = TipoProdForm(instance = tipo)
+        return render(request, 'vista_tipo.html', {'form': form, 'empresa': empresa, 'tipos':tipos, 'modificacion': 'S'})
+    else:
+        return redirect('vista_tipo_producto')
+
+
+
+@login_required
+def vista_rubro_producto(request):
+    rubros = Rubro.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = RubroProdForm(request.POST)
+        if form.is_valid():
+            rubro = form.save(commit=False)
+            rubro.empresa = empresa
+            rubro.save()
+            form = RubroProdForm()
+    else:
+        form = RubroProdForm()
+    return render(request, 'vista_rubro.html', {'form': form, 'rubros': rubros, 'empresa': empresa })
+
+@login_required
+def editar_rubro_producto(request, id_rubro):
+    rubros = Rubro.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        rubro = Rubro.objects.get(id = id_rubro)
+    except:
+        return redirect('vista_rubro_producto')
+    empresa = request.user.profile.empresa
+    if rubro.empresa == empresa:
+        if request.method == 'POST':
+            form = RubroProdForm(request.POST, instance = rubro)
+            if form.is_valid():
+                rubro = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    rubro.delete()
+                else:
+                    rubro.save()
+                return redirect('vista_rubro_producto')
+        else:
+            form = RubroProdForm(instance = rubro)
+        return render(request, 'vista_rubro.html', {'form': form, 'empresa': empresa, 'rubros':rubros, 'modificacion': 'S'})
+    else:
+        return redirect('vista_rubro_producto')
+
+
+
+@login_required
+def vista_producto(request):
+    productos = Producto.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = ProductoForm(empresa, request.POST, request.FILES)
+        if form.is_valid():
+            producto = form.save(commit=False)
+            producto.empresa = empresa
+            producto.save()
+            form = ProductoForm(empresa)
+        else:
+            print(form.errors.as_data)
+    else:
+        form = ProductoForm(empresa)
+    return render(request, 'vista_producto.html', {'form': form, 'productos': productos, 'empresa': empresa })
+
+
+@login_required
+def editar_producto(request, id_prod):
+    productos = Producto.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        producto = Producto.objects.get(id = id_prod)
+    except:
+        return redirect('vista_producto')
+    empresa = request.user.profile.empresa
+    if producto.empresa == empresa:
+        if request.method == 'POST':
+            form = ProductoForm(empresa, request.POST, request.FILES, instance = producto)
+            if form.is_valid():
+                producto = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    producto.delete()
+                else:
+                    producto.save()
+                return redirect('vista_producto')
+        else:
+            form = ProductoForm(empresa, instance = producto)
+        return render(request, 'vista_producto.html', {'form': form, 'empresa': empresa, 'productos':productos, 'prod':producto, 'modificacion': 'S'})
+    else:
+        return redirect('vista_producto')
+

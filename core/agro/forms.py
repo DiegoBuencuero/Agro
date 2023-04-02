@@ -2,8 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
-from .models import Pais, Profile, Campo, Lote
-from django.utils.safestring import mark_safe
+from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro
 from string import Template
 
     
@@ -98,3 +97,26 @@ class LoteForm(BaseForm):
     class Meta:
         model = Lote
         fields = ['campo', 'nombre', 'image', 'ha_totales', 'ha_productivas']
+
+
+class ProductoForm(BaseForm):
+    def __init__(self,company,*args,**kwargs):
+        super (ProductoForm,self ).__init__(*args,**kwargs) # populates the post
+        self.fields['tipo'].queryset = Tipo.objects.filter(empresa=company)
+        self.fields['rubro'].queryset = Rubro.objects.filter(empresa=company)
+    class Meta:
+        model = Producto
+        fields = '__all__'
+        exclude = ['empresa', 'add_date']
+
+class TipoProdForm(BaseForm):
+    class Meta:
+        model = Tipo
+        fields = '__all__'
+        exclude = ['empresa', ]
+
+class RubroProdForm(BaseForm):
+    class Meta:
+        model = Rubro
+        fields = '__all__'
+        exclude = ['empresa', ]        

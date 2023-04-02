@@ -19,6 +19,11 @@ class Cotizacion(models.Model):
     fecha = models.DateTimeField()
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3)
 
+class Cotizacion_general(models.Model):
+    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE)
+    fecha = models.DateTimeField()
+    cotizacion = models.DecimalField(max_digits=12, decimal_places=3)
+
 class Tipodoc(models.Model):
     def __str__(self):
         return self.descripcion
@@ -156,27 +161,38 @@ class Trazabilidad(models.Model):
 class Producto(models.Model):
     class Meta:
         pass
+    def __str__(self):
+        return self.descripcion
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     codigo = models.CharField(max_length=30)
-    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
     tipo = models.ForeignKey("Tipo", on_delete=models.CASCADE) 
     rubro = models.ForeignKey("Rubro", on_delete=models.CASCADE) 
+    image = models.ImageField(default='default.jpg', upload_to='lotes')
+    status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ], default='O')
+    add_date = models.DateTimeField(default=timezone.now)
 
 class Tipo(models.Model):
     class Meta:
         pass
+    def __str__(self):
+        return self.nombre
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
 
 class Rubro(models.Model):
     class Meta:
         pass
+    def __str__(self):
+        return self.nombre
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
 
 class Deposito (models.Model):
     class Meta:
         pass
+    def __str__(self):
+        return self.nombre
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
     direccion = models.CharField(max_length=100)
