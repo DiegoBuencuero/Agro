@@ -171,7 +171,7 @@ EMAIL_PORT = 587
 #     messages.WARNING:'warning', 
 #     messages.ERROR:'danger', 
 # }
-
+LOGIN_URL = '/login'
 LOGOUT_REDIRECT_URL = "/login"
 
 MESSAGE_TAGS = {

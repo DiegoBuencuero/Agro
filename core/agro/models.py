@@ -9,8 +9,8 @@ from .choices import *
 
 class Moneda(models.Model):
     def __str__(self):
-        return self.descripcion
-    nomnbre = models.CharField(max_length=50)
+        return self.nombre
+    nombre = models.CharField(max_length=50)
     corto = models.CharField(max_length=3)
 
 class Cotizacion(models.Model):
@@ -148,7 +148,8 @@ class Trazabilidad(models.Model):
     lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
     actividad = models.ForeignKey("Actividad", on_delete=models.CASCADE) 
     fecha = models.DateField(null=True, blank=True)
-    producto = models.ForeignKey("Producto", on_delete=models.CASCADE) #armar tabla producto
+    origen_prod = models.CharField(max_length=1, choices=[('S', 'Sisitema'), ('U', 'Usuario'),], default='U')
+    producto_id = models.IntegerField(null=True, blank=True)
     cantidad = models.DecimalField(max_digits=6, decimal_places=2)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
@@ -158,12 +159,9 @@ class Trazabilidad(models.Model):
     id_mov = models.ForeignKey("Mov", verbose_name=("Movimiento stock"), on_delete=models.CASCADE)
     perfil = models.ForeignKey("Profile", on_delete=models.CASCADE)
 
-class Producto(models.Model):
-    class Meta:
-        pass
+class agro_Producto(models.Model):
     def __str__(self):
         return self.descripcion
-    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     codigo = models.CharField(max_length=30)
     descripcion = models.CharField(max_length=100)
     tipo = models.ForeignKey("Tipo", on_delete=models.CASCADE) 
@@ -171,6 +169,9 @@ class Producto(models.Model):
     image = models.ImageField(default='default.jpg', upload_to='lotes')
     status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ], default='O')
     add_date = models.DateTimeField(default=timezone.now)
+
+class Producto(agro_Producto):
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
 
 class Tipo(models.Model):
     class Meta:
@@ -226,7 +227,6 @@ class Mov (models.Model):
     n_com = models.IntegerField()
     fecha = models.DateField()
     telefono = models.CharField(max_length=30, default='')    
-    tipo = models.ForeignKey( "Producto", on_delete=models.CASCADE)#chequear
     deposito1=models.ForeignKey("Deposito", on_delete=models.CASCADE)
     deposito2=models.ForeignKey("Deposito", related_name="deposito2", on_delete=models.CASCADE)
 
@@ -259,10 +259,11 @@ class Plnificacion_Insumos (models.Model):
 class Cultivo (models.Model):
     class Meta:
         pass
-    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    def __str__(self):
+        return self.nombre
     nombre = models.CharField(max_length=100)
-    producto_semilla = models.ForeignKey("Producto", on_delete=models.CASCADE)
-    producto_cultivo = models.ForeignKey("Producto", related_name='cultivo_producto_cultivo', on_delete=models.CASCADE)
+    producto_semilla = models.ForeignKey("Producto", on_delete=models.CASCADE, null=True, blank=True)
+    producto_cultivo = models.ForeignKey("Producto", related_name='cultivo_producto_cultivo', on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Calendario (models.Model):
@@ -274,7 +275,34 @@ class Calendario (models.Model):
     fecha_ini = models.DateField()
     fecha_final = models.DateField()
 
+class SistemaCultivo(models.Model):
+    def __str__(self):
+        return self.descripcion
+    descripcion = models.CharField(max_length=80)
 
+class Especificacion(models.Model):
+    def __str__(self):
+        return self.descripcion
+    descripcion = models.CharField(max_length=100)
 
-        
-    
+class agro_CostoProd(models.Model):
+    cultivo = models.ForeignKey("Cultivo", on_delete=models.CASCADE)  
+    sistema_cultivo = models.ForeignKey("SistemaCultivo", on_delete=models.CASCADE) 
+
+class agro_CostoProdo(models.Model):
+    orden = models.IntegerField()
+    costo_prod = models.ForeignKey("CostoProd", on_delete=models.CASCADE) 
+    agro_producto = models.ForeignKey("agro_Producto", on_delete=models.CASCADE) 
+    especificacion = models.ForeignKey("Especificacion", on_delete=models.CASCADE) 
+    um = models.ForeignKey(UM, on_delete=models.CASCADE)
+    cantidad = models.DecimalField(max_digits=6, decimal_places=2)
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
+    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
+    cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
+
+class CostoProd(agro_CostoProd):
+    fecha = models.DateField(default=timezone.now)
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+
+class CostoProdo(agro_CostoProdo):
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)

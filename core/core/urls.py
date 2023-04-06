@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from agro.views import home, login_page, signup, activate, personal_details, ChangePassword, vista_campos, editar_campos, vista_lotes, editar_lote
 from agro.views import vista_producto, vista_tipo_producto, editar_producto, editar_tipo_producto, vista_rubro_producto, editar_rubro_producto
+from agro.views import vista_costo_prod, editar_costo_prod
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
@@ -38,6 +39,9 @@ urlpatterns = [
     path('02-tipo/<int:id_tipo>', editar_tipo_producto, name='editar_tipo_producto'),
     path('02-rubro/', vista_rubro_producto, name='vista_rubro_producto'),
     path('02-rubro/<int:id_rubro>', editar_rubro_producto, name='editar_rubro_producto'),
+    path('03/', vista_costo_prod, name='vista_costo_prod'),
+    path('03/<int:id_costo>', editar_costo_prod, name='editar_costo_prod'),
+
 ]
 # Only add this when we are in debug mode.
 if settings.DEBUG:

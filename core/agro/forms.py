@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
-from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro
+from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo
 from string import Template
 
     
@@ -120,3 +120,25 @@ class RubroProdForm(BaseForm):
         model = Rubro
         fields = '__all__'
         exclude = ['empresa', ]        
+
+
+
+class CostoProdForm(BaseForm):
+    class Meta:
+        model = CostoProd
+        fields = '__all__'
+        exclude = ['empresa', ]
+        widgets = {
+                'fecha': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+            }
+
+
+class CostoProd_o_Form(BaseForm):
+    class Meta:
+        model = CostoProdo
+        fields = '__all__'
+        exclude = ['empresa', 'costo_prod' ]
+        widgets = {
+                'fecha': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+            }
+

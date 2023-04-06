@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block plugin_css%}
+{% endblock %}                          
+{% block content %} 
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+        {% include 'mensajes.html' %}
+      <h4 class="card-title">Costo de produccion</h4>
+      <form class="form-sample" method='post' enctype="multipart/form-data">
+        {% csrf_token %}
+        <p class="card-description">
+          Informacion general
+        </p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Fecha</label>
+              <div class="col-sm-9">
+                {{form.fecha}}
+                {{form.fecha.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Futuro uso</label>
+              <div class="col-sm-9">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Cultivo</label>
+                <div class="col-sm-9">
+                  {{form.cultivo}}
+                  {{form.cultivo.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Sistema de cultivo</label>
+                <div class="col-sm-9">
+                    {{form.sistema_cultivo}}
+                    {{form.sistema_cultivo.errors}}
+                </div>
+              </div>
+            </div>
+        </div>
+
+  
+        {% if modificacion %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+        {% else %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+        {% endif %}
+        <button type='button' class="btn btn-dark" onclick="window.location.href='{% url 'vista_costo_prod' %}';">Cancel</button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+<div class="col-lg-12 grid-margin stretch-card">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title">Costos historicos</h4>
+      <p class="card-description">
+        {{empresa.nombre}}
+      </p>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>
+                Fecha
+              </th>
+              <th>
+                Cultivo
+              </th>
+              <th>
+                Sistema
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for costo in costos %}
+                  <tr>
+                      <td>
+                        {{costo.fecha}}
+                      </td>
+                      <td>
+                        <a href="/03/{{costo.id}}">{{costo.cultivo}}</a> 
+                      </td>
+                      <td>
+                        <a href="/03/{{costo.id}}">{{costo.sistema_cultivo}}</a> 
+                      </td>
+                  </tr>
+              {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}
+
+{% block plugin_js %}
+{% endblock %}
+
+{% block custom_js %}
+{% endblock %}
+
+
+

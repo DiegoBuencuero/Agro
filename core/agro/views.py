@@ -11,8 +11,9 @@ from django.utils.encoding import force_bytes, force_str
 from django.http import HttpResponse  
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
-from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro
-from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm
+from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo
+from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
+from .forms import CostoProd_o_Form
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -349,3 +350,44 @@ def editar_producto(request, id_prod):
     else:
         return redirect('vista_producto')
 
+
+
+@login_required
+def vista_costo_prod(request):
+    costos = CostoProd.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = CostoProdForm(request.POST)
+        if form.is_valid():
+            costo = form.save(commit=False)
+            costo.empresa = empresa
+            costo.save()
+            form = CostoProdForm()
+    else:
+        form = CostoProdForm()
+    return render(request, 'vista_costo_prod.html', {'costos': costos, 'form': form, 'empresa': empresa })
+
+
+
+@login_required
+def editar_costo_prod(request, id_costo):
+    try:
+        costo = CostoProd.objects.get(id = id_costo)
+    except:
+        return redirect('vista_costo_prod')
+    costo_o = CostoProdo.objects.filter(costo_prod = costo)
+    empresa = request.user.profile.empresa
+    if costo.empresa == empresa:
+        if request.method == 'POST':
+            form = CostoProd_o_Form(request.POST)
+            if form.is_valid():
+                renglon = form.save(commit=False)
+                renglon.empresa = empresa
+                renglon.costo_prod = costo
+                renglon.save()
+                form = CostoProd_o_Form()
+        else:
+            form = CostoProd_o_Form()
+        return render(request, 'editar_costo_prod.html', {'form': form, 'empresa': empresa, 'costo_os':costo_o, 'costo':costo})
+    else:
+        return redirect('vista_costo_prod')

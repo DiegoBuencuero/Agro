@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block plugin_css%}
+{% endblock %}                          
+{% block content %} 
+{% include 'mensajes.html' %}
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+        {% include 'mensajes.html' %}
+      <h4 class="card-title">Costo de produccion</h4>
+      <form class="form-sample" method='post' enctype="multipart/form-data">
+        {% csrf_token %}
+        <p class="card-description">
+          Informacion general
+        </p>
+        {{ form.non_field_errors }}
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Fecha</label>
+              <div class="col-sm-9">
+                {{form.fecha}}
+                {{form.fecha.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Cultivo</label>
+              <div class="col-sm-9">
+                {{form.cultivo}}
+                {{form.cultivo.erros}}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Sistema</label>
+                <div class="col-sm-9">
+                  {{form.sistema_cultivo}}
+                  {{form.sistema_cultivo.erros}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Uso futuro</label>
+                  <div class="col-sm-9">
+                  </div>
+                </div>
+              </div>
+          </div>
+  
+        {% if modificacion %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+        {% else %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+        {% endif %}
+        <button type='button' class="btn btn-dark" onclick="window.location.href='{% url 'vista_costo_prod' %}';">Cancel</button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+<script>
+    {% comment %} const peticion = async () => {
+        try {
+            const respuesta = await fetch('/ajax1');
+            const data = await respuesta.json();
+            console.log(data);
+        }
+        catch(ex) {
+            alert(ex);
+        }
+    }
+    widnow.addEventListener('load', async() => {
+        await peticion();
+    }); {% endcomment %}
+
+/* Generic Confirm func */
+    function confirm2(heading, question, cancelButtonTxt, okButtonTxt, callback) {
+
+    var confirmModal = 
+      $('<div class="modal fade">' +        
+          '<div class="modal-dialog">' +
+          '<div class="modal-content">' +
+          '<div class="modal-header">' +
+            '<h3>' + heading +'</h3>' +
+            '<a class="close" data-dismiss="modal" >&times;</a>' +
+          '</div>' +
+
+          '<div class="modal-body">' +
+            '<p>' + question + '</p>' +
+          '</div>' +
+
+          '<div class="modal-footer">' +
+            '<a href="#!" class="btn" data-dismiss="modal">' + 
+              cancelButtonTxt + 
+            '</a>' +
+            '<a href="#!" id="okButton" class="btn btn-primary">' + 
+              okButtonTxt + 
+            '</a>' +
+          '</div>' +
+          '</div>' +
+          '</div>' +
+        '</div>');
+
+    confirmModal.find('#okButton').click(function(event) {
+      callback();
+      confirmModal.modal('hide');
+    }); 
+
+    confirmModal.modal('show');    
+  };  
+/* END Generic Confirm func */
+
+
+    function check(){
+        if (id_sistema_cultivo.value === '1' && id_cultivo.value === '1') {
+            sino = confirm2('head', 'Quiere cargar los datos de la base?', 'cancel', 'ok', function () {
+                alert('si quiero');
+            });
+        }
+
+    }
+    window.addEventListener('load', async() => {
+        id_cultivo.addEventListener('change', async() => {
+            check();
+        });
+        id_sistema_cultivo.addEventListener('change', async() => {
+            check();
+        });
+    });
+
+</script>
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}
+
+{% block plugin_js %}
+{% endblock %}
+
+{% block custom_js %}
+{% endblock %}
+
+
+

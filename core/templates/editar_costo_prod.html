@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block plugin_css%}
+{% endblock %}                          
+{% block content %} 
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+        {% include 'mensajes.html' %}
+      <h4 class="card-title">Costo de produccion</h4>
+        <p class="card-description">
+          Informacion general
+        </p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Fecha</label>
+              <div class="col-sm-9">
+                {{costo.fecha}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Futuro uso</label>
+              <div class="col-sm-9">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Cultivo</label>
+                <div class="col-sm-9">
+                    {{costo.cultivo}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Sistema de cultivo</label>
+                <div class="col-sm-9">
+                    {{costo.sistema_cultivo}}
+                </div>
+              </div>
+            </div>
+        </div>
+
+  
+        {% if modificacion %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+        {% else %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+        {% endif %}
+        <button type='button' class="btn btn-dark" onclick="window.location.href='{% url 'vista_costo_prod' %}';">Cancel</button>
+
+
+    </div>
+  </div>
+</div>
+<div class="col-lg-12 grid-margin stretch-card">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title">Costos historicos</h4>
+      <p class="card-description">
+        {{empresa.nombre}}
+      </p>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>
+                orden
+              </th>
+              <th>
+                Producto
+              </th>
+              <th>
+                Especificacion
+              </th>
+              <th>
+                UM
+              </th>
+              <th>
+                Cantidad
+              </th>
+              <th>
+                Precio U.
+              </th>
+              <th>
+                Moneda
+              </th>
+              <th>
+                Cotizacion
+              </th>
+            </tr>
+          </thead>
+        
+          <tbody>
+            <form class="form-sample" method='post' name ='renglonForm' enctype="multipart/form-data">
+                {% csrf_token %}
+                <tr>
+                    <td>
+                        {{form.orden}}
+                        {{form.orden.errors}}
+                    </td>
+                    <td>
+                        {{form.agro_producto}}
+                        {{form.agro_producto.errors}}
+                    </td>
+                    <td>
+                        {{form.especificacion}}
+                        {{form.orden.errors}}
+                    </td>
+                    <td>
+                        {{form.um}}
+                        {{form.um.errors}}
+                    </td>
+                    <td>
+                        {{form.cantidad}}
+                        {{form.cantidad.errors}}
+                    </td>
+                    <td>
+                        {{form.precio_unitario}}
+                        {{form.precio_unitario.errors}}
+                    </td>
+                    <td>
+                        {{form.moneda}}
+                        {{form.moneda.errors}}
+                    </td>
+                    <td>
+                        {{form.cotizacion}}
+                        {{form.cotizacion.errors}}
+                    </td>
+
+                </tr>
+            </form>
+            {% for costo in costo_os %}
+                <tr>
+                    <td>
+                        {{costo.orden}}
+                    </td>
+                    <td>
+                        {{costo.agro_producto}}
+                    </td>
+                    <td>
+                        {{costo.especificacion}}
+                    </td>
+                    <td>
+                        {{costo.um}}
+                    </td>
+                    <td>
+                        {{costo.cantidad}}
+                    </td>
+                    <td>
+                        {{costo.precio_unitario}}
+                    </td>
+                    <td>
+                        {{costo.moneda}}
+                    </td>
+                    <td>
+                        {{costo.cotizacion}}
+                    </td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    function submitform() { 
+        document.renglonForm.submit();
+        document.renglonForm.method='post';      
+
+    }
+    document.onkeydown=function(){
+        if(window.event.keyCode=='13'){
+            submitform();
+        }
+    }
+    
+</script>
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}
+
+{% block plugin_js %}
+{% endblock %}
+
+{% block custom_js %}
+{% endblock %}
+
+
+
