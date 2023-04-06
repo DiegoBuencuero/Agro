@@ -159,19 +159,44 @@ class Trazabilidad(models.Model):
     id_mov = models.ForeignKey("Mov", verbose_name=("Movimiento stock"), on_delete=models.CASCADE)
     perfil = models.ForeignKey("Profile", on_delete=models.CASCADE)
 
+class agro_TipoProd(models.Model):
+    class Meta:
+        pass
+    def __str__(self):
+        return self.nombre
+    nombre = models.CharField(max_length=100)
+
+class agro_RubroProd(models.Model):
+    class Meta:
+        pass
+    def __str__(self):
+        return self.nombre
+    nombre = models.CharField(max_length=100)
+
+class Especificacion_tipo(models.Model):
+    class Meta:
+        pass
+    def __str__(self):
+        return self.nombre
+    agro_tipo = models.ForeignKey(agro_TipoProd, on_delete=models.CASCADE, null=True, blank=True)
+    nombre = models.CharField(max_length=100)
+
+
 class agro_Producto(models.Model):
     def __str__(self):
         return self.descripcion
     codigo = models.CharField(max_length=30)
     descripcion = models.CharField(max_length=100)
-    tipo = models.ForeignKey("Tipo", on_delete=models.CASCADE) 
-    rubro = models.ForeignKey("Rubro", on_delete=models.CASCADE) 
+    agro_rubro = models.ForeignKey(agro_RubroProd, on_delete=models.CASCADE, null=True, blank=True)
     image = models.ImageField(default='default.jpg', upload_to='lotes')
     status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ], default='O')
     add_date = models.DateTimeField(default=timezone.now)
 
 class Producto(agro_Producto):
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    tipo = models.ForeignKey("Tipo", on_delete=models.CASCADE, null=True, blank=True) 
+    rubro = models.ForeignKey("Rubro", on_delete=models.CASCADE, null=True, blank=True) 
+
 
 class Tipo(models.Model):
     class Meta:
@@ -262,8 +287,6 @@ class Cultivo (models.Model):
     def __str__(self):
         return self.nombre
     nombre = models.CharField(max_length=100)
-    producto_semilla = models.ForeignKey("Producto", on_delete=models.CASCADE, null=True, blank=True)
-    producto_cultivo = models.ForeignKey("Producto", related_name='cultivo_producto_cultivo', on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Calendario (models.Model):
@@ -286,12 +309,15 @@ class Especificacion(models.Model):
     descripcion = models.CharField(max_length=100)
 
 class agro_CostoProd(models.Model):
+    def __str__(self):
+        return self.nombre
+    nombre = models.CharField(max_length=50, default = '')
     cultivo = models.ForeignKey("Cultivo", on_delete=models.CASCADE)  
     sistema_cultivo = models.ForeignKey("SistemaCultivo", on_delete=models.CASCADE) 
 
 class agro_CostoProdo(models.Model):
     orden = models.IntegerField()
-    costo_prod = models.ForeignKey("CostoProd", on_delete=models.CASCADE) 
+    costo_prod = models.ForeignKey("agro_CostoProd", on_delete=models.CASCADE) 
     agro_producto = models.ForeignKey("agro_Producto", on_delete=models.CASCADE) 
     especificacion = models.ForeignKey("Especificacion", on_delete=models.CASCADE) 
     um = models.ForeignKey(UM, on_delete=models.CASCADE)
@@ -299,6 +325,8 @@ class agro_CostoProdo(models.Model):
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
+    agro_tipo = models.ForeignKey(agro_TipoProd, on_delete=models.CASCADE, null=True, blank=True)
+    especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)
 
 class CostoProd(agro_CostoProd):
     fecha = models.DateField(default=timezone.now)

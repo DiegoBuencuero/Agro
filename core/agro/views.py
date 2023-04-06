@@ -375,6 +375,7 @@ def editar_costo_prod(request, id_costo):
         costo = CostoProd.objects.get(id = id_costo)
     except:
         return redirect('vista_costo_prod')
+    lista_historica = agro_CostoProd.objects.filter(cultivo = costo.cultivo).filter(sistema_cultivo = costo.sistema_cultivo) 
     costo_o = CostoProdo.objects.filter(costo_prod = costo)
     empresa = request.user.profile.empresa
     if costo.empresa == empresa:
@@ -388,6 +389,6 @@ def editar_costo_prod(request, id_costo):
                 form = CostoProd_o_Form()
         else:
             form = CostoProd_o_Form()
-        return render(request, 'editar_costo_prod.html', {'form': form, 'empresa': empresa, 'costo_os':costo_o, 'costo':costo})
+        return render(request, 'editar_costo_prod.html', {'form': form, 'empresa': empresa, 'costo_os':costo_o, 'costo':costo, 'lista_historica':lista_historica})
     else:
         return redirect('vista_costo_prod')
