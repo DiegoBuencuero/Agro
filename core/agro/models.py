@@ -316,12 +316,16 @@ class agro_CostoProd(models.Model):
     sistema_cultivo = models.ForeignKey("SistemaCultivo", on_delete=models.CASCADE) 
 
 class agro_CostoProdo(models.Model):
+    class Meta:
+        ordering = ["costo_prod", "orden"]
+    def __str__(self):
+        return str(self.orden) + "-" + str(self.costo_prod) + "-" + str(self.agro_producto)
     orden = models.IntegerField()
     costo_prod = models.ForeignKey("agro_CostoProd", on_delete=models.CASCADE) 
     agro_producto = models.ForeignKey("agro_Producto", on_delete=models.CASCADE) 
     especificacion = models.ForeignKey("Especificacion", on_delete=models.CASCADE) 
     um = models.ForeignKey(UM, on_delete=models.CASCADE)
-    cantidad = models.DecimalField(max_digits=6, decimal_places=2)
+    cantidad = models.DecimalField(max_digits=10, decimal_places=4)
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
