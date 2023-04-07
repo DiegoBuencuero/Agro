@@ -8,10 +8,10 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string  
 from django.core.mail import EmailMessage  
 from django.utils.encoding import force_bytes, force_str  
-from django.http import HttpResponse  
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
-from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo
+from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form
 from django.views.generic import TemplateView
@@ -368,6 +368,28 @@ def vista_costo_prod(request):
     return render(request, 'vista_costo_prod.html', {'costos': costos, 'form': form, 'empresa': empresa })
 
 
+def get_lista_costo(costo):
+    costo_o = CostoProdo.objects.filter(costo_prod = costo)
+    lista_costo = []
+    for co in costo_o:
+        if co.origen == 'A':
+            print(co.producto_id)
+            prod_descr = agro_Producto.objects.get(pk = co.producto_id)
+        else:
+            prod_descr = Producto.objects.get(pk = co.producto_id)
+        linea = {
+            'orden': co.orden, 
+            'prod_name': prod_descr, 
+            'especificacion': co.especificacion, 
+            'um':co.um, 
+            'cantidad': co.cantidad, 
+            'precio_unitario': co.precio_unitario,
+            'moneda': co.moneda,
+            'cotizacion': co.cotizacion,
+        }
+        lista_costo.append(linea)
+    return lista_costo
+
 
 @login_required
 def editar_costo_prod(request, id_costo):
@@ -376,7 +398,7 @@ def editar_costo_prod(request, id_costo):
     except:
         return redirect('vista_costo_prod')
     lista_historica = agro_CostoProd.objects.filter(cultivo = costo.cultivo).filter(sistema_cultivo = costo.sistema_cultivo) 
-    costo_o = CostoProdo.objects.filter(costo_prod = costo)
+    lista_costo = get_lista_costo(costo)
     empresa = request.user.profile.empresa
     if costo.empresa == empresa:
         if request.method == 'POST':
@@ -385,10 +407,53 @@ def editar_costo_prod(request, id_costo):
                 renglon = form.save(commit=False)
                 renglon.empresa = empresa
                 renglon.costo_prod = costo
+                renglon.origen = form.cleaned_data['producto'][0:1]
+                renglon.producto_id = int(form.cleaned_data['producto'][1:])
                 renglon.save()
                 form = CostoProd_o_Form()
+                lista_costo = get_lista_costo(costo)
         else:
             form = CostoProd_o_Form()
-        return render(request, 'editar_costo_prod.html', {'form': form, 'empresa': empresa, 'costo_os':costo_o, 'costo':costo, 'lista_historica':lista_historica})
+        return render(request, 'editar_costo_prod.html', {'form': form, 'empresa': empresa, 'costo_os':lista_costo, 'costo':costo, 'lista_historica':lista_historica})
     else:
         return redirect('vista_costo_prod')
+
+
+def ajax_get_costo(request):
+    costos = agro_CostoProdo.objects.all()
+    respuesta = []
+    for costo in costos:
+        linea = {'o': costo.orden}
+        respuesta.append(linea)
+    data = {'data': respuesta}
+    return JsonResponse(data)
+
+
+@login_required
+def load_costo_agro(request, id_costo, id_agro_costo):
+    try:
+        costo = CostoProd.objects.get(id = id_costo)
+        agro_costo = agro_CostoProd.objects.get(pk=id_agro_costo)
+        agro_costos = agro_CostoProdo.objects.filter(costo_prod = agro_costo)
+    except:
+        return redirect('vista_costo_prod')
+
+    CostoProdo.objects.filter(costo_prod = costo).delete()
+    o = 1
+    for costoo in agro_costos:
+        nuevo = CostoProdo(
+            empresa = request.user.profile.empresa, 
+            orden = costoo.orden, 
+            costo_prod = costo, 
+            producto_id = costoo.agro_producto.id,
+            origen = 'A',
+            um = costoo.um,
+            cantidad = costoo.cantidad,
+            precio_unitario = costoo.precio_unitario,
+            moneda = costoo.moneda,
+            cotizacion = costoo.cotizacion,
+            agro_tipo = costoo.agro_tipo,
+            especificacion = costoo.especificacion,
+        )
+        nuevo.save()
+    return redirect('/03/' + str(id_costo))

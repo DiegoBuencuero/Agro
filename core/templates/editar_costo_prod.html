@@ -120,8 +120,8 @@
                         {{form.orden.errors}}
                     </td>
                     <td>
-                        {{form.agro_producto}}
-                        {{form.agro_producto.errors}}
+                        {{form.producto}}
+                        {{form.producto.errors}}
                     </td>
                     <td>
                         {{form.especificacion}}
@@ -156,7 +156,7 @@
                         {{costo.orden}}
                     </td>
                     <td>
-                        {{costo.agro_producto}}
+                        {{costo.prod_name}}
                     </td>
                     <td>
                         {{costo.especificacion}}
@@ -201,9 +201,24 @@
 
       });
     });
+    function success_function(response) {
+      response.data.forEach(function(data, index) {
+        console.log(data);
+      });
+    }
     function consultar() {
-        confirm2('head', 'Quiere cargar los datos de la base?, IMPORTANTE: los datos se eliminaran y se reemplazaran con los nuevos!', 'cancel', 'ok', function () {
-          alert('si quiero');
+        confirm2('head', 'Quiere cargar los datos de la base?, IMPORTANTE: los datos se eliminaran y se reemplazaran con los nuevos!', 'cancel', 'ok', 
+        function () {
+          var dirurl = '/03-loadcosto/' + {{costo.id}} + '/' + id_historico.value;
+          window.location.href = dirurl;
+          {% comment %} $.ajax({
+            url : "{% url 'ajax_get_costo' %}",
+            data : {
+              'costo' : id_historico.value,
+            },
+            method : 'GET',
+            success : success_function // reference to below
+          });  {% endcomment %}
         });
     }
 
