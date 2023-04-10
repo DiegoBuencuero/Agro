@@ -11,7 +11,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
-from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto
+from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form
 from django.views.generic import TemplateView
@@ -428,6 +428,24 @@ def ajax_get_costo(request):
     data = {'data': respuesta}
     return JsonResponse(data)
 
+def ajax_get_espec(request):
+    prod_param = request.GET.get('producto')
+    origen = prod_param[0:1]
+    id_prod = prod_param[1:]
+    if origen == 'A':
+        producto = agro_Producto.objects.get(id = id_prod)
+    else:
+        producto = Producto.objects.get(id = id_prod)
+    tipo = producto.agro_tipo
+    especificaciones = Especificacion_tipo.objects.filter(agro_tipo = tipo)
+    respuesta = []
+    for e in especificaciones:
+        linea = {'id': e.id, 'nombre': e.nombre}
+        respuesta.append(linea)
+    data = {'data': respuesta}
+    return JsonResponse(data)
+
+
 
 @login_required
 def load_costo_agro(request, id_costo, id_agro_costo):
@@ -452,7 +470,6 @@ def load_costo_agro(request, id_costo, id_agro_costo):
             precio_unitario = costoo.precio_unitario,
             moneda = costoo.moneda,
             cotizacion = costoo.cotizacion,
-            agro_tipo = costoo.agro_tipo,
             especificacion = costoo.especificacion,
         )
         nuevo.save()

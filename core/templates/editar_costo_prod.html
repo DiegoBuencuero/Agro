@@ -124,8 +124,8 @@
                         {{form.producto.errors}}
                     </td>
                     <td>
-                        {{form.especificacion}}
-                        {{form.orden.errors}}
+                        {{form.espec}}
+                        {{form.espec.errors}}
                     </td>
                     <td>
                         {{form.um}}
@@ -190,6 +190,25 @@
         document.renglonForm.method='post';      
 
     }
+    function load_especificaciones() { 
+      $.ajax({
+        url : "{% url 'ajax_get_espec' %}",
+        data : {
+          'producto' : id_producto.value,
+        },
+        method : 'GET',
+        success : function(response) {
+          var opciones = "";
+          response.data.forEach(function(item, index) {
+            opciones += '<option value="' + item.id + '">' + item.nombre + '</option>';
+          });
+          id_espec.innerHTML = opciones;
+          console.log(response.data);
+
+        } // reference to below
+      });
+
+    }
     document.onkeydown=function(){
         if(window.event.keyCode=='13'){
             submitform();
@@ -199,6 +218,9 @@
       id_historico.addEventListener('change', async() => {
         consultar();
 
+      });
+      id_producto.addEventListener('change', async() => {
+        load_especificaciones();
       });
     });
     function success_function(response) {

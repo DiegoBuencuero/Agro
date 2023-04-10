@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
-from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto
+from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from string import Template
 
     
@@ -144,12 +144,19 @@ class CostoProd_o_Form(BaseForm):
         for prod in prods:
             opciones.append(('U'+str(prod.id), prod.descripcion))
         self.fields['producto'].choices = opciones
+        opciones = []
+        esp = Especificacion_tipo.objects.all()
+        for e in esp:
+            opciones.append((e.id, e.nombre))
+        self.fields['espec'].choices = opciones
     class Meta:
         model = CostoProdo
         fields = '__all__'
-        exclude = ['empresa', 'costo_prod', 'origen' ]
+        exclude = ['empresa', 'costo_prod', 'origen', 'especificacion' ]
         widgets = {
                 'fecha': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
     producto = forms.ChoiceField()
+    espec = forms.ChoiceField()
+
 

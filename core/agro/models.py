@@ -187,6 +187,7 @@ class agro_Producto(models.Model):
         return self.descripcion
     codigo = models.CharField(max_length=30)
     descripcion = models.CharField(max_length=100)
+    agro_tipo = models.ForeignKey(agro_TipoProd, on_delete=models.CASCADE, null=True, blank=True)
     agro_rubro = models.ForeignKey(agro_RubroProd, on_delete=models.CASCADE, null=True, blank=True)
     image = models.ImageField(default='default.jpg', upload_to='lotes')
     status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ], default='O')
@@ -196,8 +197,9 @@ class Producto(models.Model):
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     codigo = models.CharField(max_length=30)
     descripcion = models.CharField(max_length=100)
-    tipo = models.ForeignKey("Tipo", on_delete=models.CASCADE, null=True, blank=True) 
+    agro_tipo = models.ForeignKey(agro_TipoProd, on_delete=models.CASCADE, null=True, blank=True)
     agro_rubro = models.ForeignKey(agro_RubroProd, on_delete=models.CASCADE, null=True, blank=True)
+    tipo = models.ForeignKey("Tipo", on_delete=models.CASCADE, null=True, blank=True) 
     rubro = models.ForeignKey("Rubro", on_delete=models.CASCADE, null=True, blank=True) 
     image = models.ImageField(default='default.jpg', upload_to='lotes')
     status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ], default='O')
@@ -334,7 +336,6 @@ class agro_CostoProdo(models.Model):
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
-    agro_tipo = models.ForeignKey(agro_TipoProd, on_delete=models.CASCADE, null=True, blank=True)
     especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)
 
 class CostoProd(models.Model):
@@ -355,5 +356,4 @@ class CostoProdo(models.Model):
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
-    agro_tipo = models.ForeignKey(agro_TipoProd, on_delete=models.CASCADE, null=True, blank=True)
     especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)

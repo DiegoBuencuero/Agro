@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from agro.views import home, login_page, signup, activate, personal_details, ChangePassword, vista_campos, editar_campos, vista_lotes, editar_lote
 from agro.views import vista_producto, vista_tipo_producto, editar_producto, editar_tipo_producto, vista_rubro_producto, editar_rubro_producto
-from agro.views import vista_costo_prod, editar_costo_prod, ajax_get_costo, load_costo_agro
+from agro.views import vista_costo_prod, editar_costo_prod, ajax_get_costo, load_costo_agro, ajax_get_espec
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
@@ -42,6 +42,7 @@ urlpatterns = [
     path('03/', vista_costo_prod, name='vista_costo_prod'),
     path('03/<int:id_costo>', editar_costo_prod, name='editar_costo_prod'),
     path('03-getcosto', ajax_get_costo, name = 'ajax_get_costo'),
+    path('get-prod-espec', ajax_get_espec, name = 'ajax_get_espec'),
     path('03-loadcosto/<int:id_costo>/<int:id_agro_costo>', load_costo_agro, name = 'load_costo_agro'),
 
 ]
