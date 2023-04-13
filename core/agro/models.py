@@ -171,7 +171,9 @@ class agro_RubroProd(models.Model):
         pass
     def __str__(self):
         return self.nombre
+    orden = models.IntegerField(default=0)
     nombre = models.CharField(max_length=100)
+    letra = models.CharField(max_length=1, default = 'A')
 
 class Especificacion_tipo(models.Model):
     class Meta:
@@ -183,6 +185,8 @@ class Especificacion_tipo(models.Model):
 
 
 class agro_Producto(models.Model):
+    class Meta:
+        ordering = ["descripcion"]        
     def __str__(self):
         return self.descripcion
     codigo = models.CharField(max_length=30)
@@ -332,8 +336,8 @@ class agro_CostoProdo(models.Model):
     costo_prod = models.ForeignKey("agro_CostoProd", on_delete=models.CASCADE) 
     agro_producto = models.ForeignKey("agro_Producto", on_delete=models.CASCADE) 
     um = models.ForeignKey(UM, on_delete=models.CASCADE)
-    cantidad = models.DecimalField(max_digits=10, decimal_places=4)
-    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
+    cantidad = models.DecimalField(max_digits=10, decimal_places=4)   #si la um es porcentaje aca va el porcentaje
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2) #si la um es porcentaje aca va un codigo (1:comp+manoobra+servmecanico)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
     especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)

@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block plugin_css%}
+{% endblock %}                          
+{% block content %} 
+{% include 'mensajes.html' %}
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+        {% include 'mensajes.html' %}
+      <h4 class="card-title">Estimacion de costo de produccion</h4>
+      <form class="form-sample" method='post' enctype="multipart/form-data">
+        {% csrf_token %}
+        <p class="card-description">
+          Linea de detalle
+        </p>
+        {{ form.non_field_errors }}
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Orden</label>
+              <div class="col-sm-9">
+                {{form.orden}}
+                {{form.orden.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Producto</label>
+              <div class="col-sm-9">
+                {{form.producto}}
+                {{form.producto.errors}}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Especificacion</label>
+                <div class="col-sm-9">
+                  {{form.espec}}
+                  {{form.espec.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Unidad de medida</label>
+                <div class="col-sm-9">
+                    {{form.um}}
+                    {{form.um.errors}}
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Cantidad</label>
+                <div class="col-sm-9">
+                    {{form.cantidad}}
+                    {{form.cantidad.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Precio unitario</label>
+                <div class="col-sm-9">
+                    {{form.precio_unitario}}
+                    {{form.precio_unitario.errors}}
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Moneda</label>
+                <div class="col-sm-9">
+                    {{form.moneda}}
+                    {{form.moneda.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Cotizacion</label>
+                <div class="col-sm-9">
+                    {{form.cotizacion}}
+                    {{form.cotizacion.errors}}
+                </div>
+              </div>
+            </div>
+        </div>
+  
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type="submit" name='borrar' class="btn btn-danger mr-2">Borrar</button>
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/03/{{costoo.costo_prod.id}}';">Cancel</button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+<script>
+    function load_especificaciones(parametro) { 
+        $.ajax({
+          url : "{% url 'ajax_get_espec' %}",
+          data : {
+            'producto' : id_producto.value,
+          },
+          method : 'GET',
+          success : function(response) {
+            var opciones = "";
+            response.data.forEach(function(item, index) {
+              opciones += '<option value="' + item.id + '">' + item.nombre + '</option>';
+            });
+            id_espec.innerHTML = opciones;
+            if (parametro != undefined) id_espec.value = parametro;
+  
+          } // reference to below
+        });
+  
+      }
+  
+    window.addEventListener('load', async() => {
+        id_producto.addEventListener('change', async() => {
+          load_especificaciones();
+        });
+        load_especificaciones(id_espec.value);
+      });
+  
+</script>
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}
+
+{% block plugin_js %}
+<script src="{% static 'vendors/datatables.net/jquery.dataTables.js' %}"></script>
+<script src="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.js' %}"></script>
+<script src="{% static 'js/dataTables.select.min.js' %}"></script>
+{% endblock %}
+
+{% block custom_js %}
+{% endblock %}
+
+
+

@@ -1,7 +1,21 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load agro_filtros %}
 {% block plugin_css%}
-{% endblock %}                          
+{% endblock %}               
+{% block head %}
+<style>
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type=number] {
+    -moz-appearance: textfield;
+    /* Firefox */
+  }
+</style>
+{% endblock head %}
 {% block content %} 
 <div class="col-12 grid-margin">
   <div class="card">
@@ -108,6 +122,9 @@
               <th>
                 Cotizacion
               </th>
+              <th>
+                Total
+              </th>
             </tr>
           </thead>
         
@@ -147,36 +164,75 @@
                         {{form.cotizacion}}
                         {{form.cotizacion.errors}}
                     </td>
+                    <td>
+                    </td>
 
                 </tr>
             </form>
-            {% for costo in costo_os %}
+            {% for ocosto in costo_os %}
+              {% ifchanged ocosto.prod_name.agro_rubro %}
                 <tr>
-                    <td>
-                        {{costo.orden}}
-                    </td>
-                    <td>
-                        {{costo.prod_name}}
-                    </td>
-                    <td>
-                        {{costo.especificacion}}
-                    </td>
-                    <td>
-                        {{costo.um}}
-                    </td>
-                    <td>
-                        {{costo.cantidad}}
-                    </td>
-                    <td>
-                        {{costo.precio_unitario}}
-                    </td>
-                    <td>
-                        {{costo.moneda}}
-                    </td>
-                    <td>
-                        {{costo.cotizacion}}
-                    </td>
+                  <td width='8%'></td>
+                  <td width='20%'>
+                    <p class='h4'>
+                      {{ocosto.prod_name.agro_rubro}} - ({{ocosto.prod_name.agro_rubro.letra}})
+                    </p>
+                  </td>
+                  <td width='12%'></td>
+                  <td width='10%'></td>
+                  <td width='10%'></td>
+                  <td width='10%'></td>
+                  <td width='10%'></td>
+                  <td width='10%'>Total anterior</td>
+                  <td width='10%'>{{ocosto.total_anterior|moneda}}</td>
                 </tr>
+              {% endifchanged %}
+
+              <tr>
+                  <td>
+                    {{ocosto.orden}}
+                  </td>
+                  <td>
+                    <a href="/03-linea/{{ocosto.id}}">{{ocosto.prod_name}}</a> 
+                  </td>
+                  <td>
+                    {{ocosto.especificacion}}
+                  </td>
+                  <td>
+                    {{ocosto.um}}
+                  </td>
+                  <td>
+                    {% if ocosto.um.abreviado == '%' %}
+                      {{ocosto.cantidad|porcentaje}}
+                    {% else %}
+                      {{ocosto.cantidad}}
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if ocosto.um.abreviado == '%' %}
+                      {% if ocosto.precio_unitario == 1 %}
+                        A+B+C
+                      {% else %}
+                        {% if ocosto.precio_unitario == 2 %}
+                          A+B+C+D
+                        {% else %}
+                          FALTA
+                        {% endif %}
+                      {% endif %}
+                    {% else %}
+                      {{ocosto.precio_unitario|moneda}}
+                    {% endif %}
+                  </td>
+                  <td>
+                    {{ocosto.moneda}}
+                  </td>
+                  <td>
+                    {{ocosto.cotizacion}}
+                  </td>
+                  <td>
+                    {{ocosto.total|moneda}}
+                  </td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>

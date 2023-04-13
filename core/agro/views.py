@@ -16,7 +16,7 @@ from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, 
 from .forms import CostoProd_o_Form
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from operator import itemgetter
 # Create your views here.
 @login_required
 def home(request):
@@ -371,13 +371,23 @@ def vista_costo_prod(request):
 def get_lista_costo(costo):
     costo_o = CostoProdo.objects.filter(costo_prod = costo)
     lista_costo = []
+    totalabc = 0
+    totalabcd = 0
     for co in costo_o:
         if co.origen == 'A':
-            print(co.producto_id)
             prod_descr = agro_Producto.objects.get(pk = co.producto_id)
         else:
             prod_descr = Producto.objects.get(pk = co.producto_id)
+        if co.um.abreviado == '%':
+            total = 0
+        else:
+            total = co.cantidad * co.precio_unitario
+        if prod_descr.agro_rubro.letra in ('A','B','C'):
+            totalabc += co.cantidad * co.precio_unitario
+        if prod_descr.agro_rubro.letra in ('A','B','C', 'D'):
+            totalabcd += co.cantidad * co.precio_unitario
         linea = {
+            'id': co.id,
             'orden': co.orden, 
             'prod_name': prod_descr, 
             'especificacion': co.especificacion, 
@@ -386,8 +396,36 @@ def get_lista_costo(costo):
             'precio_unitario': co.precio_unitario,
             'moneda': co.moneda,
             'cotizacion': co.cotizacion,
+            'total': total,
+            'rubro_orden': prod_descr.agro_rubro.orden,
+            'letra': prod_descr.agro_rubro.letra,
+            'total_anterior': 0,
         }
         lista_costo.append(linea)
+    lista_costo.sort(key=(itemgetter('rubro_orden', 'orden')))
+    totrubro = 0
+    rubroant = lista_costo[0]['rubro_orden']
+    for l in lista_costo:
+        if l['um'].abreviado == '%':
+            if l['precio_unitario'] == 1:
+                porcentaje = totalabc * l['cantidad'] / 100
+                l['total'] = porcentaje
+                if l['letra'] == 'D':
+                    totalabcd += porcentaje
+                importe = porcentaje
+            elif l['precio_unitario'] == 2:
+                l['total'] = totalabcd * l['cantidad'] / 100
+                importe = totalabcd * l['cantidad'] / 100
+        else:
+            importe = l['total']
+        if rubroant != l['rubro_orden']:
+            l['total_anterior'] = totrubro
+            totrubro = importe
+            rubroant = l['rubro_orden']
+        else:
+            totrubro += importe
+
+
     return lista_costo
 
 
@@ -404,11 +442,16 @@ def editar_costo_prod(request, id_costo):
         if request.method == 'POST':
             form = CostoProd_o_Form(request.POST)
             if form.is_valid():
+                try:
+                    especificacion = Especificacion_tipo.objects.get(id = form.cleaned_data['espec'])
+                except:
+                    especificacion = None
                 renglon = form.save(commit=False)
                 renglon.empresa = empresa
                 renglon.costo_prod = costo
                 renglon.origen = form.cleaned_data['producto'][0:1]
                 renglon.producto_id = int(form.cleaned_data['producto'][1:])
+                renglon.especificacion = especificacion
                 renglon.save()
                 form = CostoProd_o_Form()
                 lista_costo = get_lista_costo(costo)
@@ -474,3 +517,40 @@ def load_costo_agro(request, id_costo, id_agro_costo):
         )
         nuevo.save()
     return redirect('/03/' + str(id_costo))
+
+
+
+
+@login_required
+def editar_costo_prod_linea(request, id_costoo):
+    try:
+        costo = CostoProdo.objects.get(id = id_costoo)
+    except:
+        return redirect('vista_costo_prod')
+    empresa = request.user.profile.empresa
+    if costo.empresa == empresa:
+        if request.method == 'POST':
+            form = CostoProd_o_Form(request.POST, instance= costo)
+            if form.is_valid():
+                try:
+                    especificacion = Especificacion_tipo.objects.get(id = form.cleaned_data['espec'])
+                except:
+                    especificacion = None
+                renglon = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    renglon.delete()
+                else:
+                    renglon.origen = form.cleaned_data['producto'][0:1]
+                    renglon.producto_id = int(form.cleaned_data['producto'][1:])
+                    renglon.especificacion = especificacion
+                    renglon.save()
+                return redirect('/03/' + str(costo.costo_prod.id))
+        else:
+            initial_data = {
+                'producto': costo.origen + str(costo.producto_id),
+                'espec': costo.especificacion.id
+            }
+            form = CostoProd_o_Form(instance = costo, initial = initial_data)
+        return render(request, 'editar_costo_prod_linea.html', {'form': form, 'costoo': costo})
+    else:
+        return redirect('vista_costo_prod')

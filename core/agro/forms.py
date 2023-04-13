@@ -152,11 +152,11 @@ class CostoProd_o_Form(BaseForm):
     class Meta:
         model = CostoProdo
         fields = '__all__'
-        exclude = ['empresa', 'costo_prod', 'origen', 'especificacion' ]
+        exclude = ['empresa', 'costo_prod', 'origen', 'especificacion']
         widgets = {
                 'fecha': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
     producto = forms.ChoiceField()
     espec = forms.ChoiceField()
-
+    
 
