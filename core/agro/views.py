@@ -373,6 +373,7 @@ def get_lista_costo(costo):
     lista_costo = []
     totalabc = 0
     totalabcd = 0
+    total = 0
     for co in costo_o:
         if co.origen == 'A':
             prod_descr = agro_Producto.objects.get(pk = co.producto_id)
@@ -386,6 +387,7 @@ def get_lista_costo(costo):
             totalabc += co.cantidad * co.precio_unitario
         if prod_descr.agro_rubro.letra in ('A','B','C', 'D'):
             totalabcd += co.cantidad * co.precio_unitario
+        total = co.cantidad * co.precio_unitario
         linea = {
             'id': co.id,
             'orden': co.orden, 
@@ -426,7 +428,7 @@ def get_lista_costo(costo):
             totrubro += importe
 
 
-    return lista_costo
+    return lista_costo, total
 
 
 @login_required
@@ -436,8 +438,10 @@ def editar_costo_prod(request, id_costo):
     except:
         return redirect('vista_costo_prod')
     lista_historica = agro_CostoProd.objects.filter(cultivo = costo.cultivo).filter(sistema_cultivo = costo.sistema_cultivo) 
-    lista_costo = get_lista_costo(costo)
+    lista_costo, total = get_lista_costo(costo)
     empresa = request.user.profile.empresa
+    precio_dia = 144
+    calculo = total / precio_dia
     if costo.empresa == empresa:
         if request.method == 'POST':
             form = CostoProd_o_Form(request.POST)
@@ -454,10 +458,10 @@ def editar_costo_prod(request, id_costo):
                 renglon.especificacion = especificacion
                 renglon.save()
                 form = CostoProd_o_Form()
-                lista_costo = get_lista_costo(costo)
+                lista_costo, total = get_lista_costo(costo)
         else:
             form = CostoProd_o_Form()
-        return render(request, 'editar_costo_prod.html', {'form': form, 'empresa': empresa, 'costo_os':lista_costo, 'costo':costo, 'lista_historica':lista_historica})
+        return render(request, 'editar_costo_prod.html', {'form': form, 'total': total, 'precio_dia':precio_dia, 'calculo':calculo, 'empresa': empresa, 'costo_os':lista_costo, 'costo':costo, 'lista_historica':lista_historica})
     else:
         return redirect('vista_costo_prod')
 
