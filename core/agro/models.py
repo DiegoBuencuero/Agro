@@ -159,12 +159,19 @@ class Trazabilidad(models.Model):
     id_mov = models.ForeignKey("Mov", verbose_name=("Movimiento stock"), on_delete=models.CASCADE)
     perfil = models.ForeignKey("Profile", on_delete=models.CASCADE)
 
+class agro_Etapa(models.Model):
+    def __str__(self):
+        return self.nombre
+    nombre = models.CharField(max_length=100)
+
 class agro_TipoProd(models.Model):
     class Meta:
         pass
     def __str__(self):
         return self.nombre
     nombre = models.CharField(max_length=100)
+    etapas = models.ManyToManyField(agro_Etapa)
+
 
 class agro_RubroProd(models.Model):
     class Meta:
