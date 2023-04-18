@@ -159,10 +159,25 @@ class Trazabilidad(models.Model):
     id_mov = models.ForeignKey("Mov", verbose_name=("Movimiento stock"), on_delete=models.CASCADE)
     perfil = models.ForeignKey("Profile", on_delete=models.CASCADE)
 
-class agro_Etapa(models.Model):
+class agro_CotizacionCultivo(models.Model):
+    class Meta:
+        pass
     def __str__(self):
-        return self.nombre
+        return str(self.fecha) + "-" + self.cultivo
+    fecha = models.DateField(default=timezone.now)
+    cultivo = models.ForeignKey("Cultivo", on_delete=models.CASCADE)
+    precio = models.DecimalField(max_digits=12, decimal_places=2)
+    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE) 
+    cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
+
+class agro_Etapa(models.Model):
+    class Meta:
+        ordering = ["orden"]
+    def __str__(self):
+        return self.nombre + " (" + self.abreviado + ")"
     nombre = models.CharField(max_length=100)
+    abreviado = models.CharField(max_length=4)
+    orden = models.IntegerField()
 
 class agro_TipoProd(models.Model):
     class Meta:
@@ -193,7 +208,7 @@ class Especificacion_tipo(models.Model):
 
 class agro_Producto(models.Model):
     class Meta:
-        ordering = ["descripcion"]        
+        ordering = ["descripcion"]
     def __str__(self):
         return self.descripcion
     codigo = models.CharField(max_length=30)
@@ -289,18 +304,28 @@ class Planificacion (models.Model):
     class Meta:
         pass
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
-    cultivo = models.ForeignKey("Cultivo", on_delete=models.CASCADE)  
-    desnsidad = models.CharField(max_length=1, choices = CH_DENSIDAD, default='1')
+    fecha = models.DateField(default=timezone.now)
+    costo = models.ForeignKey("CostoProd", on_delete=models.CASCADE, null=True, blank=True)
+    densidad = models.CharField(max_length=1, choices = CH_DENSIDAD, default='1')
     profundidad = models.IntegerField()
 
-class Plnificacion_Insumos (models.Model):
+
+class Planificacion_etapas(models.Model):
     class Meta:
         pass
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
-    Insumo = models.CharField(max_length=100)
-    Cantidad = models.DecimalField(max_digits=4, decimal_places=1)
+    planificacion = models.ForeignKey("Planificacion", on_delete=models.CASCADE)
+    etapa = models.ForeignKey("agro_Etapa", on_delete=models.CASCADE)
+    agro_producto = models.ForeignKey("agro_Producto", on_delete=models.CASCADE) 
+    um = models.ForeignKey(UM, on_delete=models.CASCADE)
+    cantidad = models.DecimalField(max_digits=10, decimal_places=4)  
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2) 
+    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
+    cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
+    especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)
 
-class Cultivo (models.Model):
+
+class Cultivo(models.Model):
     class Meta:
         pass
     def __str__(self):

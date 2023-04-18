@@ -558,3 +558,20 @@ def editar_costo_prod_linea(request, id_costoo):
         return render(request, 'editar_costo_prod_linea.html', {'form': form, 'costoo': costo})
     else:
         return redirect('vista_costo_prod')
+
+
+
+@login_required
+def vista_planificacion(request):
+    costos = CostoProd.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = CostoProdForm(request.POST)
+        if form.is_valid():
+            costo = form.save(commit=False)
+            costo.empresa = empresa
+            costo.save()
+            form = CostoProdForm()
+    else:
+        form = CostoProdForm()
+    return render(request, 'vista_costo_prod.html', {'costos': costos, 'form': form, 'empresa': empresa })
