@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils import timezone
 from .choices import *
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -179,6 +180,7 @@ class agro_Etapa(models.Model):
     abreviado = models.CharField(max_length=4)
     orden = models.IntegerField()
 
+
 class agro_TipoProd(models.Model):
     class Meta:
         pass
@@ -300,35 +302,54 @@ class Movo (models.Model):
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
 
-class Planificacion (models.Model):
+class Planificacion_cultivo (models.Model):
+    class Meta:
+        pass
+    def clean_end_time(self):
+        if self.fecha_hasta < self.fecha_desde:
+            raise ValidationError('La fecha de termino debe ser mayor a la de inicio')
+        if self.fecha_desde < self.campana.fecha_desde:
+            raise ValidationError('La fecha de inicio debe ser mayor o igual que la fecha de inicio de campaña')
+        if self.fecha_hasta > self.campana.fecha_hasta:
+            raise ValidationError('La fecha de finalización debe ser menor o igual que la fecha de finalización de campaña')
+
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    fecha_plani = models.DateField(default=timezone.now)
+    campana = models.ForeignKey("Campana", on_delete=models.CASCADE)
+    descripcion = models.CharField(max_length=100)
+    observaciones = models.TextField()
+    fecha_desde = models.DateField(default=timezone.now) 
+    fecha_hasta = models.DateField(default=timezone.now)
+      
+class Campana ( models.Model):
+    class Meta:
+        pass
+    def clean_end_time(self):
+        if self.fecha_hasta < self.fecha_desde:
+            raise ValidationError('La fecha de termino debe ser mayor a la de inicio')
+
+    nombre = models.CharField(max_length=100)
+    fecha_desde = models.DateField(default=timezone.now) 
+    fecha_hasta = models.DateField(default=timezone.now)
+    observaciones = models.TextField()
+
+
+
+class Planificacion_lote( models.Model):
     class Meta:
         pass
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
-    fecha_plani = models.DateField(default=timezone.now) # fecha en que se realiza la planificacion quizas este campo se genere en automatico cuando se guarda.
-    campana = models.ForeignKey("Campana", on_delete=models.CASCADE)
-    campo =  models.ForeignKey("Campo")
-    lote = models.ForeignKey("Lote")
-    cultivo = models.ForeignKey("Cultivo")
-    cant_Ha = models.DecimalField(max_digits=12, decimal_places=3, default=1) #
-    costo = models.ForeignKey("CostoProd", on_delete=models.CASCADE, null=True, blank=True) #
-    
-    # densidad = models.CharField(max_length=1, choices = CH_DENSIDAD, default='1')
-    # profundidad = models.IntegerField()
-   
-
-class Campana ( models. Model):
-    class Meta:
-        pass
-    rango = models.CharField(max_length=9) #  el dato a cargar / precargado es 2023/2024
-
-
+    planificacion = models.ForeignKey("Planificacion_cultivo",  on_delete=models.CASCADE)
+    lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
+    costo = models.ForeignKey("CostoProd", on_delete=models.CASCADE, null=True, blank=True) 
 
 
 class Planificacion_etapas(models.Model):
     class Meta:
         pass
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
-    planificacion = models.ForeignKey("Planificacion", on_delete=models.CASCADE)
+    planificacion = models.ForeignKey("Planificacion_cultivo", on_delete=models.CASCADE)
+    lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
     etapa = models.ForeignKey("agro_Etapa", on_delete=models.CASCADE)
     agro_producto = models.ForeignKey("agro_Producto", on_delete=models.CASCADE) 
     um = models.ForeignKey(UM, on_delete=models.CASCADE)
@@ -345,16 +366,6 @@ class Cultivo(models.Model):
     def __str__(self):
         return self.nombre
     nombre = models.CharField(max_length=100)
-
-
-class Calendario (models.Model):
-    class Meta:
-        pass
-    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
-    lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
-    planificacion = models.ForeignKey("Planificacion", on_delete=models.CASCADE)
-    fecha_ini = models.DateField()
-    fecha_final = models.DateField()
 
 class SistemaCultivo(models.Model):
     def __str__(self):
