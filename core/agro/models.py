@@ -304,10 +304,24 @@ class Planificacion (models.Model):
     class Meta:
         pass
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
-    fecha = models.DateField(default=timezone.now)
-    costo = models.ForeignKey("CostoProd", on_delete=models.CASCADE, null=True, blank=True)
-    densidad = models.CharField(max_length=1, choices = CH_DENSIDAD, default='1')
-    profundidad = models.IntegerField()
+    fecha_plani = models.DateField(default=timezone.now) # fecha en que se realiza la planificacion quizas este campo se genere en automatico cuando se guarda.
+    campana = models.ForeignKey("Campana", on_delete=models.CASCADE)
+    campo =  models.ForeignKey("Campo")
+    lote = models.ForeignKey("Lote")
+    cultivo = models.ForeignKey("Cultivo")
+    cant_Ha = models.DecimalField(max_digits=12, decimal_places=3, default=1) #
+    costo = models.ForeignKey("CostoProd", on_delete=models.CASCADE, null=True, blank=True) #
+    
+    # densidad = models.CharField(max_length=1, choices = CH_DENSIDAD, default='1')
+    # profundidad = models.IntegerField()
+   
+
+class Campana ( models. Model):
+    class Meta:
+        pass
+    rango = models.CharField(max_length=9) #  el dato a cargar / precargado es 2023/2024
+
+
 
 
 class Planificacion_etapas(models.Model):
