@@ -187,7 +187,7 @@ class agro_TipoProd(models.Model):
     def __str__(self):
         return self.nombre
     nombre = models.CharField(max_length=100)
-    etapas = models.ManyToManyField(agro_Etapa)
+    etapas = models.ManyToManyField(agro_Etapa, blank=True)
 
 
 class agro_RubroProd(models.Model):
@@ -327,11 +327,11 @@ class Campana ( models.Model):
     def clean_end_time(self):
         if self.fecha_hasta < self.fecha_desde:
             raise ValidationError('La fecha de termino debe ser mayor a la de inicio')
-
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
     fecha_desde = models.DateField(default=timezone.now) 
     fecha_hasta = models.DateField(default=timezone.now)
-    observaciones = models.TextField()
+    observaciones = models.TextField(null=True, blank=True)
 
 
 

@@ -12,8 +12,9 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
+from .models import Campana
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
-from .forms import CostoProd_o_Form
+from .forms import CostoProd_o_Form, CampanaForm
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from operator import itemgetter
@@ -404,32 +405,34 @@ def get_lista_costo(costo):
             'total_anterior': 0,
         }
         lista_costo.append(linea)
-    lista_costo.sort(key=(itemgetter('rubro_orden', 'orden')))
-    totrubro = 0
-    rubroant = lista_costo[0]['rubro_orden']
-    for l in lista_costo:
-        if l['um'].abreviado == '%':
-            if l['precio_unitario'] == 1:
-                porcentaje = totalabc * l['cantidad'] / 100
-                l['total'] = porcentaje
-                if l['letra'] == 'D':
-                    totalabcd += porcentaje
-                importe = porcentaje
-            elif l['precio_unitario'] == 2:
-                l['total'] = totalabcd * l['cantidad'] / 100
-                importe = totalabcd * l['cantidad'] / 100
-        else:
-            importe = l['total']
-        if rubroant != l['rubro_orden']:
-            l['total_anterior'] = totrubro
-            totrubro = importe
-            rubroant = l['rubro_orden']
-        else:
-            totrubro += importe
-
-
-    return lista_costo, total
-
+    if len(lista_costo) > 0:
+        lista_costo.sort(key=(itemgetter('rubro_orden', 'orden')))
+        totrubro = 0
+        rubroant = lista_costo[0]['rubro_orden']
+        total = 0
+        for l in lista_costo:
+            if l['um'].abreviado == '%':
+                if l['precio_unitario'] == 1:
+                    porcentaje = totalabc * l['cantidad'] / 100
+                    l['total'] = porcentaje
+                    if l['letra'] == 'D':
+                        totalabcd += porcentaje
+                    importe = porcentaje
+                elif l['precio_unitario'] == 2:
+                    l['total'] = totalabcd * l['cantidad'] / 100
+                    importe = totalabcd * l['cantidad'] / 100
+            else:
+                importe = l['total']
+            if rubroant != l['rubro_orden']:
+                l['total_anterior'] = totrubro
+                totrubro = importe
+                rubroant = l['rubro_orden']
+            else:
+                totrubro += importe
+            total += importe
+        return lista_costo, total
+    else:
+        return lista_costo, 0
 
 @login_required
 def editar_costo_prod(request, id_costo):
@@ -562,16 +565,40 @@ def editar_costo_prod_linea(request, id_costoo):
 
 
 @login_required
-def vista_planificacion(request):
-    costos = CostoProd.objects.filter(empresa = request.user.profile.empresa)
+def vista_campana(request):
+    campanas = Campana.objects.filter(empresa = request.user.profile.empresa)
     empresa = request.user.profile.empresa
     if request.method == 'POST':
-        form = CostoProdForm(request.POST)
+        form = CampanaForm(request.POST)
         if form.is_valid():
-            costo = form.save(commit=False)
-            costo.empresa = empresa
-            costo.save()
-            form = CostoProdForm()
+            campana = form.save(commit=False)
+            campana.empresa = empresa
+            campana.save()
+            form = CampanaForm()
     else:
-        form = CostoProdForm()
-    return render(request, 'vista_costo_prod.html', {'costos': costos, 'form': form, 'empresa': empresa })
+        form = CampanaForm()
+    return render(request, 'vista_campana.html', {'campanas':campanas, 'form': form, 'empresa': empresa })
+
+@login_required
+def editar_campana(request, id_campana):
+    campanas = Campana.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        camp = Campana.objects.get(id = id_campana)
+    except:
+        return redirect('vista_campana')
+    empresa = request.user.profile.empresa
+    if camp.empresa == empresa:
+        if request.method == 'POST':
+            form = CampanaForm(request.POST, instance = camp)
+            if form.is_valid():
+                campana = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    campana.delete()
+                else:
+                    campana.save()
+                return redirect('vista_campana')
+        else:
+            form = CampanaForm(instance = camp)
+        return render(request, 'vista_campana.html', {'form': form, 'empresa': empresa, 'campanas':campanas, 'modificacion': 'S'})
+    else:
+        return redirect('vista_campana')

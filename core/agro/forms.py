@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
 from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
+from .models import Campana
 from string import Template
 
     
@@ -159,4 +160,13 @@ class CostoProd_o_Form(BaseForm):
     producto = forms.ChoiceField()
     espec = forms.ChoiceField()
     
+class CampanaForm(BaseForm):
+    class Meta:
+        model = Campana
+        fields = '__all__'
+        exclude = ['empresa']
+        widgets = {
+                'fecha_desde': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+                'fecha_hasta': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+            }
 
