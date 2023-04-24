@@ -12,9 +12,9 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import Campana
+from .models import Campana, Planificacion_cultivo
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
-from .forms import CostoProd_o_Form, CampanaForm
+from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from operator import itemgetter
@@ -602,3 +602,21 @@ def editar_campana(request, id_campana):
         return render(request, 'vista_campana.html', {'form': form, 'empresa': empresa, 'campanas':campanas, 'modificacion': 'S'})
     else:
         return redirect('vista_campana')
+
+
+@login_required
+def vista_planificacion(request):
+    planificaciones = Planificacion_cultivo.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = PlanificacionCultivoForm(request.POST)
+        if form.is_valid():
+            plani = form.save(commit=False)
+            plani.empresa = empresa
+            plani.save()
+            form = PlanificacionCultivoForm()
+    else:
+        form = PlanificacionCultivoForm()
+    return render(request, 'vista_plani.html', {'planis': planificaciones, 'form': form, 'empresa': empresa })
+
+

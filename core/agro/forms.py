@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
 from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import Campana
+from .models import Campana, Planificacion_cultivo
 from string import Template
 
     
@@ -170,3 +170,14 @@ class CampanaForm(BaseForm):
                 'fecha_hasta': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
 
+
+class PlanificacionCultivoForm(BaseForm):
+    class Meta:
+        model = Planificacion_cultivo
+        fields = '__all__'
+        exclude = ['empresa']
+        widgets = {
+                'fecha_plani': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+                'fecha_desde': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+                'fecha_hasta': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+            }
