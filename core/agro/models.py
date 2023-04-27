@@ -320,8 +320,11 @@ class Planificacion_cultivo (models.Model):
     observaciones = models.TextField()
     fecha_desde = models.DateField(default=timezone.now) 
     fecha_hasta = models.DateField(default=timezone.now)
+    costo = models.ForeignKey("CostoProd", on_delete=models.CASCADE, null=True, blank=True) 
       
 class Campana ( models.Model):
+    def __str__(self):
+        return self.nombre
     class Meta:
         pass
     def clean_end_time(self):
@@ -341,7 +344,6 @@ class Planificacion_lote( models.Model):
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     planificacion = models.ForeignKey("Planificacion_cultivo",  on_delete=models.CASCADE)
     lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
-    costo = models.ForeignKey("CostoProd", on_delete=models.CASCADE, null=True, blank=True) 
 
 
 class Planificacion_etapas(models.Model):
@@ -400,6 +402,8 @@ class agro_CostoProdo(models.Model):
     especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)
 
 class CostoProd(models.Model):
+    def __str__(self):
+        return self.nombre
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)
     nombre = models.CharField(max_length=50, default = '')
