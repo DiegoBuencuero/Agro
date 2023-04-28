@@ -21,6 +21,7 @@
               <label class="col-sm-3 col-form-label">Nombre</label>
               <div class="col-sm-9">
                 {{form.nombre}}
+                {{form.nombre.errors}}
               </div>
             </div>
           </div>
@@ -148,7 +149,6 @@
         <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
         <button type='button' class="btn btn-dark" onclick="window.location.href='/';">Cancel</button>
       </form>
-
     </div>
   </div>
 </div>

@@ -12,9 +12,9 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import Campana, Planificacion_cultivo
+from .models import Campana, Planificacion_cultivo, Planificacion_lote
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
-from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm
+from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from operator import itemgetter
@@ -189,8 +189,7 @@ def vista_lotes(request):
     if request.method == 'POST':
         form = LoteForm(empresa, request.POST, request.FILES)
         if form.is_valid():
-            lote = form.save(commit=False)
-            lote.save()
+            form.save()
             form = LoteForm(empresa)
     else:
         form = LoteForm(empresa)
@@ -620,3 +619,85 @@ def vista_planificacion(request):
     return render(request, 'vista_plani.html', {'planis': planificaciones, 'form': form, 'empresa': empresa })
 
 
+@login_required
+def editar_planificacion(request, id_plani):
+    planificaciones = Planificacion_cultivo.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        plani =Planificacion_cultivo.objects.get(id = id_plani)
+    except:
+        return redirect('vista_planificacion')
+    empresa = request.user.profile.empresa
+    if plani.empresa == empresa:
+        if request.method == 'POST':
+            form = PlanificacionCultivoForm(request.POST, instance = plani)
+            if form.is_valid():
+                plani = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    plani.delete()
+                else:
+                    plani.save()
+                return redirect('vista_planificacion')
+        else:
+            form = PlanificacionCultivoForm(instance = plani)
+        return render(request, 'vista_plani.html', {'form': form, 'empresa': empresa, 'planis':planificaciones, 'modificacion': 'S'})
+    else:
+        return redirect('vista_planificacion')
+
+
+
+@login_required
+def vista_planificacion_lote(request, id_plani):
+    try:
+        planificacion =Planificacion_cultivo.objects.get(id = id_plani)
+    except:
+        return redirect('vista_planificacion')
+    lotes = Planificacion_lote.objects.filter(planificacion = planificacion)
+    empresa = request.user.profile.empresa
+    if planificacion.empresa == empresa:
+        if request.method == 'POST':
+            form = PlanificacionLoteForm(empresa, request.POST)
+            if form.is_valid():
+                plani = form.save(commit=False)
+                plani.empresa = empresa
+                try:
+                    new_lote = Lote.objects.get(id = form.cleaned_data['lote_campo'])
+                    check_lote = Planificacion_lote.objects.filter(empresa = empresa).filter(planificacion = planificacion).filter(lote = new_lote)
+                    if len(check_lote) > 0:
+                        form.add_error('lote_campo', 'Este lote ya existe en esta planificacion')
+                    else:
+                        plani.lote = new_lote
+                        plani.planificacion = planificacion
+                        plani.save()
+                        form = PlanificacionLoteForm(empresa)
+                except:
+                    form.add_error('lote_campo', 'Error inesperado, el lote no existe')
+        else:
+            form = PlanificacionLoteForm(empresa)
+        return render(request, 'vista_planificacion_lote.html', {'lotes': lotes, 'planificacion':planificacion, 'form': form, 'cancel_url':'/05-1/'+str(id_plani) })
+    else:
+        return redirect('vista_planificacion')
+
+
+
+def ajax_get_lote(request):
+    campo_id = request.GET.get('campo')
+    campo = Campo.objects.get(id = campo_id)
+    lotes = Lote.objects.filter(campo = campo)
+    respuesta = []
+    for e in lotes:
+        linea = {'id': e.id, 'nombre': e.nombre}
+        respuesta.append(linea)
+    data = {'data': respuesta}
+    return JsonResponse(data)
+
+
+
+@login_required
+def vista_lote_eliminar(request, id_plani, id_lote):
+    try:
+        planificacion =Planificacion_cultivo.objects.get(id = id_plani)
+        lote = Planificacion_lote.objects.get(id = id_lote)
+        lote.delete()
+        return redirect('/05-1/' + str(id_plani))
+    except:
+        return redirect('vista_planificacion')

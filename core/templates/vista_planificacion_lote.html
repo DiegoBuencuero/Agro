@@ -7,19 +7,18 @@
   <div class="card">
     <div class="card-body">
         {% include 'mensajes.html' %}
-      <h4 class="card-title">Planificacion</h4>
+      <h4 class="card-title">Aplicacion de planificacion a los lotes</h4>
       <form class="form-sample" method='post'>
         {% csrf_token %}
         <p class="card-description">
-          Informacion general
+          Informacion planificacion
         </p>
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
               <label class="col-sm-3 col-form-label">Descripcion</label>
               <div class="col-sm-9">
-                {{form.descripcion}}
-                {{form.descripcion.errors}}
+                {{planificacion.descripcion}}
               </div>
             </div>
           </div>
@@ -27,8 +26,7 @@
             <div class="form-group row">
               <label class="col-sm-3 col-form-label">Observaciones</label>
               <div class="col-sm-9">
-                {{form.observaciones}}
-                {{form.observaciones.errors}}
+                {{planificacion.observaciones}}
               </div>
             </div>
           </div>
@@ -39,8 +37,7 @@
               <div class="form-group row">
                 <label class="col-sm-3 col-form-label">Fecha</label>
                 <div class="col-sm-9">
-                  {{form.fecha_plani}}
-                  {{form.fecha_plani.errors}}
+                  {{planificacion.fecha_plani}}
                 </div>
               </div>
             </div>
@@ -58,8 +55,7 @@
             <div class="form-group row">
               <label class="col-sm-3 col-form-label">Campaña</label>
               <div class="col-sm-9">
-                  {{form.campana}}
-                  {{form.campana.errors}}
+                  {{planificacion.campana}}
               </div>
             </div>
           </div>
@@ -67,8 +63,7 @@
             <div class="form-group row">
               <label class="col-sm-3 col-form-label">Costo</label>
               <div class="col-sm-9">
-                {{form.costo}}
-                {{form.costo.errors}}
+                {{planificacion.costo}}
               </div>
             </div>
           </div>
@@ -79,8 +74,7 @@
               <div class="form-group row">
                 <label class="col-sm-3 col-form-label">Fecha desde</label>
                 <div class="col-sm-9">
-                  {{form.fecha_desde}}
-                  {{form.fecha_desde.errors}}
+                  {{planificacion.fecha_desde}}
                 </div>
               </div>
             </div>
@@ -88,13 +82,36 @@
               <div class="form-group row">
                 <label class="col-sm-3 col-form-label">Fecha hasta</label>
                 <div class="col-sm-9">
-                    {{form.fecha_hasta}}
-                    {{form.fecha_hasta.errors}}
+                    {{planificacion.fecha_hasta}}
                 </div>
               </div>
             </div>
         </div>
+        <p class="card-description">
+            Lote
+        </p>
 
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Campo</label>
+                <div class="col-sm-9">
+                    {{form.campo}}
+                    {{form.campo.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Lote</label>
+                <div class="col-sm-9">
+                    {{form.lote_campo}}
+                    {{form.lote_campo.errors}}
+                </div>
+              </div>
+            </div>
+          </div>
+    
   
         {% if modificacion %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
@@ -102,7 +119,8 @@
         {% else %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
         {% endif %}
-        <button type='button' class="btn btn-dark" onclick="window.location.href='/05';">Cancel</button>
+        <button type='button' class="btn btn-dark" onclick="window.location.href='{{cancel_url}}';">Cancel</button>
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/05';">Volver</button>
 
       </form>
 
@@ -121,45 +139,27 @@
             <thead>
               <tr>
                 <th>
-                  Campaña
+                  Campo
                 </th>
                 <th>
-                  Descripcion
+                  Lote
                 </th>
                 <th>
-                  Desde
-                </th>
-                <th>
-                  Hasta
-                </th>
-                <th>
-                  Lotes
-                </th>
-                <th>
-                  Etapas
+                  Borrar
                 </th>
               </tr>
             </thead>
             <tbody>
-                {% for plani in planis %}
+                {% for lote in lotes %}
                     <tr>
                         <td>
-                            {{plani.campana}}
+                            {{lote.lote.campo}}
                         </td>
                         <td>
-                            <a href="/05/{{plani.id}}">{{plani.descripcion}}</a> 
+                            <a href="/05/{{lote.id}}">{{lote.lote}}</a> 
                         </td>
                         <td>
-                          {{plani.fecha_desde}}
-                        </td>
-                        <td>
-                          {{plani.fecha_hasta}}
-                        </td>
-                        <td>
-                          <a href="/05-1/{{plani.id}}"><i class='ti-layout-grid3'></i></a>
-                        </td>
-                        <td>
-                          <a href="/05-2/{{plani.id}}"><i class='ti-calendar'></i></a>
+                          <a href="/05-2/{{planificacion.id}}/{{lote.id}}"><i class='ti-close'></i></a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -169,7 +169,35 @@
       </div>
     </div>
   </div>
-
+  <script>
+    function load_lotes(parametro) { 
+        $.ajax({
+          url : "{% url 'ajax_get_lote' %}",
+          data : {
+            'campo' : id_campo.value,
+          },
+          method : 'GET',
+          success : function(response) {
+            var opciones = "";
+            response.data.forEach(function(item, index) {
+              opciones += '<option value="' + item.id + '">' + item.nombre + '</option>';
+            });
+            id_lote_campo.innerHTML = opciones;
+            if (parametro != undefined) id_lote_campo.value = parametro;
+  
+          } // reference to below
+        });
+  
+      }
+  
+    window.addEventListener('load', async() => {
+        id_campo.addEventListener('change', async() => {
+          load_lotes();
+        });
+        load_lotes(id_lote_campo.value);
+      });
+  
+</script>
 {% endblock %}
 {% block nav %}
 {% include 'nav_home.html' %}

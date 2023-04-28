@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
 from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import Campana, Planificacion_cultivo
+from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
 from string import Template
 
     
@@ -172,6 +172,9 @@ class CampanaForm(BaseForm):
 
 
 class PlanificacionCultivoForm(BaseForm):
+    def __init__(self,*args,**kwargs):
+        super (PlanificacionCultivoForm,self ).__init__(*args,**kwargs)
+        self.fields['costo'].required = True
     class Meta:
         model = Planificacion_cultivo
         fields = '__all__'
@@ -181,3 +184,24 @@ class PlanificacionCultivoForm(BaseForm):
                 'fecha_desde': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
                 'fecha_hasta': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
+
+
+class PlanificacionLoteForm(BaseForm):
+    def __init__(self,company,*args,**kwargs):
+        super (PlanificacionLoteForm,self ).__init__(*args,**kwargs) # populates the post
+        opciones = []
+        campos = Campo.objects.filter(empresa = company)
+        for e in campos:
+            opciones.append((e.id, e.nombre))
+        self.fields['campo'].choices = opciones
+        lotes = Lote.objects.filter(campo__in = campos)
+        opciones = []
+        for l in lotes:
+            opciones.append((l.id, l.nombre))
+        self.fields['lote_campo'].choices = opciones
+    class Meta:
+        model = Planificacion_lote
+        fields = '__all__'
+        exclude = ['empresa', 'planificacion', 'lote']
+    campo = forms.ChoiceField()
+    lote_campo = forms.ChoiceField()
