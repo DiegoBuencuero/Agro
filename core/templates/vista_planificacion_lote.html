@@ -119,8 +119,11 @@
         {% else %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
         {% endif %}
-        <button type='button' class="btn btn-dark" onclick="window.location.href='{{cancel_url}}';">Cancel</button>
-        <button type='button' class="btn btn-dark" onclick="window.location.href='/05';">Volver</button>
+        <button type='button' class="btn btn-dark mr-2" onclick="window.location.href='{{cancel_url}}';">Cancel</button>
+        <button type="button" class="btn btn-success btn-icon-text" onclick="window.location.href='/05';">
+          <i class="ti-back-left btn-icon-prepend"></i>                                                    
+          Volver
+        </button>
 
       </form>
 

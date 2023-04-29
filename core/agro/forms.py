@@ -205,3 +205,13 @@ class PlanificacionLoteForm(BaseForm):
         exclude = ['empresa', 'planificacion', 'lote']
     campo = forms.ChoiceField()
     lote_campo = forms.ChoiceField()
+
+
+
+class PlanificacionEtapaForm(BaseForm):
+    def __init__(self,company,*args,**kwargs):
+        super (PlanificacionEtapaForm,self ).__init__(*args,**kwargs) # populates the post
+    class Meta:
+        model = Planificacion_etapas
+        fields = '__all__'
+        exclude = ['empresa', 'planificacion']

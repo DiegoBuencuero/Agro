@@ -12,9 +12,9 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import Campana, Planificacion_cultivo, Planificacion_lote
+from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
-from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm
+from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, PlanificacionEtapaForm
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from operator import itemgetter
@@ -701,3 +701,42 @@ def vista_lote_eliminar(request, id_plani, id_lote):
         return redirect('/05-1/' + str(id_plani))
     except:
         return redirect('vista_planificacion')
+
+
+def load_etapas(planificacion):
+    print('cargar etapas')
+
+@login_required
+def vista_planificacion_etapas(request, id_plani):
+    try:
+        planificacion =Planificacion_cultivo.objects.get(id = id_plani)
+    except:
+        return redirect('vista_planificacion')
+    etapas = Planificacion_etapas.objects.filter(planificacion = planificacion)
+    if len(etapas) == 0:
+        load_etapas(planificacion)
+    empresa = request.user.profile.empresa
+    if planificacion.empresa == empresa:
+        if request.method == 'POST':
+            form = PlanificacionLoteForm(empresa, request.POST)
+            if form.is_valid():
+                plani = form.save(commit=False)
+                plani.empresa = empresa
+                try:
+                    new_lote = Lote.objects.get(id = form.cleaned_data['lote_campo'])
+                    check_lote = Planificacion_lote.objects.filter(empresa = empresa).filter(planificacion = planificacion).filter(lote = new_lote)
+                    if len(check_lote) > 0:
+                        form.add_error('lote_campo', 'Este lote ya existe en esta planificacion')
+                    else:
+                        plani.lote = new_lote
+                        plani.planificacion = planificacion
+                        plani.save()
+                        form = PlanificacionLoteForm(empresa)
+                except:
+                    form.add_error('lote_campo', 'Error inesperado, el lote no existe')
+        else:
+            form = PlanificacionEtapaForm(empresa)
+        return render(request, 'vista_planificacion_etapas.html', {'etapas': etapas, 'planificacion':planificacion, 'form': form, 'cancel_url':'/05-3/'+str(id_plani) })
+    else:
+        return redirect('vista_planificacion')
+
