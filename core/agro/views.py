@@ -13,6 +13,7 @@ from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
+from .models import Apli_costo_etapa
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, PlanificacionEtapaForm
 from django.views.generic import TemplateView
@@ -702,9 +703,41 @@ def vista_lote_eliminar(request, id_plani, id_lote):
     except:
         return redirect('vista_planificacion')
 
+def get_producto(origen, id):
+    if origen == 'A':
+        producto = agro_Producto.objects.get(id = id)
+    else:
+        producto = Producto.objects.get(id = id)
+    return producto
 
 def load_etapas(planificacion):
-    print('cargar etapas')
+    costo = planificacion.costo
+    items = CostoProdo.objects.filter(costo_prod = costo)
+    for item in items:
+        producto = get_producto(item.origen, item.producto_id)
+        etapas = producto.agro_tipo.etapas.all()
+        if len(etapas) == 1:
+            etapa = etapas[0]
+            lotes = Planificacion_lote.objects.filter(planificacion = planificacion)
+            for lote in lotes:
+                plani_etapa = Planificacion_etapas(
+                    empresa = planificacion.empresa,
+                    planificacion = planificacion,
+                    lote = lote.lote,
+                    etapa = etapa,
+                    producto_id = item.producto_id,
+                    origen = item.origen,
+                    um = item.um,
+                    cantidad = item.cantidad * lote.lote.ha_productivas,
+                    precio_unitario = item.precio_unitario,
+                    moneda = item.moneda,
+                    cotizacion = item.cotizacion,
+                    especificacion = item.especificacion  
+                    )
+                plani_etapa.save()
+                apli = Apli_costo_etapa(plani_etapa = plani_etapa, plani_costoo = item)
+                apli.save()
+        
 
 @login_required
 def vista_planificacion_etapas(request, id_plani):
@@ -715,6 +748,32 @@ def vista_planificacion_etapas(request, id_plani):
     etapas = Planificacion_etapas.objects.filter(planificacion = planificacion)
     if len(etapas) == 0:
         load_etapas(planificacion)
+        etapas = Planificacion_etapas.objects.filter(planificacion = planificacion)
+    etapas_list = []
+    for etapa in etapas:
+        producto = get_producto(etapa.origen, etapa.producto_id)
+        linea = {
+            'etapa': etapa.etapa,
+            'producto_desc': producto.descripcion,
+            'producto_id': producto.id,
+            'lote': etapa.lote,
+            'cantidad': etapa.cantidad,
+            'um': etapa.um,
+
+        }
+        etapas_list.append(linea)
+    no_asig_list = []
+    items = CostoProdo.objects.filter(costo_prod = planificacion.costo)
+    for item in items:
+        apli = Apli_costo_etapa.objects.filter(plani_costoo = item)
+        if len(apli) == 0:
+            producto = get_producto(item.origen, item.producto_id)
+            linea = {
+                'producto_desc': producto.descripcion,
+                'producto_id': producto.id,
+                'cantidad': item.cantidad
+            }
+            no_asig_list.append(linea)
     empresa = request.user.profile.empresa
     if planificacion.empresa == empresa:
         if request.method == 'POST':
@@ -736,7 +795,18 @@ def vista_planificacion_etapas(request, id_plani):
                     form.add_error('lote_campo', 'Error inesperado, el lote no existe')
         else:
             form = PlanificacionEtapaForm(empresa)
-        return render(request, 'vista_planificacion_etapas.html', {'etapas': etapas, 'planificacion':planificacion, 'form': form, 'cancel_url':'/05-3/'+str(id_plani) })
+        return render(request, 'vista_planificacion_etapas.html', {'etapas': etapas_list, 'noasign':no_asig_list , 'planificacion':planificacion, 'form': form, 'cancel_url':'/05-3/'+str(id_plani) })
     else:
         return redirect('vista_planificacion')
 
+@login_required
+def vista_planificacion_etapas_reset(request, id_plani):
+    try:
+        planificacion =Planificacion_cultivo.objects.get(id = id_plani)
+    except:
+        return redirect('vista_planificacion')
+    if planificacion.empresa != request.user.profile.empresa:
+        return redirect('vista_planificacion')
+    Planificacion_etapas.objects.filter(planificacion = planificacion).delete()
+    load_etapas(planificacion)
+    return redirect('/05-3/' + str(id_plani))

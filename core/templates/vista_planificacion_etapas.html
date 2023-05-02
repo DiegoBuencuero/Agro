@@ -124,13 +124,18 @@
           <i class="ti-back-left btn-icon-prepend"></i>                                                    
           Volver
         </button>
+        <button type="button" class="btn btn-success btn-icon-text" onclick="consultar();">
+          <i class="ti-back-left btn-icon-prepend"></i>                                                    
+          Reasignar
+        </button>
 
       </form>
 
     </div>
   </div>
 </div>
-{% comment %} <div class="col-lg-12 grid-margin stretch-card">
+<div class="row">
+  <div class="col-lg-7 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">Planificaciones</h4>
@@ -142,27 +147,83 @@
             <thead>
               <tr>
                 <th>
-                  Campo
+                  Etapa
+                </th>
+                <th>
+                  Producto
                 </th>
                 <th>
                   Lote
                 </th>
                 <th>
-                  Borrar
+                  Cantidad
+                </th>
+                <th>
+                  UM
                 </th>
               </tr>
             </thead>
             <tbody>
-                {% for lote in lotes %}
+                {% for fila in etapas %}
+                    <tr>
+                      <td>
+                        {{fila.etapa}}
+                      </td>
+                      <td>
+                          <a href="/xx/{{fila.producto_id}}">{{fila.producto_desc}}</a> 
+                      </td>
+                      <td>
+                          {{fila.lote}}
+                      </td>
+                      <td>
+                        {{fila.cantidad}}
+                      </td>
+                      <td>
+                        {{fila.um.abreviado}}
+                      </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div> 
+  <div class="col-lg-5 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Costos no asignados</h4>
+        <p class="card-description">
+          {{empresa.nombre}}
+        </p>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>
+                  Producto
+                </th>
+                <th>
+                  Cantidad
+                </th>
+                <th>
+                  Asignar
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for fila in noasign %}
                     <tr>
                         <td>
-                            {{lote.lote.campo}}
+                            <a href="/xx/{{fila.producto_id}}">{{fila.producto_desc}}</a> 
                         </td>
                         <td>
-                            <a href="/05/{{lote.id}}">{{lote.lote}}</a> 
+                          {{fila.cantidad}}
                         </td>
                         <td>
-                          <a href="/05-2/{{planificacion.id}}/{{lote.id}}"><i class='ti-close'></i></a>
+                          <button type="button" class="btn btn-inverse-primary btn-rounded btn-icon">
+                            <i class="ti-home"></i>
+                          </button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -171,7 +232,19 @@
         </div>
       </div>
     </div>
-  </div> {% endcomment %}
+
+  </div>
+</div>
+<script>
+  function consultar() {
+    confirm2('Importante', 'Quiere recargar los datos?, IMPORTANTE: los datos se eliminaran y se reemplazaran con los nuevos!', 'cancel', 'ok', 
+    function () {
+      var dirurl = "/05-3-reset/{{planificacion.id}}";
+      window.location.href = dirurl;
+    });
+  }
+
+</script>
 {% endblock %}
 {% block nav %}
 {% include 'nav_home.html' %}
@@ -181,6 +254,7 @@
 {% endblock %}
 
 {% block custom_js %}
+<script src="{% static 'js/confirm.js' %}"></script>
 {% endblock %}
 
 

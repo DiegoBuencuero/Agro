@@ -19,7 +19,7 @@ from agro.views import home, login_page, signup, activate, personal_details, Cha
 from agro.views import vista_producto, vista_tipo_producto, editar_producto, editar_tipo_producto, vista_rubro_producto, editar_rubro_producto
 from agro.views import vista_costo_prod, editar_costo_prod, ajax_get_costo, load_costo_agro, ajax_get_espec, editar_costo_prod_linea
 from agro.views import vista_campana, editar_campana, vista_planificacion, editar_planificacion, vista_planificacion_lote
-from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas
+from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_planificacion_etapas_reset
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
@@ -55,6 +55,7 @@ urlpatterns = [
     path('99-getlote', ajax_get_lote, name = 'ajax_get_lote'),
     path('05-2/<int:id_plani>/<int:id_lote>', vista_lote_eliminar, name='vista_lote_eliminar'),
     path('05-3/<int:id_plani>', vista_planificacion_etapas, name='vista_planificacion_etapas'),
+    path('05-3-reset/<int:id_plani>', vista_planificacion_etapas_reset, name='vista_planificacion_etapas_reset'),
 
 
 ]

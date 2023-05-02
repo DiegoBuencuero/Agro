@@ -353,7 +353,8 @@ class Planificacion_etapas(models.Model):
     planificacion = models.ForeignKey("Planificacion_cultivo", on_delete=models.CASCADE)
     lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
     etapa = models.ForeignKey("agro_Etapa", on_delete=models.CASCADE)
-    agro_producto = models.ForeignKey("agro_Producto", on_delete=models.CASCADE) 
+    producto_id = models.IntegerField(null=True, blank=True)
+    origen = models.CharField(max_length=1, choices = (('A', 'Agro'), ('U', 'Usuario')), default='A')
     um = models.ForeignKey(UM, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=10, decimal_places=4)  
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2) 
@@ -361,6 +362,9 @@ class Planificacion_etapas(models.Model):
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
     especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)
 
+class Apli_costo_etapa(models.Model):
+    plani_etapa = models.ForeignKey(Planificacion_etapas, on_delete=models.CASCADE)
+    plani_costoo = models.ForeignKey("CostoProdo", on_delete=models.CASCADE)
 
 class Cultivo(models.Model):
     class Meta:

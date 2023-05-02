@@ -133,10 +133,7 @@
                   Hasta
                 </th>
                 <th>
-                  Lotes
-                </th>
-                <th>
-                  Etapas
+                  Asignar
                 </th>
               </tr>
             </thead>
@@ -156,10 +153,14 @@
                           {{plani.fecha_hasta}}
                         </td>
                         <td>
-                          <a href="/05-1/{{plani.id}}"><i class='ti-layout-grid3'></i></a>
-                        </td>
-                        <td>
-                          <a href="/05-3/{{plani.id}}"><i class='ti-calendar'></i></a>
+                          <div class="btn-group" role="group" aria-label="Basic example">
+                            <a onclick="window.location.href='/05-1/{{plani.id}}';" title='Lotes' type="button" class="btn btn-outline-secondary">
+                              <i class="ti-layout-grid3"></i>
+                            </a>
+                            <a onclick="window.location.href='/05-3/{{plani.id}}';" title='Actividades' type="button" class="btn btn-outline-secondary">
+                              <i class="ti-calendar"></i>
+                            </a>
+                          </div>
                         </td>
                     </tr>
                 {% endfor %}
