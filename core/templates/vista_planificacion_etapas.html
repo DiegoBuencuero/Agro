@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block plugin_css%}
-{% endblock %}                          
+{% endblock %}                  
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/modal.css' %}">
+{% endblock head %}
+
 {% block content %} 
 <div class="col-12 grid-margin">
   <div class="card">
@@ -221,7 +225,7 @@
                           {{fila.cantidad}}
                         </td>
                         <td>
-                          <button type="button" class="btn btn-inverse-primary btn-rounded btn-icon">
+                          <button type="button" onclick= 'asignar_partida({{fila.producto_id}}, "{{fila.producto_desc}}", {{fila.cantidad}}, {{fila.id_costoo}})' class="btn btn-inverse-primary btn-rounded btn-icon">
                             <i class="ti-home"></i>
                           </button>
                         </td>
@@ -235,6 +239,70 @@
 
   </div>
 </div>
+<div id='id_asign' class="modal">
+  <div class="modal-content">
+    <div class="card">
+      <div class="card-body">
+          {% include 'mensajes.html' %}
+        <h4 class="card-title">Asignacion de costo a etapa</h4>
+        <form class="form-sample" method='post'>
+          {% csrf_token %}
+          <p class="card-description">
+            Detalle
+          </p>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Producto</label>
+                <div class="col-sm-9">
+                  <p id='id_modal_prod'></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Cant. Total</label>
+                <div class="col-sm-9">
+                  <p id='id_modal_cantot'></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="card-description">
+            Asignar a
+          </p>
+  
+          <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Etapa</label>
+                  <div class="col-sm-9">
+                    {{form.etapa}}
+                    {{form.etapa.errors}}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Cantidad</label>
+                  <div class="col-sm-9">
+                      {{form.cantidad}}
+                      {{form.cantidad.errors}}
+                  </div>
+                </div>
+              </div>
+          </div>
+  
+    
+          <button type="submit" onclick='cerrar();' class="btn btn-primary btn-rounded btn-fw">Cerrar</button>
+  
+        </form>
+  
+      </div>
+    </div>
+  
+  </div>
+</div>
 <script>
   function consultar() {
     confirm2('Importante', 'Quiere recargar los datos?, IMPORTANTE: los datos se eliminaran y se reemplazaran con los nuevos!', 'cancel', 'ok', 
@@ -242,6 +310,19 @@
       var dirurl = "/05-3-reset/{{planificacion.id}}";
       window.location.href = dirurl;
     });
+  }
+  function asignar_partida( prod_id, prod_desc, cantidad, id_costoo ){
+    var modal = document.getElementById('id_asign');
+    var pprod = document.getElementById('id_modal_prod');
+    var pcant = document.getElementById('id_modal_cantot');
+    pprod.innerHTML = prod_desc;
+    pcant.innerHTML = cantidad;
+    modal.style.display = 'block';
+  }
+  function cerrar() {
+    var modal = document.getElementById('id_asign');
+    modal.style.display = 'none';
+
   }
 
 </script>

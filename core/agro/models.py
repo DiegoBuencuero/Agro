@@ -365,6 +365,8 @@ class Planificacion_etapas(models.Model):
 class Apli_costo_etapa(models.Model):
     plani_etapa = models.ForeignKey(Planificacion_etapas, on_delete=models.CASCADE)
     plani_costoo = models.ForeignKey("CostoProdo", on_delete=models.CASCADE)
+    cant_aplicada = models.DecimalField(max_digits=10, decimal_places=4)  
+
 
 class Cultivo(models.Model):
     class Meta:

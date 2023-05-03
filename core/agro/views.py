@@ -769,6 +769,7 @@ def vista_planificacion_etapas(request, id_plani):
         if len(apli) == 0:
             producto = get_producto(item.origen, item.producto_id)
             linea = {
+                'id_costoo': item.id,
                 'producto_desc': producto.descripcion,
                 'producto_id': producto.id,
                 'cantidad': item.cantidad

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.forms import ModelForm
 from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
+from .models import Apli_costo_etapa
 from string import Template
 
     
@@ -215,3 +216,5 @@ class PlanificacionEtapaForm(BaseForm):
         model = Planificacion_etapas
         fields = '__all__'
         exclude = ['empresa', 'planificacion']
+
+
