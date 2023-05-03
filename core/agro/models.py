@@ -428,3 +428,13 @@ class CostoProdo(models.Model):
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
     especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)
+
+# tabla comprobantes
+class Comprobantes(models.Model):
+    def __str__(self):
+            return self.nombre
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    codigo =  models.CharField(primary_key=True, max_length=10)
+    nombre =  models.CharField(max_length=10)
+    image = models.ImageField(default='default.jpg', upload_to='comprobante')
+    observaciones = models.TextField(null=True, blank=True)

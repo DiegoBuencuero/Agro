@@ -5,6 +5,7 @@ from django.forms import ModelForm
 from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
 from .models import Apli_costo_etapa
+from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Comprobantes
 from string import Template
 
     
@@ -123,8 +124,6 @@ class RubroProdForm(BaseForm):
         fields = '__all__'
         exclude = ['empresa', ]        
 
-
-
 class CostoProdForm(BaseForm):
     class Meta:
         model = CostoProd
@@ -217,4 +216,10 @@ class PlanificacionEtapaForm(BaseForm):
         fields = '__all__'
         exclude = ['empresa', 'planificacion']
 
+
+
+class ComprobantesForm(BaseForm):
+    class Meta:
+        model = Comprobantes
+        fields = ['empresa', 'codigo','nombre', 'image', 'observaciones']
 

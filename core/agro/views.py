@@ -12,10 +12,10 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
 from .models import Apli_costo_etapa
+from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Comprobantes
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
-from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, PlanificacionEtapaForm
+from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, PlanificacionEtapaForm, ComprobantesForm
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from operator import itemgetter
@@ -69,9 +69,6 @@ def login_page(request):
         # form is not valid or user is not authenticated
         messages.error(request,'Invalid username or password')
         return render(request,'login.html',{'form': form})
-
-
-##Nuevo para loguear con google
 
 def signup(request):  
     if request.method == 'POST':  
@@ -135,9 +132,6 @@ def ChangePassword(request):
      return render(request, 'password_confirm.html', {})
    return render(request, 'password.html', {'form': form})
 
-
-
-
 @login_required
 def vista_campos(request):
     campos = Campo.objects.filter(empresa = request.user.profile.empresa)
@@ -195,8 +189,6 @@ def vista_lotes(request):
     else:
         form = LoteForm(empresa)
     return render(request, 'vista_lote.html', {'form': form, 'campos': campos, 'lotes':lotes, 'empresa':empresa })
-
-
 
 
 @login_required
@@ -267,7 +259,6 @@ def editar_tipo_producto(request, id_tipo):
         return redirect('vista_tipo_producto')
 
 
-
 @login_required
 def vista_rubro_producto(request):
     rubros = Rubro.objects.filter(empresa = request.user.profile.empresa)
@@ -306,8 +297,6 @@ def editar_rubro_producto(request, id_rubro):
         return render(request, 'vista_rubro.html', {'form': form, 'empresa': empresa, 'rubros':rubros, 'modificacion': 'S'})
     else:
         return redirect('vista_rubro_producto')
-
-
 
 @login_required
 def vista_producto(request):
@@ -350,8 +339,6 @@ def editar_producto(request, id_prod):
         return render(request, 'vista_producto.html', {'form': form, 'empresa': empresa, 'productos':productos, 'prod':producto, 'modificacion': 'S'})
     else:
         return redirect('vista_producto')
-
-
 
 @login_required
 def vista_costo_prod(request):
@@ -496,7 +483,6 @@ def ajax_get_espec(request):
     return JsonResponse(data)
 
 
-
 @login_required
 def load_costo_agro(request, id_costo, id_agro_costo):
     try:
@@ -524,8 +510,6 @@ def load_costo_agro(request, id_costo, id_agro_costo):
         )
         nuevo.save()
     return redirect('/03/' + str(id_costo))
-
-
 
 
 @login_required
@@ -561,7 +545,6 @@ def editar_costo_prod_linea(request, id_costoo):
         return render(request, 'editar_costo_prod_linea.html', {'form': form, 'costoo': costo})
     else:
         return redirect('vista_costo_prod')
-
 
 
 @login_required
@@ -645,7 +628,6 @@ def editar_planificacion(request, id_plani):
         return redirect('vista_planificacion')
 
 
-
 @login_required
 def vista_planificacion_lote(request, id_plani):
     try:
@@ -679,7 +661,6 @@ def vista_planificacion_lote(request, id_plani):
         return redirect('vista_planificacion')
 
 
-
 def ajax_get_lote(request):
     campo_id = request.GET.get('campo')
     campo = Campo.objects.get(id = campo_id)
@@ -690,7 +671,6 @@ def ajax_get_lote(request):
         respuesta.append(linea)
     data = {'data': respuesta}
     return JsonResponse(data)
-
 
 
 @login_required
@@ -811,3 +791,19 @@ def vista_planificacion_etapas_reset(request, id_plani):
     Planificacion_etapas.objects.filter(planificacion = planificacion).delete()
     load_etapas(planificacion)
     return redirect('/05-3/' + str(id_plani))
+    
+@login_required
+def vista_comprobantes(request):
+    comprobantes = Comprobantes.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = ComprobantesForm(request.POST, request.FILES)
+        if form.is_valid():
+            comprobantes = form.save(commit=False)
+            comprobantes.empresa = empresa
+            comprobantes.save()
+            form = ComprobantesForm()
+    else:
+        form = ComprobantesForm()
+    return render(request, 'vista_comprobantes.html', {'form': form, 'comprobantes': comprobantes, 'empresa': empresa })
+
