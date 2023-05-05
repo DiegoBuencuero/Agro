@@ -20,17 +20,19 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Descripcion</label>
+              <label class="col-sm-3 col-form-label">Descripcion:</label>
               <div class="col-sm-9">
-                {{planificacion.descripcion}}
+                <p class='col-form-label'>{{planificacion.descripcion}}</p>
               </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Observaciones</label>
+              <label class="col-sm-3 col-form-label">Observaciones:</label>
               <div class="col-sm-9">
-                {{planificacion.observaciones}}
+                <p class='col-form-label'>
+                  {{planificacion.observaciones}}
+                </p>
               </div>
             </div>
           </div>
@@ -39,9 +41,11 @@
         <div class="row">
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Fecha</label>
+                <label class="col-sm-3 col-form-label">Fecha:</label>
                 <div class="col-sm-9">
-                  {{planificacion.fecha_plani}}
+                  <p class='col-form-label'>
+                    {{planificacion.fecha_plani}}
+                  </p>
                 </div>
               </div>
             </div>
@@ -57,17 +61,21 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Campaña</label>
+              <label class="col-sm-3 col-form-label">Campaña:</label>
               <div class="col-sm-9">
+                <p class='col-form-label'>
                   {{planificacion.campana}}
+                </p>
               </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Costo</label>
+              <label class="col-sm-3 col-form-label">Costo:</label>
               <div class="col-sm-9">
-                {{planificacion.costo}}
+                <p class='col-form-label'>
+                  {{planificacion.costo}}
+                </p>
               </div>
             </div>
           </div>
@@ -76,17 +84,21 @@
         <div class="row">
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Fecha desde</label>
+                <label class="col-sm-3 col-form-label">Fecha desde:</label>
                 <div class="col-sm-9">
-                  {{planificacion.fecha_desde}}
+                  <p class='col-form-label'>
+                    {{planificacion.fecha_desde}}
+                  </p>
                 </div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Fecha hasta</label>
+                <label class="col-sm-3 col-form-label">Fecha hasta:</label>
                 <div class="col-sm-9">
+                  <p class='col-form-label'>
                     {{planificacion.fecha_hasta}}
+                  </p>
                 </div>
               </div>
             </div>
@@ -157,9 +169,6 @@
                   Producto
                 </th>
                 <th>
-                  Lote
-                </th>
-                <th>
                   Cantidad
                 </th>
                 <th>
@@ -174,10 +183,7 @@
                         {{fila.etapa}}
                       </td>
                       <td>
-                          <a href="/xx/{{fila.producto_id}}">{{fila.producto_desc}}</a> 
-                      </td>
-                      <td>
-                          {{fila.lote}}
+                          {{fila.producto_desc}} 
                       </td>
                       <td>
                         {{fila.cantidad}}
@@ -219,7 +225,7 @@
                 {% for fila in noasign %}
                     <tr>
                         <td>
-                            <a href="/xx/{{fila.producto_id}}">{{fila.producto_desc}}</a> 
+                            {{fila.producto_desc}} 
                         </td>
                         <td>
                           {{fila.cantidad}}
@@ -239,13 +245,13 @@
 
   </div>
 </div>
-<div id='id_asign' class="modal">
-  <div class="modal-content">
+<div id='id_asign' class="inno-modal">
+  <div class="inno-modal-content">
     <div class="card">
       <div class="card-body">
           {% include 'mensajes.html' %}
         <h4 class="card-title">Asignacion de costo a etapa</h4>
-        <form class="form-sample" method='post'>
+        <form id='MyForm' class="form-sample" method='post'>
           {% csrf_token %}
           <p class="card-description">
             Detalle
@@ -288,13 +294,14 @@
                   <div class="col-sm-9">
                       {{form.cantidad}}
                       {{form.cantidad.errors}}
+                      {{form.identificador}}
                   </div>
                 </div>
               </div>
           </div>
   
     
-          <button type="submit" onclick='cerrar();' class="btn btn-primary btn-rounded btn-fw">Cerrar</button>
+          <button type="button" onclick='cerrar();' class="btn btn-primary btn-rounded btn-fw">Cerrar</button>
   
         </form>
   
@@ -311,17 +318,36 @@
       window.location.href = dirurl;
     });
   }
+  var modal = document.getElementById('id_asign');
+  var pprod = document.getElementById('id_modal_prod');
+  var pcant = document.getElementById('id_modal_cantot');
+  var form_cant = document.getElementById('id_cantidad');
+  var form_costto = document.getElementById('id_identificador')
   function asignar_partida( prod_id, prod_desc, cantidad, id_costoo ){
-    var modal = document.getElementById('id_asign');
-    var pprod = document.getElementById('id_modal_prod');
-    var pcant = document.getElementById('id_modal_cantot');
     pprod.innerHTML = prod_desc;
     pcant.innerHTML = cantidad;
+    form_cant.value = cantidad;
+    id_identificador.value = id_costoo;
     modal.style.display = 'block';
   }
   function cerrar() {
-    var modal = document.getElementById('id_asign');
-    modal.style.display = 'none';
+    if (parseFloat(form_cant.value) > parseFloat(pcant.innerHTML))
+      alert('error numero invalido')
+    else
+      modal.style.display = 'none';
+      const formulario = document.getElementById('MyForm');
+      const data = new FormData(formulario);
+      fetch('/05-3/{{planificacion.id}}', {
+        method: 'POST',
+        body: data,
+
+      })
+      .then(response=> {
+        if (response.redirected)
+          window.location.href = response.url;
+
+      })
+      .catch(error=>console.log(error));
 
   }
 

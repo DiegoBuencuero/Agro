@@ -59,6 +59,8 @@ class Ciudad(models.Model):
     provincia = models.ForeignKey("Provincia", verbose_name=("Provincia"), on_delete=models.CASCADE)
 
 class Empresa(models.Model):
+    def __str__(self):
+        return self.nombre
     class Meta:
         pass
     nombre = models.CharField(max_length=100)
@@ -303,6 +305,9 @@ class Movo (models.Model):
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
 
 class Planificacion_cultivo (models.Model):
+    def __str__(self):
+        return self.descripcion
+
     class Meta:
         pass
     def clean_end_time(self):
@@ -347,24 +352,12 @@ class Planificacion_lote( models.Model):
 
 
 class Planificacion_etapas(models.Model):
-    class Meta:
-        pass
+    def __str__(self):
+        return self.planificacion.descripcion + '-' + str(self.producto_id) + '-' + str(self.cantidad)
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
-    planificacion = models.ForeignKey("Planificacion_cultivo", on_delete=models.CASCADE)
-    lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
+    planificacion = models.ForeignKey("Planificacion_cultivo",  on_delete=models.CASCADE)
     etapa = models.ForeignKey("agro_Etapa", on_delete=models.CASCADE)
-    producto_id = models.IntegerField(null=True, blank=True)
-    origen = models.CharField(max_length=1, choices = (('A', 'Agro'), ('U', 'Usuario')), default='A')
-    um = models.ForeignKey(UM, on_delete=models.CASCADE)
-    cantidad = models.DecimalField(max_digits=10, decimal_places=4)  
-    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2) 
-    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
-    cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
-    especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)
-
-class Apli_costo_etapa(models.Model):
-    plani_etapa = models.ForeignKey(Planificacion_etapas, on_delete=models.CASCADE)
-    plani_costoo = models.ForeignKey("CostoProdo", on_delete=models.CASCADE)
+    costoo = models.ForeignKey("CostoProdo", models.CASCADE, null=True, blank=True)
     cant_aplicada = models.DecimalField(max_digits=10, decimal_places=4)  
 
 

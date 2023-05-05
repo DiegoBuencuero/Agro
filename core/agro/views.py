@@ -12,10 +12,11 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import Apli_costo_etapa
+from .models import agro_Etapa
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Comprobantes
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
-from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, PlanificacionEtapaForm, ComprobantesForm
+from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm
+from .forms import FormAsignacionEtapaCosto
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from operator import itemgetter
@@ -698,25 +699,14 @@ def load_etapas(planificacion):
         etapas = producto.agro_tipo.etapas.all()
         if len(etapas) == 1:
             etapa = etapas[0]
-            lotes = Planificacion_lote.objects.filter(planificacion = planificacion)
-            for lote in lotes:
-                plani_etapa = Planificacion_etapas(
-                    empresa = planificacion.empresa,
-                    planificacion = planificacion,
-                    lote = lote.lote,
-                    etapa = etapa,
-                    producto_id = item.producto_id,
-                    origen = item.origen,
-                    um = item.um,
-                    cantidad = item.cantidad * lote.lote.ha_productivas,
-                    precio_unitario = item.precio_unitario,
-                    moneda = item.moneda,
-                    cotizacion = item.cotizacion,
-                    especificacion = item.especificacion  
-                    )
-                plani_etapa.save()
-                apli = Apli_costo_etapa(plani_etapa = plani_etapa, plani_costoo = item)
-                apli.save()
+            plani_etapa = Planificacion_etapas(
+                empresa = planificacion.empresa,
+                planificacion = planificacion,
+                etapa = etapa,
+                costoo = item,
+                cant_aplicada = item.cantidad
+                )
+            plani_etapa.save()
         
 
 @login_required
@@ -731,51 +721,63 @@ def vista_planificacion_etapas(request, id_plani):
         etapas = Planificacion_etapas.objects.filter(planificacion = planificacion)
     etapas_list = []
     for etapa in etapas:
-        producto = get_producto(etapa.origen, etapa.producto_id)
+        producto = get_producto(etapa.costoo.origen, etapa.costoo.producto_id)
         linea = {
             'etapa': etapa.etapa,
             'producto_desc': producto.descripcion,
             'producto_id': producto.id,
-            'lote': etapa.lote,
-            'cantidad': etapa.cantidad,
-            'um': etapa.um,
+            'cantidad': etapa.cant_aplicada,
+            'um': etapa.costoo.um,
 
         }
         etapas_list.append(linea)
     no_asig_list = []
     items = CostoProdo.objects.filter(costo_prod = planificacion.costo)
     for item in items:
-        apli = Apli_costo_etapa.objects.filter(plani_costoo = item)
-        if len(apli) == 0:
+        total = item.cantidad
+        apli = Planificacion_etapas.objects.filter(costoo = item)
+        totapli = 0
+        for a in apli:
+            totapli += a.cant_aplicada
+            print('totapli = ', totapli, ' item= ',  item.id)
+        if totapli < item.cantidad:
             producto = get_producto(item.origen, item.producto_id)
             linea = {
                 'id_costoo': item.id,
                 'producto_desc': producto.descripcion,
                 'producto_id': producto.id,
-                'cantidad': item.cantidad
+                'cantidad': item.cantidad - totapli
             }
             no_asig_list.append(linea)
     empresa = request.user.profile.empresa
     if planificacion.empresa == empresa:
         if request.method == 'POST':
-            form = PlanificacionLoteForm(empresa, request.POST)
+            form = FormAsignacionEtapaCosto(request.POST)
             if form.is_valid():
-                plani = form.save(commit=False)
-                plani.empresa = empresa
-                try:
-                    new_lote = Lote.objects.get(id = form.cleaned_data['lote_campo'])
-                    check_lote = Planificacion_lote.objects.filter(empresa = empresa).filter(planificacion = planificacion).filter(lote = new_lote)
-                    if len(check_lote) > 0:
-                        form.add_error('lote_campo', 'Este lote ya existe en esta planificacion')
-                    else:
-                        plani.lote = new_lote
-                        plani.planificacion = planificacion
-                        plani.save()
-                        form = PlanificacionLoteForm(empresa)
-                except:
-                    form.add_error('lote_campo', 'Error inesperado, el lote no existe')
+                selected_etapa_id = form.cleaned_data['etapa']
+                selected_etapa = agro_Etapa.objects.get(id=selected_etapa_id)
+                selected_costo_id = form.cleaned_data['identificador']
+                selected_costo = CostoProdo.objects.get(id=selected_costo_id)
+                from decimal import Decimal
+                selected_cant = Decimal(form.cleaned_data['cantidad'])
+                if form.is_valid():
+                    plani_etapa = Planificacion_etapas(
+                        empresa = planificacion.empresa,
+                        planificacion = planificacion,
+                        etapa = selected_etapa,
+                        costoo = selected_costo,
+                        cant_aplicada = selected_cant
+                        )
+                    plani_etapa.save()
+                    form = FormAsignacionEtapaCosto()
+                return redirect('/05-3/' + str(id_plani))
+
+
+
         else:
-            form = PlanificacionEtapaForm(empresa)
+            form = FormAsignacionEtapaCosto()
+        print('render')
+        
         return render(request, 'vista_planificacion_etapas.html', {'etapas': etapas_list, 'noasign':no_asig_list , 'planificacion':planificacion, 'form': form, 'cancel_url':'/05-3/'+str(id_plani) })
     else:
         return redirect('vista_planificacion')

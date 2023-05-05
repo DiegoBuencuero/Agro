@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Profile, Pais, Provincia, Ciudad, Tipodoc, Nacionalidad, Empresa, Genero, Campo, Tipo, Rubro, Cultivo, SistemaCultivo
 from .models import Especificacion, UM, Moneda, agro_CostoProd, agro_CostoProdo, agro_Producto, agro_TipoProd, agro_RubroProd, Especificacion_tipo
 from .models import CostoProd, CostoProdo, Producto, agro_Etapa, Lote, Planificacion_etapas
-from .models import Apli_costo_etapa, Comprobantes
+from .models import Comprobantes
 # Register your models here.
 
 admin.site.register(Profile)
@@ -33,4 +33,3 @@ admin.site.register(Producto)
 admin.site.register(agro_Etapa) 
 admin.site.register(Lote) 
 admin.site.register(Planificacion_etapas)
-admin.site.register(Apli_costo_etapa)

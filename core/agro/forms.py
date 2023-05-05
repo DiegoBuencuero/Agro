@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.forms import ModelForm
 from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
-from .models import Apli_costo_etapa
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Comprobantes
 from string import Template
 
@@ -206,17 +205,18 @@ class PlanificacionLoteForm(BaseForm):
     campo = forms.ChoiceField()
     lote_campo = forms.ChoiceField()
 
-
-
-class PlanificacionEtapaForm(BaseForm):
-    def __init__(self,company,*args,**kwargs):
-        super (PlanificacionEtapaForm,self ).__init__(*args,**kwargs) # populates the post
-    class Meta:
-        model = Planificacion_etapas
-        fields = '__all__'
-        exclude = ['empresa', 'planificacion']
-
-
+from .models import agro_Etapa
+class FormAsignacionEtapaCosto(forms.Form):
+    def __init__(self,*args,**kwargs):
+        super (FormAsignacionEtapaCosto,self ).__init__(*args,**kwargs) # populates the post
+        opciones = []
+        etapas = agro_Etapa.objects.all()
+        for e in etapas:
+            opciones.append((e.id, e.nombre))
+        self.fields['etapa'].choices = opciones
+    etapa = forms.ChoiceField()
+    cantidad = forms.IntegerField()
+    identificador = forms.CharField(widget=forms.HiddenInput())
 
 class ComprobantesForm(BaseForm):
     class Meta:
