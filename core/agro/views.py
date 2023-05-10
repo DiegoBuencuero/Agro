@@ -15,7 +15,7 @@ from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, 
 from .models import agro_Etapa
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
-from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm
+from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
 from .forms import FormAsignacionEtapaCosto
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -847,11 +847,11 @@ def vista_numerador(request):
             form = NumeradorForm()
     else:
         form = NumeradorForm()
-    return render(request, 'vista_numerador.html', {'form': form, 'numerador': numera, 'empresa': empresa })
+    return render(request, 'vista_numerador.html', {'form': form, 'numeradores': numera, 'empresa': empresa })
 
 @login_required
 def editar_comprobantes(request, id_com):
-    comprobante = Com.objects.filter(empresa = request.user.profile.empresa)
+    comprobantes = Com.objects.filter(empresa = request.user.profile.empresa)
     try:
         comprobante = Com.objects.get(id = id_com)
     except:
@@ -865,22 +865,20 @@ def editar_comprobantes(request, id_com):
                 if request.POST.get('borrar') == '':
                     comprobante.delete()
                 else:
-                    comprobante.empresa = empresa
+                    # comprobante.empresa = empresa
                     comprobante.save()
                 return redirect('/07')
-            else:
-                messages.error(request, form.errors.as_data() )
         else:
             form = ComprobantesForm(instance = comprobante)
-        return render(request, 'vista_comprobantes.html', {'form': form, 'comprobantes': comprobante, 'empresa': empresa, 'modificacion': 'S'})
+        return render(request, 'vista_comprobantes.html', {'form': form, 'comprobantes': comprobantes, 'empresa': empresa, 'modificacion': 'S'})
     else:
         return redirect('/07') 
 
 @login_required
-def editar_numerador(request, id_com):
-    numerador = Com.objects.filter(empresa = request.user.profile.empresa)
+def editar_numerador(request, id_num):
+    numeradores = Num.objects.filter(empresa = request.user.profile.empresa)
     try:
-        numerador = Com.objects.get(id = id_com)
+        numerador = Num.objects.get(id = id_num)
     except:
         return redirect('/06')
     empresa = request.user.profile.empresa
@@ -892,13 +890,11 @@ def editar_numerador(request, id_com):
                 if request.POST.get('borrar') == '':
                     numerador.delete()
                 else:
-                    numerador.empresa = empresa
+                 #   numerador.empresa = empresa ya lo trae de 883
                     numerador.save()
                 return redirect('/06')
-            else:
-                messages.error(request, form.errors.as_data() )
         else:
             form = NumeradorForm(instance = numerador)
-        return render(request, 'vista_numerador.html', {'form': form, 'numerador': numerador, 'empresa': empresa, 'modificacion': 'S'})
+        return render(request, 'vista_numerador.html', {'form': form, 'numeradores': numeradores, 'empresa': empresa, 'modificacion': 'S'})
     else:
         return redirect('/06')     

@@ -271,7 +271,7 @@ class Num(models.Model):
 
 class Com(models.Model):
     def __str__(self):
-        return self.descrpcion
+        return self.descripcion 
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     descripcion = models.CharField(max_length=50)
     abreviada = models.CharField(max_length=10)
