@@ -13,7 +13,7 @@ from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import agro_Etapa
-from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Comprobantes
+from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm
 from .forms import FormAsignacionEtapaCosto
@@ -47,10 +47,6 @@ def personal_details(request):
         perfil = request.user.profile
         form = PersonalInfoForm(instance = perfil, initial={'apellido': request.user.last_name, 'nombre': request.user.first_name})
         return render(request, 'personal_details.html', {'form': form})
-
-
-
-
 
 def login_page(request):
     if request.method == 'GET':
@@ -796,16 +792,113 @@ def vista_planificacion_etapas_reset(request, id_plani):
     
 @login_required
 def vista_comprobantes(request):
-    comprobantes = Comprobantes.objects.filter(empresa = request.user.profile.empresa)
+    comprobantes = Com.objects.filter(empresa = request.user.profile.empresa)
     empresa = request.user.profile.empresa
+    print(request.user)
     if request.method == 'POST':
         form = ComprobantesForm(request.POST, request.FILES)
         if form.is_valid():
-            comprobantes = form.save(commit=False)
-            comprobantes.empresa = empresa
-            comprobantes.save()
+            comprobante = form.save(commit=False)
+            comprobante.empresa = empresa
+            comprobante.save()
             form = ComprobantesForm()
     else:
         form = ComprobantesForm()
     return render(request, 'vista_comprobantes.html', {'form': form, 'comprobantes': comprobantes, 'empresa': empresa })
 
+@login_required
+def editar_comprobantes(request, id_com):
+    comprobante = Com.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        comprobante = Com.objects.get(id = id_com)
+    except:
+        return redirect('/07')
+    empresa = request.user.profile.empresa
+    if comprobante.empresa == empresa:
+        if request.method == 'POST':
+            form = ComprobantesForm(request.POST, request.FILES, instance = comprobante)
+            if form.is_valid():
+                comprobante = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    comprobante.delete()
+                else:
+                    comprobante.empresa = empresa
+                    comprobante.save()
+                return redirect('/07')
+            else:
+                messages.error(request, form.errors.as_data() )
+        else:
+            form = ComprobantesForm(instance = comprobante)
+        return render(request, 'vista_comprobantes.html', {'form': form, 'comprobantes': comprobante, 'empresa': empresa, 'modificacion': 'S'})
+    else:
+        return redirect('/07')
+    
+@login_required
+def vista_numerador(request):
+    numera = Num.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    print(request.user)
+    if request.method == 'POST':
+        form = NumeradorForm(request.POST, request.FILES)
+        if form.is_valid():
+            numerador = form.save(commit=False)
+            numerador.empresa = empresa
+            numerador.save()
+            form = NumeradorForm()
+    else:
+        form = NumeradorForm()
+    return render(request, 'vista_numerador.html', {'form': form, 'numerador': numera, 'empresa': empresa })
+
+@login_required
+def editar_comprobantes(request, id_com):
+    comprobante = Com.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        comprobante = Com.objects.get(id = id_com)
+    except:
+        return redirect('/07')
+    empresa = request.user.profile.empresa
+    if comprobante.empresa == empresa:
+        if request.method == 'POST':
+            form = ComprobantesForm(request.POST, request.FILES, instance = comprobante)
+            if form.is_valid():
+                comprobante = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    comprobante.delete()
+                else:
+                    comprobante.empresa = empresa
+                    comprobante.save()
+                return redirect('/07')
+            else:
+                messages.error(request, form.errors.as_data() )
+        else:
+            form = ComprobantesForm(instance = comprobante)
+        return render(request, 'vista_comprobantes.html', {'form': form, 'comprobantes': comprobante, 'empresa': empresa, 'modificacion': 'S'})
+    else:
+        return redirect('/07') 
+
+@login_required
+def editar_numerador(request, id_com):
+    numerador = Com.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        numerador = Com.objects.get(id = id_com)
+    except:
+        return redirect('/06')
+    empresa = request.user.profile.empresa
+    if numerador.empresa == empresa:
+        if request.method == 'POST':
+            form = NumeradorForm(request.POST, request.FILES, instance = numerador)
+            if form.is_valid():
+                numerador = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    numerador.delete()
+                else:
+                    numerador.empresa = empresa
+                    numerador.save()
+                return redirect('/06')
+            else:
+                messages.error(request, form.errors.as_data() )
+        else:
+            form = NumeradorForm(instance = numerador)
+        return render(request, 'vista_numerador.html', {'form': form, 'numerador': numerador, 'empresa': empresa, 'modificacion': 'S'})
+    else:
+        return redirect('/06')     
