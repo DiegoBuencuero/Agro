@@ -24,6 +24,7 @@ from agro.views import vista_comprobantes
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas
 from django.conf import settings
 from django.conf.urls.static import static
+from .urls_leo import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
@@ -33,35 +34,8 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("personal-info/", personal_details, name='personal_details'),
     path('password-reset/', ChangePassword, name='password-reset'),
-    path('01/', vista_campos, name='vista_campos'),
-    path('01/<int:id_campo>', editar_campos, name='editar_campos'),
-    path('0101/', vista_lotes, name='vista_lotes'),
-    path('0101/<int:id_lote>', editar_lote, name='editar_lote'),
-    path('02/', vista_producto, name='vista_producto'),
-    path('02/<int:id_prod>', editar_producto, name='editar_producto'),
-    path('02-tipo/', vista_tipo_producto, name='vista_tipo_producto'),
-    path('02-tipo/<int:id_tipo>', editar_tipo_producto, name='editar_tipo_producto'),
-    path('02-rubro/', vista_rubro_producto, name='vista_rubro_producto'),
-    path('02-rubro/<int:id_rubro>', editar_rubro_producto, name='editar_rubro_producto'),
-    path('03/', vista_costo_prod, name='vista_costo_prod'),
-    path('03/<int:id_costo>', editar_costo_prod, name='editar_costo_prod'),
-    path('03-linea/<int:id_costoo>', editar_costo_prod_linea, name='editar_costo_prod_linea'),
-    path('03-getcosto', ajax_get_costo, name = 'ajax_get_costo'),
-    path('get-prod-espec', ajax_get_espec, name = 'ajax_get_espec'),
-    path('03-loadcosto/<int:id_costo>/<int:id_agro_costo>', load_costo_agro, name = 'load_costo_agro'),
-    path('04/', vista_campana, name='vista_campana'),
-    path('04/<int:id_campana>', editar_campana, name='editar_campana'),
-    path('05/', vista_planificacion, name='vista_planificacion'),
-    path('05/<int:id_plani>', editar_planificacion, name='editar_planificacion'),
-    path('05-1/<int:id_plani>', vista_planificacion_lote, name='vista_planificacion_lote'),
-    path('99-getlote', ajax_get_lote, name = 'ajax_get_lote'),
-    path('05-2/<int:id_plani>/<int:id_lote>', vista_lote_eliminar, name='vista_lote_eliminar'),
-    path('05-3/<int:id_plani>', vista_planificacion_etapas, name='vista_planificacion_etapas'),
-    path('05-3-reset/<int:id_plani>', vista_planificacion_etapas_reset, name='vista_planificacion_etapas_reset'),
-    path('07/', vista_comprobantes, name='vista_comprobantes'),
-
-
 ]
+urlpatterns += url_leo
 # Only add this when we are in debug mode.
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
