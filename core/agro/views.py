@@ -13,9 +13,9 @@ from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import agro_Etapa
-from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Comprobantes
+from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
-from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm
+from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
 from .forms import FormAsignacionEtapaCosto
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -47,10 +47,6 @@ def personal_details(request):
         perfil = request.user.profile
         form = PersonalInfoForm(instance = perfil, initial={'apellido': request.user.last_name, 'nombre': request.user.first_name})
         return render(request, 'personal_details.html', {'form': form})
-
-
-
-
 
 def login_page(request):
     if request.method == 'GET':
@@ -791,30 +787,17 @@ def vista_planificacion_etapas_reset(request, id_plani):
     
 @login_required
 def vista_comprobantes(request):
-    comprobantes = Comprobantes.objects.filter(empresa = request.user.profile.empresa)
+    comprobantes = Com.objects.filter(empresa = request.user.profile.empresa)
     empresa = request.user.profile.empresa
+    print(request.user)
     if request.method == 'POST':
         form = ComprobantesForm(request.POST, request.FILES)
         if form.is_valid():
-            comprobantes = form.save(commit=False)
-            comprobantes.empresa = empresa
-            comprobantes.save()
+            comprobante = form.save(commit=False)
+            comprobante.empresa = empresa
+            comprobante.save()
             form = ComprobantesForm()
     else:
         form = ComprobantesForm()
     return render(request, 'vista_comprobantes.html', {'form': form, 'comprobantes': comprobantes, 'empresa': empresa })
 
-
-@login_required
-def vista_delete_plani_etapa(request, id_etapa):
-    try:
-        etapa =Planificacion_etapas.objects.get(id = id_etapa)
-    except:
-        return redirect('vista_planificacion')
-    if etapa.empresa != request.user.profile.empresa:
-        return redirect('vista_planificacion')
-    if request.method == 'DELETE':
-        etapa.delete()
-        return redirect('/05-3/' + str(etapa.planificacion.id))
-    else:
-        return redirect('vista_planificacion')

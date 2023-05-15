@@ -21,7 +21,7 @@ from agro.views import vista_costo_prod, editar_costo_prod, ajax_get_costo, load
 from agro.views import vista_campana, editar_campana, vista_planificacion, editar_planificacion, vista_planificacion_lote
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_planificacion_etapas_reset
 from agro.views import vista_comprobantes
-from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_delete_plani_etapa
+from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
@@ -58,7 +58,6 @@ urlpatterns = [
     path('05-2/<int:id_plani>/<int:id_lote>', vista_lote_eliminar, name='vista_lote_eliminar'),
     path('05-3/<int:id_plani>', vista_planificacion_etapas, name='vista_planificacion_etapas'),
     path('05-3-reset/<int:id_plani>', vista_planificacion_etapas_reset, name='vista_planificacion_etapas_reset'),
-    path('05-3-unasign/<int:id_etapa>', vista_delete_plani_etapa, name='vista_delete_plani_etapa'),
     path('07/', vista_comprobantes, name='vista_comprobantes'),
 
 

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.forms import ModelForm
 from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
-from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Comprobantes
+from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com, Num
 from string import Template
 
     
@@ -220,6 +220,13 @@ class FormAsignacionEtapaCosto(forms.Form):
 
 class ComprobantesForm(BaseForm):
     class Meta:
-        model = Comprobantes
-        fields = ['empresa', 'codigo','nombre', 'image', 'observaciones']
+        model = Com
+        fields = '__all__'
+        exclude = ['empresa']
 
+
+class NumeradorForm(BaseForm):
+    class Meta:
+        model = Num
+        fields = '__all__'
+        exclude = ['empresa']

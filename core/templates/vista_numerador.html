@@ -7,7 +7,7 @@
   <div class="card">
     <div class="card-body">
         {% include 'mensajes.html' %}
-      <h4 class="card-title">Comprobantes</h4>
+      <h4 class="card-title">Numerador</h4>
       <form class="form-sample" method='post' enctype="multipart/form-data">
         {% csrf_token %}
         <p class="card-description">
@@ -16,19 +16,10 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Descripción</label>
+              <label class="col-sm-3 col-form-label">Numero</label>
               <div class="col-sm-9">
-                {{form.descripcion}}
-                {{form.descripcion.errors}}
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Abreviada</label>
-              <div class="col-sm-9">
-                {{form.abreviada}}
-                {{form.abreviada.errors}}
+                {{form.numero}}
+                {{form.numero.errors}}
               </div>
             </div>
           </div>          
@@ -36,101 +27,68 @@
         <div class="row">
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Automatico</label>
+                <label class="col-sm-3 col-form-label">Descripcion</label>
                 <div class="col-sm-9">
-                  {{form.automatico}}
-                  {{form.automatico.errors}}
+                  {{form.descrpcion}}
+                  {{form.descrpcion.errors}}
                 </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Numerador</label>
-                <div class="col-sm-9">
-                  {{form.num}}
-                  {{form.num.errors}}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Tipo</label>
-                <div class="col-sm-9">
-                  {{form.tipo}}
-                  {{form.tipo.errors}}
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Signo</label>
-                <div class="col-sm-9">
-                  {{form.signo}}
-                  {{form.signo.errors}}
-                </div>
-              </div>
-            </div>
-          </div>
-  
+            </div>            
         {% if modificacion %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
         <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
         {% else %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
         {% endif %}
-        <button type='button' class="btn btn-dark" onclick="window.location.href='/07';">Cancel</button>
-
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/06';">Cancel</button>
       </form>
-
     </div>
   </div>
 </div>
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Comprobantes</h4>
+        <h4 class="card-title">Numeradores</h4>
         <p class="card-description">
-          {{empresa.nombre}}
+          {{empresa.numero}}
         </p>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
               <tr>
                 <th>
-                  Descripcion
+                  Número
                 </th>
                 <th>
-                  Abreviada
+                  Nombre
                 </th>
                 <th>
-                  Numerador
+                  Progress
                 </th>
                 <th>
-                  Signo
+                  Importe 1
                 </th>
                 <th>
-                  tipo
+                  Fecha
                 </th>
               </tr>
             </thead>
             <tbody>
-                {% for comprobante in comprobantes %}
-                      <tr>
-                          <td>
-                            <a href="/07/{{comprobante.id}}">{{comprobante.descripcion}}</a> 
-                          </td>
+                {% for numerador in numeradores %}
+                    <tr>
+                       <td>
+                          <a href="/06/{{numerador.id}}">{{numerador.numero}}</a> 
+                        </td>
                         <td>
                           <div class="progress">
                               <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                           </div>
                         </td>
                         <td>
-                        $ 77.99
+                          $ 77.99
                         </td>
                         <td>
-                        May 15, 2015
+                          May 15, 2015
                         </td>
                     </tr>
                 {% endfor %}
