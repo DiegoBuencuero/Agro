@@ -229,8 +229,6 @@ def vista_tipo_producto(request):
             tipo.empresa = empresa
             tipo.save()
             form = TipoProdForm()
-        else:
-            print(form.errors.as_data())
     else:
         form = TipoProdForm()
     return render(request, 'vista_tipo.html', {'form': form, 'tipos': tipos, 'empresa': empresa })
@@ -310,8 +308,6 @@ def vista_producto(request):
             producto.empresa = empresa
             producto.save()
             form = ProductoForm(empresa)
-        else:
-            print(form.errors.as_data)
     else:
         form = ProductoForm(empresa)
     return render(request, 'vista_producto.html', {'form': form, 'productos': productos, 'empresa': empresa })
@@ -723,6 +719,7 @@ def vista_planificacion_etapas(request, id_plani):
     for etapa in etapas:
         producto = get_producto(etapa.costoo.origen, etapa.costoo.producto_id)
         linea = {
+            'clave': etapa.id,
             'etapa': etapa.etapa,
             'producto_desc': producto.descripcion,
             'producto_id': producto.id,
@@ -739,7 +736,6 @@ def vista_planificacion_etapas(request, id_plani):
         totapli = 0
         for a in apli:
             totapli += a.cant_aplicada
-            print('totapli = ', totapli, ' item= ',  item.id)
         if totapli < item.cantidad:
             producto = get_producto(item.origen, item.producto_id)
             linea = {
@@ -776,7 +772,6 @@ def vista_planificacion_etapas(request, id_plani):
 
         else:
             form = FormAsignacionEtapaCosto()
-        print('render')
         
         return render(request, 'vista_planificacion_etapas.html', {'etapas': etapas_list, 'noasign':no_asig_list , 'planificacion':planificacion, 'form': form, 'cancel_url':'/05-3/'+str(id_plani) })
     else:
@@ -809,3 +804,17 @@ def vista_comprobantes(request):
         form = ComprobantesForm()
     return render(request, 'vista_comprobantes.html', {'form': form, 'comprobantes': comprobantes, 'empresa': empresa })
 
+
+@login_required
+def vista_delete_plani_etapa(request, id_etapa):
+    try:
+        etapa =Planificacion_etapas.objects.get(id = id_etapa)
+    except:
+        return redirect('vista_planificacion')
+    if etapa.empresa != request.user.profile.empresa:
+        return redirect('vista_planificacion')
+    if request.method == 'DELETE':
+        etapa.delete()
+        return redirect('/05-3/' + str(etapa.planificacion.id))
+    else:
+        return redirect('vista_planificacion')

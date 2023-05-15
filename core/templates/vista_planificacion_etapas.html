@@ -103,30 +103,6 @@
               </div>
             </div>
         </div>
-{% comment %} 
-        <p class="card-description">
-            Etapa
-        </p>
-        <div class="row">
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Campo</label>
-                <div class="col-sm-9">
-                    {{form.campo}}
-                    {{form.campo.errors}}
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Lote</label>
-                <div class="col-sm-9">
-                    {{form.lote_campo}}
-                    {{form.lote_campo.errors}}
-                </div>
-              </div>
-            </div>
-          </div> {% endcomment %}
     
   
         {% if modificacion %}
@@ -174,6 +150,9 @@
                 <th>
                   UM
                 </th>
+                <th>
+                  Desasignar
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -191,6 +170,12 @@
                       <td>
                         {{fila.um.abreviado}}
                       </td>
+                      <td>
+                        <button type="button" onclick= 'des_asignar_partida({{fila.clave}})' class="btn btn-inverse-primary btn-rounded btn-icon">
+                          <i class="ti-arrow-right"></i>
+                        </button>
+                      </td>
+
                     </tr>
                 {% endfor %}
             </tbody>
@@ -211,29 +196,29 @@
             <thead>
               <tr>
                 <th>
+                  Asignar
+                </th>
+                <th>
                   Producto
                 </th>
                 <th>
                   Cantidad
-                </th>
-                <th>
-                  Asignar
                 </th>
               </tr>
             </thead>
             <tbody>
                 {% for fila in noasign %}
                     <tr>
-                        <td>
+                      <td>
+                        <button type="button" onclick= 'asignar_partida({{fila.producto_id}}, "{{fila.producto_desc}}", {{fila.cantidad}}, {{fila.id_costoo}})' class="btn btn-inverse-primary btn-rounded btn-icon">
+                          <i class="ti-arrow-left"></i>
+                        </button>
+                      </td>
+                      <td>
                             {{fila.producto_desc}} 
                         </td>
                         <td>
                           {{fila.cantidad}}
-                        </td>
-                        <td>
-                          <button type="button" onclick= 'asignar_partida({{fila.producto_id}}, "{{fila.producto_desc}}", {{fila.cantidad}}, {{fila.id_costoo}})' class="btn btn-inverse-primary btn-rounded btn-icon">
-                            <i class="ti-home"></i>
-                          </button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -349,6 +334,21 @@
       })
       .catch(error=>console.log(error));
 
+  }
+  function des_asignar_partida( clave ){
+    const csrftoken = document.cookie.match(/csrftoken=([\w-]+)/)[1];
+    fetch('/05-3-unasign/' + clave, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      },      
+    })
+    .then(response => {
+      if (response.redirected)
+      window.location.href = response.url;
+    })
+    .catch(error => console.error(error));    
   }
 
 </script>

@@ -147,12 +147,14 @@ class UM(models.Model):
 class Trazabilidad(models.Model):
     class Meta:
         pass
+    planificacion = models.ForeignKey("Planificacion_cultivo", on_delete=models.CASCADE)
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
     actividad = models.ForeignKey("Actividad", on_delete=models.CASCADE) 
     fecha = models.DateField(null=True, blank=True)
     origen_prod = models.CharField(max_length=1, choices=[('S', 'Sisitema'), ('U', 'Usuario'),], default='U')
     producto_id = models.IntegerField(null=True, blank=True)
+    especificacion = models.ForeignKey("Especificacion_tipo", on_delete=models.CASCADE, null=True, blank=True)
     cantidad = models.DecimalField(max_digits=6, decimal_places=2)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
