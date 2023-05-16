@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block plugin_css%}
+{% endblock %}                          
+{% block content %} 
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+        {% include 'mensajes.html' %}
+      <h4 class="card-title">Trazabilidad</h4>
+      <form class="form-sample" method='post' enctype="multipart/form-data">
+        {% csrf_token %}
+        <p class="card-description">
+          Actividad
+        </p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Fecha</label>
+              <div class="col-sm-9">
+                {{form.fecha}}
+                {{form.fecha.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Planificacion</label>
+              <div class="col-sm-9">
+                {{form.planificacion}}
+                {{form.planificacion.errors}}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Actividad</label>
+                <div class="col-sm-9">
+                  {{form.actividad}}
+                  {{form.actividad.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Futuro Uso</label>
+                <div class="col-sm-9">
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Campo</label>
+                <div class="col-sm-9">
+                  {{form.campo}}
+                  {{form.campo.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Lote</label>
+                <div class="col-sm-9">
+                    {{form.lote_campo}}
+                    {{form.lote_campo.errors}}
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Producto</label>
+                <div class="col-sm-9">
+                  {{form.producto}}
+                  {{form.producto.erros}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Especificacion</label>
+                <div class="col-sm-9">
+                    {{form.espec}}
+                    {{form.espec.erros}}
+                  </div>
+              </div>
+            </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Cantidad</label>
+              <div class="col-sm-9">
+                {{form.cantidad}}
+                {{form.cantidad.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Precio Unitario</label>
+              <div class="col-sm-9">
+                {{form.precio_unitario}}
+                {{form.precio_unitario.errors}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Moneda</label>
+                <div class="col-sm-9">
+                  {{form.moneda}}
+                  {{form.moneda.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Cotizacion</label>
+                <div class="col-sm-9">
+                    {{form.cotizacion}}
+                    {{form.cotizacion.errors}}
+                </div>
+              </div>
+            </div>
+        </div>
+  
+  
+        {% if modificacion %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+        {% else %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+        {% endif %}
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/02';">Cancel</button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Trazabilidad</h4>
+        <p class="card-description">
+          {{empresa.nombre}}
+        </p>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>
+                  Campo
+                </th>
+                <th>
+                  Lote
+                </th>
+                <th>
+                  Actividad
+                </th>
+                <th>
+                  Producto
+                </th>
+                <th>
+                  Cantidad
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for traza in trazabilidades %}
+                    <tr>
+                        <td>
+                            {{traza.campo}}
+                        </td>
+                        <td>
+                            {{traza.lote}}
+                        </td>
+                        <td>
+                            {{traza.actividad}}
+                        </td>
+                        <td>
+                            {{traza.producto}}
+                        </td>
+                        <td>
+                            {{traza.cantidad}}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+</script>
+
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}
+
+{% block plugin_js %}
+{% endblock %}
+
+{% block custom_js %}
+{% endblock %}
+
+
+
