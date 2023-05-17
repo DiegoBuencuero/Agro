@@ -291,20 +291,21 @@ class Mov (models.Model):
     n_suc = models.IntegerField()
     n_com = models.IntegerField()
     fecha = models.DateField()
-    telefono = models.CharField(max_length=30, default='')    
+    observaciones = models.CharField(max_length=100, default='')    
     deposito1=models.ForeignKey("Deposito", on_delete=models.CASCADE)
-    deposito2=models.ForeignKey("Deposito", related_name="deposito2", on_delete=models.CASCADE)
+    deposito2=models.ForeignKey("Deposito", related_name="deposito2", on_delete=models.CASCADE, null= True, blank = True )
 
 class Movo (models.Model):
     class Meta:
         pass
     mov = models.ForeignKey("Mov", on_delete=models.CASCADE)
     o = models.IntegerField()
-    producto= models;models.ForeignKey("Producto", verbose_name=("Producto"), on_delete=models.CASCADE)
+    producto_id = models.IntegerField(null=True, blank=True)
+    origen = models.CharField(max_length=1, choices = (('A', 'Agro'), ('U', 'Usuario')), default='A')
     cantidad = models.DecimalField(max_digits=4, decimal_places=1)
-    precio_u = models.DecimalField(max_digits=12, decimal_places=2)
+    precio_u = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
-    cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
+    cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1, null=True, blank=True)
 
 class Planificacion_cultivo (models.Model):
     def __str__(self):
