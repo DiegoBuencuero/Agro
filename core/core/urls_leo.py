@@ -36,5 +36,5 @@ url_leo = [
     path('05-3/<int:id_plani>', vista_planificacion_etapas, name='vista_planificacion_etapas'),
     path('05-3-reset/<int:id_plani>', vista_planificacion_etapas_reset, name='vista_planificacion_etapas_reset'),
     path('07/', vista_comprobantes, name='vista_comprobantes'),
-    path('trazbilidad/', vista_trazabilidad, name='vista_trazabilidad'),
+    path('trazabilidad/', vista_trazabilidad, name='vista_trazabilidad'),
 ]
