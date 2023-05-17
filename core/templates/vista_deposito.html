@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block plugin_css%}
+{% endblock %}                          
+{% block content %} 
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+        {% include 'mensajes.html' %}
+      <h4 class="card-title">Depositos</h4>
+      <form class="form-sample" method='post' enctype="multipart/form-data">
+        {% csrf_token %}
+        <p class="card-description">
+          Informacion general
+        </p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Nombre</label>
+              <div class="col-sm-9">
+                {{form.nombre}}
+                {{form.nombre.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Direccion</label>
+              <div class="col-sm-9">
+                {{form.direccion}}
+                {{form.direccion.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Telefono</label>
+                <div class="col-sm-9">
+                  {{form.telefono}}
+                  {{form.telefono.errors}}
+                </div>
+              </div>
+          </div>
+        </div>
+        {% if modificacion %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+        {% else %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+        {% endif %}
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/01';">Cancel</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Depositos</h4>
+        <p class="card-description">
+          {{empresa.nombre}}
+        </p>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>
+                  Imagen
+                </th>
+                <th>
+                  Nombre
+                </th>
+                <th>
+                  Progress
+                </th>
+                <th>
+                  Importe 1
+                </th>
+                <th>
+                  Fecha
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for deposito in depositos %}
+                    <tr>
+                      <td>
+                        <a href="/08/{{deposito.id}}">{{deposito.nombre}}</a> 
+                      </td>
+                      <td>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                      </td>                     
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}
+
+{% block plugin_js %}
+{% endblock %}
+
+{% block custom_js %}
+{% endblock %}
+
+
+

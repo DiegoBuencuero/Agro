@@ -20,7 +20,7 @@ from agro.views import vista_producto, vista_tipo_producto, editar_producto, edi
 from agro.views import vista_costo_prod, editar_costo_prod, ajax_get_costo, load_costo_agro, ajax_get_espec, editar_costo_prod_linea
 from agro.views import vista_campana, editar_campana, vista_planificacion, editar_planificacion, vista_planificacion_lote
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_planificacion_etapas_reset
-from agro.views import vista_comprobantes
+from agro.views import vista_comprobantes, editar_comprobante, vista_numerador, editar_numerador, vista_deposito, editar_deposito
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas
 from django.conf import settings
 from django.conf.urls.static import static
@@ -34,6 +34,11 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("personal-info/", personal_details, name='personal_details'),
     path('password-reset/', ChangePassword, name='password-reset'),
+    path('06/', vista_numerador, name='vista_numerador'),
+    path('06/<int:id_num>', editar_numerador, name='editar_numerador'),
+    path('07/<int:id_com>', editar_comprobante, name='editar_comprobante'),
+    path('08/',vista_deposito, name='vista_deposito'),
+    path('08/<int:id_depo>', editar_deposito, name='editar_deposito'),
 ]
 urlpatterns += url_leo
 # Only add this when we are in debug mode.
