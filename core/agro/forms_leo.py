@@ -32,7 +32,7 @@ class TrazabilidadForm(BaseForm):
     class Meta:
         model = Trazabilidad
         fields = '__all__'
-        exclude = ['empresa', 'origen_prod', 'producto_id', 'especificacion']
+        exclude = ['empresa','lote', 'origen_prod', 'producto_id', 'especificacion']
         widgets = {
                 'fecha': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
