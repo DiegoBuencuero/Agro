@@ -202,6 +202,12 @@
     </div>
   </div>
   <script type="text/javascript">
+    window.addEventListener('load', async() => {
+      id_campo.addEventListener('change', async() => {
+        load_lotes();
+      });
+      load_lotes(id_lote_campo.value);
+    });
 </script>
 
 {% endblock %}
@@ -213,6 +219,7 @@
 {% endblock %}
 
 {% block custom_js %}
+<script src="{% static 'js/lotes.js' %}"></script>
 {% endblock %}
 
 
