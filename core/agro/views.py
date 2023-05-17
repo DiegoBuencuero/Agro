@@ -12,11 +12,11 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import agro_Etapa
+from .models import agro_Etapa, Deposito
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
-from .forms import FormAsignacionEtapaCosto
+from .forms import FormAsignacionEtapaCosto, DepositoForm
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from operator import itemgetter
@@ -700,7 +700,6 @@ def load_etapas(planificacion):
                 )
             plani_etapa.save()
         
-
 @login_required
 def vista_planificacion_etapas(request, id_plani):
     try:
@@ -763,9 +762,6 @@ def vista_planificacion_etapas(request, id_plani):
                     plani_etapa.save()
                     form = FormAsignacionEtapaCosto()
                 return redirect('/05-3/' + str(id_plani))
-
-
-
         else:
             form = FormAsignacionEtapaCosto()
         
@@ -784,6 +780,45 @@ def vista_planificacion_etapas_reset(request, id_plani):
     Planificacion_etapas.objects.filter(planificacion = planificacion).delete()
     load_etapas(planificacion)
     return redirect('/05-3/' + str(id_plani))
+
+@login_required
+def vista_numerador(request):
+    numeradores = Num.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    if request.method == 'POST':
+        form = NumeradorForm(request.POST)
+        if form.is_valid():
+            nume = form.save(commit=False)
+            nume.empresa = empresa
+            nume.save()
+            form = NumeradorForm()
+    else:
+        form = NumeradorForm()
+    return render(request, 'vista_numerador.html', {'form': form, 'numeradores':numeradores, 'form': form, 'empresa': empresa })
+
+@login_required
+def editar_numerador(request, id_num):
+    numeradores = Num.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        num = Num.objects.get(id = id_num)
+    except:
+        return redirect('vista_numerador')
+    empresa = request.user.profile.empresa
+    if num.empresa == empresa:
+        if request.method == 'POST':
+            form = NumeradorForm(request.POST, instance = num)
+            if form.is_valid():
+                num = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    num.delete()
+                else:
+                    num.save()
+                return redirect('vista_numerador')
+        else:
+            form = NumeradorForm(instance = num)
+        return render(request, 'vista_numerador.html', {'form': form, 'empresa': empresa, 'numeradores':numeradores, 'modificacion': 'S'})
+    else:
+        return redirect('vista_numerador')
     
 @login_required
 def vista_comprobantes(request):
@@ -801,3 +836,66 @@ def vista_comprobantes(request):
         form = ComprobantesForm()
     return render(request, 'vista_comprobantes.html', {'form': form, 'comprobantes': comprobantes, 'empresa': empresa })
 
+@login_required
+def editar_comprobante(request, id_com):
+    comprobantes = Com.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        com = Com.objects.get(id = id_com)
+    except:
+        return redirect('vista_comprobante')
+    empresa = request.user.profile.empresa
+    if com.empresa == empresa:
+        if request.method == 'POST':
+            form = ComprobantesForm(request.POST, instance = com)
+            if form.is_valid():
+                com = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    com.delete()
+                else:
+                    com.save()
+                return redirect('vista_comprobantes')
+        else:
+            form = ComprobantesForm(instance = com)
+        return render(request, 'vista_comprobantes.html', {'form': form, 'empresa': empresa, 'comprobantes':comprobantes, 'modificacion': 'S'})
+    else:
+        return redirect('vista_comprobantes')
+    
+@login_required
+def vista_deposito(request):
+    depositos = Deposito.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    print(request.user)
+    if request.method == 'POST':
+        form = DepositoForm(request.POST, request.FILES)
+        if form.is_valid():
+            depo = form.save(commit=False)
+            depo.empresa = empresa
+            depo.save()
+            form = DepositoForm()
+    else:
+        form = DepositoForm()
+    return render(request, 'vista_deposito.html', {'form': form, 'depositos': depositos, 'empresa': empresa })
+
+@login_required
+def editar_deposito(request, id_depo):
+    depositos = Deposito.objects.filter(empresa = request.user.profile.empresa)
+    try:
+        depo = Deposito.objects.get(id = id_depo)
+    except:
+        return redirect('vista_deposito')
+    empresa = request.user.profile.empresa
+    if depo.empresa == empresa:
+        if request.method == 'POST':
+            form = DepositoForm(request.POST, instance = depo)
+            if form.is_valid():
+                depo = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    depo.delete()
+                else:
+                    depo.save()
+                return redirect('vista_deposito')
+        else:
+            form = DepositoForm(instance = depo)
+        return render(request, 'vista_deposito.html', {'form': form, 'empresa': empresa, 'depositos':depositos, 'modificacion': 'S'})
+    else:
+        return redirect('vista_comprobantes') 
