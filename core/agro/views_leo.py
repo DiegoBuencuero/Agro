@@ -6,7 +6,8 @@ from .views import get_producto
 
 @login_required
 def vista_trazabilidad(request):
-    trazabilidades = Trazabilidad.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    trazabilidades = Trazabilidad.objects.filter(empresa = empresa)
     traza_list = []
     for t in trazabilidades:
         producto = get_producto(t.origen_prod, t.producto_id)
@@ -29,6 +30,6 @@ def vista_trazabilidad(request):
             plani.save()
             form = TrazabilidadForm()
     else:
-        form = TrazabilidadForm()
+        form = TrazabilidadForm(empresa)
     return render(request, 'vista_trazabilidad.html', {'trazabilidades': traza_list, 'form': form, 'empresa': empresa })
 
