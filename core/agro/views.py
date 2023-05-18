@@ -27,6 +27,7 @@ def home(request):
         ubicacion = 'Pinamar'
     else:
         ubicacion = request.user.profile.ciudad.nombre
+    # ACA CARGAR LA TABLA CON LA INFO DE LOS COSTOS
     return render(request, 'index.html', {'ubicacion': ubicacion})
 
 @login_required
