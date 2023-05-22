@@ -173,31 +173,12 @@
     </div>
   </div>
   <script>
-    function load_lotes(parametro) { 
-        $.ajax({
-          url : "{% url 'ajax_get_lote' %}",
-          data : {
-            'campo' : id_campo.value,
-          },
-          method : 'GET',
-          success : function(response) {
-            var opciones = "";
-            response.data.forEach(function(item, index) {
-              opciones += '<option value="' + item.id + '">' + item.nombre + '</option>';
-            });
-            id_lote_campo.innerHTML = opciones;
-            if (parametro != undefined) id_lote_campo.value = parametro;
-  
-          } // reference to below
-        });
-  
-      }
   
     window.addEventListener('load', async() => {
         id_campo.addEventListener('change', async() => {
-          load_lotes();
+          load_lotes("{% url 'ajax_get_lote' %}", id_campo.value, id_lote_campo);
         });
-        load_lotes(id_lote_campo.value);
+        load_lotes("{% url 'ajax_get_lote' %}", id_campo.value, id_lote_campo, id_lote_campo.value);
       });
   
 </script>
@@ -210,6 +191,7 @@
 {% endblock %}
 
 {% block custom_js %}
+<script src="{% static 'js/lotes.js' %}"></script>
 {% endblock %}
 
 

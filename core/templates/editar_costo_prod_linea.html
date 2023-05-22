@@ -107,31 +107,11 @@
   </div>
 </div>
 <script>
-    function load_especificaciones(parametro) { 
-        $.ajax({
-          url : "{% url 'ajax_get_espec' %}",
-          data : {
-            'producto' : id_producto.value,
-          },
-          method : 'GET',
-          success : function(response) {
-            var opciones = "";
-            response.data.forEach(function(item, index) {
-              opciones += '<option value="' + item.id + '">' + item.nombre + '</option>';
-            });
-            id_espec.innerHTML = opciones;
-            if (parametro != undefined) id_espec.value = parametro;
-  
-          } // reference to below
-        });
-  
-      }
-  
     window.addEventListener('load', async() => {
         id_producto.addEventListener('change', async() => {
-          load_especificaciones();
+          load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_espec);
         });
-        load_especificaciones(id_espec.value);
+        load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_espec, id_espec.value);
       });
   
 </script>
@@ -147,6 +127,7 @@
 {% endblock %}
 
 {% block custom_js %}
+<script src="{% static 'js/especificaciones.js' %}"></script>
 {% endblock %}
 
 

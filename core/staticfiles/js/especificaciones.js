@@ -1,8 +1,8 @@
-function load_lotes(url_param, clave, objeto_detino, parametro) { 
+function load_especificaciones(url_ajax, clave, objeto_detino, parametro) { 
     $.ajax({
-      url : url_param,
+      url : url_ajax,
       data : {
-        'campo' : clave,
+        'producto' : clave,
       },
       method : 'GET',
       success : function(response) {
@@ -10,11 +10,10 @@ function load_lotes(url_param, clave, objeto_detino, parametro) {
         response.data.forEach(function(item, index) {
           opciones += '<option value="' + item.id + '">' + item.nombre + '</option>';
         });
-        id_lote_campo.innerHTML = opciones;
-        if (parametro != undefined) id_lote_campo.value = parametro;
+        objeto_detino.innerHTML = opciones;
+        if (parametro != undefined) id_espec.value = parametro;
 
-      } // reference to below
+      } 
     });
 
   }
-
