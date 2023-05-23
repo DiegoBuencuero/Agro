@@ -162,7 +162,7 @@
         {% else %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
         {% endif %}
-        <button type='button' class="btn btn-dark" onclick="window.location.href='/02';">Cancel</button>
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/trazabilidad';">Cancel</button>
 
       </form>
 
@@ -207,7 +207,7 @@
                             {{traza.lote}}
                         </td>
                         <td>
-                            {{traza.actividad}}
+                          <a href="/trazabilidad/{{traza.id}}">{{traza.actividad}}</a>
                         </td>
                         <td>
                             {{traza.producto}}

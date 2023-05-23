@@ -4,24 +4,29 @@ from .models import Trazabilidad, Lote, Especificacion_tipo, Mov, Com, Deposito
 from .forms_leo import TrazabilidadForm
 from .views import get_producto
 
-@login_required
-def vista_trazabilidad(request):
-    empresa = request.user.profile.empresa
+
+def get_traza_list(empresa):
     trazabilidades = Trazabilidad.objects.filter(empresa = empresa)
     traza_list = []
     for t in trazabilidades:
         producto = get_producto(t.origen_prod, t.producto_id)
         linea = {
+            'id': t.id,
             'campo': t.lote.campo,
             'lote': t.lote,
             'producto_id': producto.id,
             'producto': producto.descripcion,
             'actividad': t.actividad,
+            'cantidad': t.cantidad,
         }
         traza_list.append(linea)
+    return traza_list
 
+@login_required
+def vista_trazabilidad(request):
 
     empresa = request.user.profile.empresa
+    traza_list = get_traza_list(empresa)
     if request.method == 'POST':
         form = TrazabilidadForm(empresa, request.POST)
         if form.is_valid():
@@ -39,14 +44,13 @@ def vista_trazabilidad(request):
                 traz.producto_id = int(form.cleaned_data['producto'][1:])
                 try:
                     traz.especificacion = Especificacion_tipo.objects.get(id = form.cleaned_data['espec'])
+                    traz.save()
+                    traza_list = get_traza_list(empresa)
                     form = TrazabilidadForm(empresa)
                 except:
                     form.add_error('espec', 'Error inesperado, la especificacion no existe')
-                    print('error 1')
             except:
                 form.add_error('lote_campo', 'Error inesperado, el lote no existe')
-                print('error 2')
-            traz.save()
 
         else:
             print(form.errors.as_data)
@@ -54,3 +58,43 @@ def vista_trazabilidad(request):
         form = TrazabilidadForm(empresa)
     return render(request, 'vista_trazabilidad.html', {'trazabilidades': traza_list, 'form': form, 'empresa': empresa })
 
+@login_required
+def editar_trazabilidad(request, id_traza):
+    empresa = request.user.profile.empresa
+    traza_list = get_traza_list(empresa)
+    try:
+        trazabilidad = Trazabilidad.objects.get(id = id_traza)
+    except:
+        return redirect('vista_trazabilidad')
+    if trazabilidad.empresa == empresa:
+        if request.method == 'POST':
+            form = TrazabilidadForm(request.POST, instance = trazabilidad)
+            if form.is_valid():
+                traz = form.save(commit=False)
+                if request.POST.get('borrar') == '':
+                    traz.delete()
+                else:
+                    try:
+                        traz.lote = Lote.objects.get(id = form.cleaned_data['lote_campo'])
+                        traz.origen_prod = form.cleaned_data['producto'][0:1]
+                        traz.producto_id = int(form.cleaned_data['producto'][1:])
+                        try:
+                            traz.especificacion = Especificacion_tipo.objects.get(id = form.cleaned_data['espec'])
+                            traz.save()
+                            traza_list = get_traza_list(empresa)
+                            return redirect('vista_planificacion')
+                        except:
+                            form.add_error('espec', 'Error inesperado, la especificacion no existe')
+                    except:
+                        form.add_error('lote_campo', 'Error inesperado, el lote no existe')
+        else:
+            initial_data = {
+                'producto': trazabilidad.origen_prod + str(trazabilidad.producto_id),
+                'espec': trazabilidad.especificacion,
+                'campo': trazabilidad.lote.campo.id,
+                'lote_campo': trazabilidad.lote,
+            }
+            form = TrazabilidadForm(empresa, initial = initial_data, instance = trazabilidad)
+        return render(request, 'vista_trazabilidad.html', {'form': form, 'empresa': empresa, 'trazabilidades':traza_list, 'modificacion': 'S'})
+    else:
+        return redirect('vista_planificacion')
