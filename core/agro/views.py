@@ -12,7 +12,7 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import agro_Etapa, Deposito
+from .models import agro_Etapa, Deposito, models
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
@@ -27,8 +27,25 @@ def home(request):
         ubicacion = 'Pinamar'
     else:
         ubicacion = request.user.profile.ciudad.nombre
-    # ACA CARGAR LA TABLA CON LA INFO DE LOS COSTOS
-    return render(request, 'index.html', {'ubicacion': ubicacion})
+     # ACA CARGAR LA TABLA CON LA INFO DE LOS COSTOS
+    precios_acumulados = {}
+
+    # Recorro la tabla agro_CostoProd
+    for costo_prod in agro_CostoProd.objects.all():
+        # Obtener el nombre del costo de producción
+        nombre = costo_prod.nombre
+
+        # Verificar si el nombre ya existe en el diccionario
+        if nombre in precios_acumulados:
+            # Si existe lo acumula
+            precios_acumulados[nombre] += costo_prod.agro_costoprodo_set.aggregate(total_precio_unitario=models.Sum('precio_unitario'))['total_precio_unitario']
+        else:
+            # sino, lo genera
+            precios_acumulados[nombre] = costo_prod.agro_costoprodo_set.aggregate(total_precio_unitario=models.Sum('precio_unitario'))['total_precio_unitario']
+
+    # Imprimir los precios acumulados por nombre
+    for nombre, precio_acumulado in precios_acumulados.items():
+        return render(request, 'index.html', {'ubicacion': ubicacion, 'nombre': nombre, 'precio_acumulados': precios_acumulados})
 
 @login_required
 def personal_details(request):
