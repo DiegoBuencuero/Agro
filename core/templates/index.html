@@ -106,7 +106,7 @@
                     <p class="card-title">Costo de Producción / HA - Campaña 2022-2023</p>
                     <h2 class="text-primary">Trigo</h2>   
                     <h1 class="text-primary">$5460</h1>  
-                    <h3 class="font-weight-500 mb-xl-4 text-primary">Necochea BsAS</h3>
+                    <h3 class="font-weight-500 mb-xl-4 text-primary">Bariloche</h3>
                     </div>  
                     </div>
                   <div class="col-md-12 col-xl-9">
@@ -172,8 +172,8 @@
                         </div>
                       </div>
                       <div class="col-md-6 mt-3">
-                        <canvas id="south-america-chart"></canvas>
-                        <div id="south-america-legend"></div>
+                        <canvas id="north-america-chart"></canvas>
+                        <div id="north-america-legend"></div>
                       </div>
                     </div>
                   </div>
@@ -661,6 +661,13 @@
     clima_now();
     var interval = setInterval(clima_now, 100000); //100 segundos
 
+
+    var labels_graficos = [];
+    var datas_graficos = [];
+    {% for rubro in rubros_acumulados %}
+    labels_graficos.push('{{rubro.rubro_desc}}');
+    datas_graficos.push('{{rubro.saldo}}');
+    {% endfor %}
   </script>
 
 {% endblock %}

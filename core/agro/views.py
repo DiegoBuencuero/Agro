@@ -21,31 +21,53 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from operator import itemgetter
 # Create your views here.
+
+def get_producto(origen, id):
+    if origen == 'A':
+        producto = agro_Producto.objects.get(id = id)
+    else:
+        producto = Producto.objects.get(id = id)
+    return producto
+
+
+
 @login_required
 def home(request):
+    def buscar_rubro(id_rubro, rubros):
+        for i in range(0, len(rubros)):
+            if rubros[i]['rubro_id'] == id_rubro:
+                return i
+        return -1
+
+
     if request.user.profile.ciudad is None:
         ubicacion = 'Pinamar'
     else:
         ubicacion = request.user.profile.ciudad.nombre
      # ACA CARGAR LA TABLA CON LA INFO DE LOS COSTOS
-    precios_acumulados = {}
 
-    # Recorro la tabla agro_CostoProd
-    for costo_prod in agro_CostoProd.objects.all():
-        # Obtener el nombre del costo de producción
-        nombre = costo_prod.nombre
-
-        # Verificar si el nombre ya existe en el diccionario
-        if nombre in precios_acumulados:
-            # Si existe lo acumula
-            precios_acumulados[nombre] += costo_prod.agro_costoprodo_set.aggregate(total_precio_unitario=models.Sum('precio_unitario'))['total_precio_unitario']
+    # Recorro la tabla CostoProd
+    empresa = request.user.profile.empresa
+    costo_head = CostoProd.objects.filter(empresa = empresa).latest('fecha')
+    costos = CostoProdo.objects.filter(costo_prod = costo_head)
+    rubros = []
+    componentes = []
+    for costo in costos:
+        producto = get_producto(costo.origen, costo.producto_id)
+        rubro_index = buscar_rubro(producto.agro_rubro.id, rubros)
+        importe = (costo.precio_unitario * costo.cantidad)
+        if rubro_index == -1:
+            linea = {'rubro_id': producto.agro_rubro.id, 'letra': producto.agro_rubro.letra, 'rubro_desc': producto.agro_rubro.nombre, 'orden': producto.agro_rubro.orden, 'saldo': importe}
+            rubros.append(linea)
         else:
-            # sino, lo genera
-            precios_acumulados[nombre] = costo_prod.agro_costoprodo_set.aggregate(total_precio_unitario=models.Sum('precio_unitario'))['total_precio_unitario']
+            rubros[rubro_index]['saldo'] += importe
+
+        if producto.agro_rubro.letra == 'A':
+            pass
+
 
     # Imprimir los precios acumulados por nombre
-    for nombre, precio_acumulado in precios_acumulados.items():
-        return render(request, 'index.html', {'ubicacion': ubicacion, 'nombre': nombre, 'precio_acumulados': precios_acumulados})
+    return render(request, 'index.html', {'rubros_acumulados': rubros})
 
 @login_required
 def personal_details(request):
@@ -694,12 +716,6 @@ def vista_lote_eliminar(request, id_plani, id_lote):
     except:
         return redirect('vista_planificacion')
 
-def get_producto(origen, id):
-    if origen == 'A':
-        producto = agro_Producto.objects.get(id = id)
-    else:
-        producto = Producto.objects.get(id = id)
-    return producto
 
 def load_etapas(planificacion):
     costo = planificacion.costo

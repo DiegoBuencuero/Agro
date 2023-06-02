@@ -409,7 +409,7 @@ class CostoProd(models.Model):
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)
     nombre = models.CharField(max_length=50, default = '')
-    cultivo = models.ForeignKey("Cultivo", on_delete=models.CASCADE)  
+    cultivo = models.ForeignKey("Cultivo", on_delete=models.CASCADE)
     sistema_cultivo = models.ForeignKey("SistemaCultivo", on_delete=models.CASCADE) 
 
 class CostoProdo(models.Model):

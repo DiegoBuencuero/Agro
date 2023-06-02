@@ -329,11 +329,11 @@
     }
     if ($("#north-america-chart").length) {
       var areaData = {
-        labels: ["Jan", "Feb", "Mar"],
+        labels: labels_graficos,
         datasets: [{
-            data: [100, 50, 50],
+            data: datas_graficos,
             backgroundColor: [
-               "#4B49AC","#FFC100", "#248AFD",
+               "#4B49AC","#FFC100", "#248AFD", "#808080","#FF8080","#8080FF","#80FF80",
             ],
             borderColor: "rgba(0,0,0,0)"
           }
