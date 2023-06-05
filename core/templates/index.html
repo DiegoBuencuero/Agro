@@ -664,10 +664,26 @@
 
     var labels_graficos = [];
     var datas_graficos = [];
+    var componentes_labels = [];
+    var componentes_datas = [];
+    var componentes_cololes = [];
     {% for rubro in rubros_acumulados %}
     labels_graficos.push('{{rubro.rubro_desc}}');
     datas_graficos.push('{{rubro.saldo}}');
     {% endfor %}
+    {% for componente in componentes %}
+    componentes_labels.push('{{componente.componente_desc}}')
+    componentes_datas.push('{{componente.saldo}}')
+    componentes_cololes.push('{{componente.color}}')
+    {% endfor %}
+
+    var texto_grafico2 = '<div class="report-chart">'
+
+    texto_grafico2 += '<div class="d-flex justify-content-between mx-4 mx-xl-5 mt-3"><div class="d-flex align-items-center"><div class="mr-3" style="width:20px; height:20px; border-radius: 50%; background-color: #FF00FF"></div><p class="mb-0">Saranga</p></div>'
+    texto_grafico2 += '<p class="mb-0">sanrangangina</p>'
+    texto_grafico2 += '</div>'
+    
+    texto_grafico2 += '</div>'
   </script>
 
 {% endblock %}

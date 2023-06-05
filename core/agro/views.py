@@ -39,6 +39,11 @@ def home(request):
                 return i
         return -1
 
+    def buscar_componente(id_componente, componentes):
+        for i in range(0, len(componentes)):
+            if componentes[i]['id'] == id_componente:
+                return i
+        return -1
 
     if request.user.profile.ciudad is None:
         ubicacion = 'Pinamar'
@@ -63,11 +68,17 @@ def home(request):
             rubros[rubro_index]['saldo'] += importe
 
         if producto.agro_rubro.letra == 'A':
-            pass
+            comp_index = buscar_componente(producto.agro_tipo.id, componentes)
+            if comp_index == -1:
+                linea = {'id': producto.agro_tipo.id, 'componente_desc': producto.agro_tipo.nombre, 'saldo': importe, 'color': producto.agro_tipo.color}
+                componentes.append(linea)
+            else:
+                componentes[comp_index]['saldo'] += importe
+
 
 
     # Imprimir los precios acumulados por nombre
-    return render(request, 'index.html', {'rubros_acumulados': rubros})
+    return render(request, 'index.html', {'rubros_acumulados': rubros, 'componentes': componentes})
 
 @login_required
 def personal_details(request):
