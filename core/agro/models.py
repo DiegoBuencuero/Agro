@@ -192,6 +192,7 @@ class agro_TipoProd(models.Model):
         return self.nombre
     nombre = models.CharField(max_length=100)
     etapas = models.ManyToManyField(agro_Etapa, blank=True)
+    color = models.CharField(max_length=7, default = '#FFFFFF')
 
 
 class agro_RubroProd(models.Model):
