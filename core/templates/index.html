@@ -664,6 +664,7 @@
 
     var rubros_labels = [];
     var rubros_datas = [];
+    var rubros_colores = [];
     var componentes_labels = [];
     var componentes_datas = [];
     var componentes_cololes = [];
@@ -671,15 +672,21 @@
     {% for rubro in rubros_acumulados %}
     rubros_labels.push('{{rubro.rubro_desc}}');
     rubros_datas.push('{{rubro.saldo}}');
+    rubros_colores.push('{{rubro.color}}');
     {% endfor %}
-
-
-
     {% for componente in componentes %}
     componentes_labels.push('{{componente.componente_desc}}')
     componentes_datas.push('{{componente.saldo}}')
     componentes_cololes.push('{{componente.color}}')
     {% endfor %}
+{% comment %} 
+    var texto_grafico1 = '<div class="report-chart">'
+      for (var i = 0; i < rubros_labels.length; i++) {
+        texto_grafico1+='<div class="d-flex justify-content-between mx-4 mx-xl-5 mt-3"><div class="d-flex align-items-center"><div class="mr-3" style="width:20px; height:20px; border-radius: 50%; background-color: ' + rubros_colores[i] + '"></div><p class="mb-0">'+ rubros_labels[i] +'</p></div>'
+        texto_grafico1 +='<p class="mb-0">'+   rubros_datas.[i] +'</p>'
+        texto_grafico1 +='</div>'
+      }
+    texto_grafico1 += '</div>' {% endcomment %}
 
     var texto_grafico2 = '<div class="report-chart">'
       for (var i = 0; i < componentes_labels.length; i++) {
