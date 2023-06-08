@@ -440,3 +440,12 @@ class CostoProdo(models.Model):
 #     ubicacion = models.CharField(max_length=100)
 #     numero_lote = models.CharField(max_length=50)
 #     cantidad_minima = models.IntegerField()
+
+
+class RegistroLluvia(models.Model):
+    def __str__(self):
+        return self.nombre
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    campo = models.ForeignKey("Campo", verbose_name=("Campo"), on_delete=models.CASCADE)
+    fecha = models.DateField(default=timezone.now)
+    cantidad = models.IntegerField(default=0)
