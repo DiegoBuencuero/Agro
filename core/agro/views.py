@@ -62,7 +62,7 @@ def home(request):
         rubro_index = buscar_rubro(producto.agro_rubro.id, rubros)
         importe = (costo.precio_unitario * costo.cantidad)
         if rubro_index == -1:
-            linea = {'rubro_id': producto.agro_rubro.id, 'letra': producto.agro_rubro.letra, 'rubro_desc': producto.agro_rubro.nombre, 'orden': producto.agro_rubro.orden, 'saldo': importe}
+            linea = {'rubro_id': producto.agro_rubro.id, 'letra': producto.agro_rubro.letra, 'rubro_desc': producto.agro_rubro.nombre, 'color': producto.agro_rubro.color, 'orden': producto.agro_rubro.orden, 'saldo': importe}
             rubros.append(linea)
         else:
             rubros[rubro_index]['saldo'] += importe
