@@ -678,12 +678,14 @@
     {% endfor %}
 
     var texto_grafico2 = '<div class="report-chart">'
-
-    texto_grafico2 += '<div class="d-flex justify-content-between mx-4 mx-xl-5 mt-3"><div class="d-flex align-items-center"><div class="mr-3" style="width:20px; height:20px; border-radius: 50%; background-color: #FF00FF"></div><p class="mb-0">Saranga</p></div>'
-    texto_grafico2 += '<p class="mb-0">sanrangangina</p>'
+      for (var i = 0; i < componentes_labels.length; i++) {
+        texto_grafico2 +='<div class="d-flex justify-content-between mx-4 mx-xl-5 mt-3"><div class="d-flex align-items-center"><div class="mr-3" style="width:20px; height:20px; border-radius: 50%; background-color: ' + componentes_cololes[i]+ '"></div><p class="mb-0">'+ componentes_labels[i] +'</p></div>'
+        texto_grafico2 +='<p class="mb-0">'+  componentes_datas[i] +'</p>'
+        texto_grafico2 +='</div>'
+      }
     texto_grafico2 += '</div>'
     
-    texto_grafico2 += '</div>'
+  
   </script>
 
 {% endblock %}
