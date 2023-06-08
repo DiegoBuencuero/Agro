@@ -203,6 +203,8 @@ class agro_RubroProd(models.Model):
     orden = models.IntegerField(default=0)
     nombre = models.CharField(max_length=100)
     letra = models.CharField(max_length=1, default = 'A')
+    color = models.CharField(max_length=7, default = '#FFFFFF')
+
 
 class Especificacion_tipo(models.Model):
     class Meta:

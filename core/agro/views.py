@@ -57,7 +57,7 @@ def home(request):
     costos = CostoProdo.objects.filter(costo_prod = costo_head)
     rubros = []
     componentes = []
-    for costo in costos:
+    for costo in costos: # buscamos los datos para el grafico uno 'componentes-gastos-seguros etc'
         producto = get_producto(costo.origen, costo.producto_id)
         rubro_index = buscar_rubro(producto.agro_rubro.id, rubros)
         importe = (costo.precio_unitario * costo.cantidad)
@@ -67,7 +67,7 @@ def home(request):
         else:
             rubros[rubro_index]['saldo'] += importe
 
-        if producto.agro_rubro.letra == 'A':
+        if producto.agro_rubro.letra == 'A': # buscamos los datos para el grafico dos 'componentes "A"'
             comp_index = buscar_componente(producto.agro_tipo.id, componentes)
             if comp_index == -1:
                 linea = {'id': producto.agro_tipo.id, 'componente_desc': producto.agro_tipo.nombre, 'saldo': importe, 'color': producto.agro_tipo.color}

@@ -662,15 +662,19 @@
     var interval = setInterval(clima_now, 100000); //100 segundos
 
 
-    var labels_graficos = [];
-    var datas_graficos = [];
+    var rubros_labels = [];
+    var rubros_datas = [];
     var componentes_labels = [];
     var componentes_datas = [];
     var componentes_cololes = [];
+
     {% for rubro in rubros_acumulados %}
-    labels_graficos.push('{{rubro.rubro_desc}}');
-    datas_graficos.push('{{rubro.saldo}}');
+    rubros_labels.push('{{rubro.rubro_desc}}');
+    rubros_datas.push('{{rubro.saldo}}');
     {% endfor %}
+
+
+
     {% for componente in componentes %}
     componentes_labels.push('{{componente.componente_desc}}')
     componentes_datas.push('{{componente.saldo}}')

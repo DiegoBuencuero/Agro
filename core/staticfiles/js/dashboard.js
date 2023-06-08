@@ -329,9 +329,9 @@
     }
     if ($("#north-america-chart").length) {
       var areaData = {
-        labels: labels_graficos,
+        labels: rubros_labels,
         datasets: [{
-            data: datas_graficos,
+            data: rubros_datas,
             backgroundColor: [
                "#4B49AC","#FFC100", "#248AFD", "#808080","#FF8080","#8080FF","#80FF80",
             ],
@@ -412,6 +412,11 @@
           }
         ]
       };
+
+
+
+
+
       var areaOptions = {
         responsive: true,
         maintainAspectRatio: true,
