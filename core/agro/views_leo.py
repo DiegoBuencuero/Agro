@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Trazabilidad, Lote, Especificacion_tipo, Mov, Com, Deposito
-from .forms_leo import TrazabilidadForm
+from .models import Trazabilidad, Lote, Especificacion_tipo, Mov, Com, Deposito, Contactos
+from .forms_leo import TrazabilidadForm, ContactoForm
 from .views import get_producto
 
 
@@ -98,3 +98,45 @@ def editar_trazabilidad(request, id_traza):
         return render(request, 'vista_trazabilidad.html', {'form': form, 'empresa': empresa, 'trazabilidades':traza_list, 'modificacion': 'S'})
     else:
         return redirect('vista_planificacion')
+
+
+
+
+
+@login_required
+def vista_contactos(request):
+
+    empresa = request.user.profile.empresa
+    contactos = Contactos.objects.filter(empresa = empresa)
+    if request.method == 'POST':
+        form = ContactoForm(request.POST)
+        if form.is_valid():
+            cont = form.save(commit=False)
+            cont.empresa = empresa
+            cont.save()
+            form.save_m2m()
+            form = ContactoForm()
+    else:
+        form = ContactoForm()
+    return render(request, 'vista_contacto.html', {'contactos': contactos, 'form': form, 'empresa': empresa })
+
+
+
+@login_required
+def editar_contacto(request, id_contacto):
+    empresa = request.user.profile.empresa
+    try:
+        contacto = Contactos.objects.get(id=id_contacto)
+    except:
+        return redirect('vista_contactos')
+    if contacto.empresa != empresa:
+        return redirect('vista_contactos')
+    contactos = Contactos.objects.filter(empresa = empresa)
+    if request.method == 'POST':
+        form = ContactoForm(request.POST, instance = contacto)
+        if form.is_valid():
+            cont = form.save()
+            form = ContactoForm()
+    else:
+        form = ContactoForm(instance = contacto)
+    return render(request, 'vista_contacto.html', {'contactos': contactos, 'form': form, 'empresa': empresa,  'modificacion': 'S' })

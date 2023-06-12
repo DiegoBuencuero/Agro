@@ -456,6 +456,8 @@ from .choices import *
 
 
 class agro_CategoriaContacto(models.Model):
+    def __str__(self):
+        return self.descripcion
     descripcion = models.CharField(max_length=80)
 
 class Contactos(models.Model):
@@ -474,7 +476,7 @@ class agro_Ivapos(models.Model):
     comprobante = models.ForeignKey(Com, on_delete=models.CASCADE)
 
 
-class Proveedores(models.Model):
+class Proveedor(models.Model):
     def __str__(self):
         return self.razon_social
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)

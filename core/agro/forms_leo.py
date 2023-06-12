@@ -1,7 +1,7 @@
 from django import forms  
 from .forms import BaseForm
 from .models import Trazabilidad, agro_Producto, Producto, Especificacion_tipo, Campo, Lote
-
+from .models import Contactos, agro_CategoriaContacto
 
 class TrazabilidadForm(BaseForm):
     def __init__(self, company, *args,**kwargs):
@@ -40,3 +40,10 @@ class TrazabilidadForm(BaseForm):
     espec = forms.ChoiceField()
     campo = forms.ChoiceField()
     lote_campo = forms.ChoiceField()
+
+
+class ContactoForm(BaseForm):
+    class Meta:
+        model = Contactos
+        fields = '__all__'
+        exclude = ['empresa']
