@@ -12,11 +12,11 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import agro_Etapa, Deposito, models
+from .models import agro_Etapa, Deposito, models, RegistroLluvia
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
-from .forms import FormAsignacionEtapaCosto, DepositoForm
+from .forms import FormAsignacionEtapaCosto, DepositoForm, RegLluviaForm
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from operator import itemgetter
@@ -944,3 +944,61 @@ def editar_deposito(request, id_depo):
         return render(request, 'vista_deposito.html', {'form': form, 'empresa': empresa, 'depositos':depositos, 'modificacion': 'S'})
     else:
         return redirect('vista_comprobantes') 
+
+@login_required
+# def vista_lluvia(request):
+#     regLluvias = RegistroLluvia.objects.filter(empresa = request.user.profile.empresa)
+#     empresa = request.user.profile.empresa
+#     print(request.user)
+#     if request.method == 'POST':
+#         form = RegLluviaForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             depo = form.save(commit=False)
+#             depo.empresa = empresa
+#             depo.save()
+#             form = RegLluviaForm()
+#     else:
+#         form = RegLluviaForm()
+#     return render(request, 'vista_deposit.html', {'form': form, 'regLluvias': regLluvias, 'empresa': empresa })
+
+def vista_lluvia(request):
+    regLluvias = RegistroLluvia.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    print(request.user)
+    if request.method == 'POST':
+        form = RegLluviaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('lluvia')
+    else:
+        form = RegLluviaForm()
+    lluvia = RegistroLluvia.objects.all()
+    return render(request, 'vista_lluvia.html', {'form': form, 'lluvia': lluvia})
+
+
+
+
+
+# @login_required
+# def editar_deposito(request, id_depo):
+#     depositos = Deposito.objects.filter(empresa = request.user.profile.empresa)
+#     try:
+#         depo = Deposito.objects.get(id = id_depo)
+#     except:
+#         return redirect('vista_deposito')
+#     empresa = request.user.profile.empresa
+#     if depo.empresa == empresa:
+#         if request.method == 'POST':
+#             form = DepositoForm(request.POST, instance = depo)
+#             if form.is_valid():
+#                 depo = form.save(commit=False)
+#                 if request.POST.get('borrar') == '':
+#                     depo.delete()
+#                 else:
+#                     depo.save()
+#                 return redirect('vista_deposito')
+#         else:
+#             form = DepositoForm(instance = depo)
+#         return render(request, 'vista_deposito.html', {'form': form, 'empresa': empresa, 'depositos':depositos, 'modificacion': 'S'})
+#     else:
+#         return redirect('vista_comprobantes')     
