@@ -34,6 +34,7 @@
             <div class="form-group d-flex align-items-center">
               <label for="year" class="mr-2">Seleccione el año:</label>
               <select id="year" class="form-control">
+                  <option value="">-- Seleccionar --</option>
                   <option value="2021">2021</option>
                   <option value="2022">2022</option>
                   <option value="2023">2023</option>
@@ -119,6 +120,11 @@
   var yearSelector = document.getElementById('year');
   yearSelector.addEventListener('change', function() {
     var selectedYear = yearSelector.value;
+    var mesSeleccionado = document.querySelector('#tabla_lluvia tbody tr:first-child td:first-child').textContent;
+    if (!selectedYear || !mesSeleccionado) {
+      alert('Por favor, seleccione el año y el mes antes de continuar.');
+      return;
+    }
     // Here you can update the records for the selected year if needed
     console.log('Selected Year:', selectedYear);
     console.log('Records:', registrosLluvia);
