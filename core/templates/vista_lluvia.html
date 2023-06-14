@@ -17,145 +17,95 @@
           Informacion general
         </p>
         {{ form.non_field_errors }}
-        <div class="col-12 d-flex">
-          <div class="col-4">
-            <div class="form-group row d-flex">
-              <label class="col-sm-3 col-form-label">Campo</label>
-              <div class="col-sm-9 d-flex">
-                {{form.campo}}
-                {{form.campo.errors}}
+        <div class="col-12 grid-margin">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Campo</label>
+                <div class="col-sm-9">
+                  {{form.campo}}
+                  {{form.campo.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Nombre</label>
+                <div class="col-sm-9">
+                  {{form.nombre}}
+                  {{form.nombre.erros}}
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-1 col-sm-0">
+          <div class="card">
+            <div class="card-body">
+        
+              <div class="table-responsive">
+                <table id="tabla_lluvia" class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Meses</th>
+                      <th colspan="31">Días</th>
+                    </tr>
+                    <tr>
+                      <th></th>
+                      <!-- Encabezados de la columna 1 al 32 -->
+                      <script>
+                      for (var i = 0; i < 32; i++){
+                        document.write('<th>' + i + '</th>')
+                      }                                            
+                      </script>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+        
+              {% if modificacion %}
+              <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+              <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+              {% else %}
+              <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+              {% endif %}
+              <button type='button' class="btn btn-dark" onclick="window.location.href='/trazabilidad';">Cancelar</button>
               
-          </div>
-          <div class="col-4">
-            <div class="form-group d-flex align-items-center">
-              <label for="year" class="mr-2">Seleccione el año:</label>
-              <select id="year" class="form-control">
-                  <option value="">-- Seleccionar --</option>
-                  <option value="2021">2021</option>
-                  <option value="2022">2022</option>
-                  <option value="2023">2023</option>
-              </select>
-            </div>    
+            </div>
           </div>
         </div>
-        <div class="table-responsive">
-          <table id="tabla_lluvia" class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Meses</th>
-                <th colspan="31">Días</th>
-              </tr>
-              <tr>
-                <th></th>
-                <!-- Encabezados días -->
-                <script>
-                  for (var i = 1; i < 32; i++) {
-                    document.write('<th>' + i + '</th>');
-                  }
-                </script>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </div>     
+        
+        <script>
+          // genero en la columna 0, los meses del año
+          var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+          var tabla = document.getElementById('tabla_lluvia');
+        
+          for (var i = 0; i < meses.length; i++) {
+            var mes_fila = document.createElement('tr');
+            var mes_celda = document.createElement('td');
+            mes_celda.textContent = meses[i];
+            mes_fila.appendChild(mes_celda);
+        
+            for (var j = 1; j <= 31; j++) {
+              var dia = document.createElement('td');
+              dia.textContent = '0';
+              dia.id = meses[i] + '-' + j;
+              mes_fila.appendChild(dia);
+            }
+        
+            tabla.appendChild(mes_fila);
+          }
+        </script>
+   
   
-        {% if modificacion %}
-        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
-        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
-        {% else %}
-        <button type="submit" class="btn btn-primary mr-2" id="guardarBtn" onclick="calcularAcumuladoPorMes()">Guardar</button>
-        {% endif %}
-        <button type='button' class="btn btn-dark" onclick="window.location.href='/0101';">Cancel</button>
-
-      </form>
-    </div>
-  </div>
-</div>
-<script>
-  var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-  var tabla = document.querySelector('#tabla_lluvia tbody');
-  var registrosLluvia = {}; // Object to store rainfall records per month
-
-  // Function to update the rainfall record
-  function actualizarRegistroLluvia(mes, dia, valor) {
-    if (!registrosLluvia[mes]) {
-      registrosLluvia[mes] = {};
-    }
-    registrosLluvia[mes][dia] = valor;
-  }
-
-  for (var i = 0; i < meses.length; i++) {
-    var mes_fila = document.createElement('tr');
-    var mes_celda = document.createElement('td');
-    mes_celda.textContent = meses[i];
-    mes_fila.appendChild(mes_celda);
-
-    for (var j = 1; j < 32; j++) {
-      var dia = document.createElement('td');
-      dia.textContent = '0';
-      dia.id = meses[i] + '-' + j;
-      dia.addEventListener('click', function() {
-        var valorActual = this.textContent;
-        var nuevoValor = prompt('Ingresa el registro de lluvia (mm):', valorActual);
-        if (nuevoValor !== null) {
-          this.textContent = nuevoValor;
-          var mes = this.id.split('-')[0];
-          var dia = this.id.split('-')[1];
-          actualizarRegistroLluvia(mes, dia, nuevoValor);
-        }
-      });
-      mes_fila.appendChild(dia);
-    }
-
-    tabla.appendChild(mes_fila);
-  } 
-
-  // Event listener for year selector
-  var yearSelector = document.getElementById('year');
-  yearSelector.addEventListener('change', function() {
-    var selectedYear = yearSelector.value;
-    var mesSeleccionado = document.querySelector('#tabla_lluvia tbody tr:first-child td:first-child').textContent;
-    if (!selectedYear || !mesSeleccionado) {
-      alert('Por favor, seleccione el año y el mes antes de continuar.');
-      return;
-    }
-    // Here you can update the records for the selected year if needed
-    console.log('Selected Year:', selectedYear);
-    console.log('Records:', registrosLluvia);
-  }); 
-
-  function calcularAcumuladoPorMes() {
-    var acumuladoPorMes = {};
-
-    for (var mes in registrosLluvia) {
-      acumuladoPorMes[mes] = 0;
-
-      for (var dia in registrosLluvia[mes]) {
-        acumuladoPorMes[mes] += parseInt(registrosLluvia[mes][dia]);
-      }
-    }
-
-    // Mostrar el resultado en un mensaje de alerta
-    alert("Valor acumulado por mes:\n" + JSON.stringify(acumuladoPorMes));
-  }
-</script>
-
 {% endblock %}
 {% block nav %}
 {% include 'nav_home.html' %}
 {% endblock %}
-
 {% block plugin_js %}
 <script src="{% static 'vendors/datatables.net/jquery.dataTables.js' %}"></script>
 <script src="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.js' %}"></script>
 <script src="{% static 'js/dataTables.select.min.js' %}"></script>
 {% endblock %}
-
 {% block custom_js %}
 {% endblock %}
