@@ -5,6 +5,9 @@ from django.db.models.signals import post_save
 from django.utils import timezone
 from .choices import *
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils import timezone
+from .choices import *
 
 # Create your models here.
 
@@ -444,16 +447,11 @@ class CostoProdo(models.Model):
 
 class RegistroLluvia(models.Model):
     def __str__(self):
-        return self.nombre
+        return f"{self.campo} - {self.fecha}"
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     campo = models.ForeignKey("Campo", verbose_name=("Campo"), on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)
     cantidad = models.IntegerField(default=0)
-
-from django.db import models
-from django.utils import timezone
-from .choices import *
-
 
 class agro_CategoriaContacto(models.Model):
     def __str__(self):

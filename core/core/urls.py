@@ -21,7 +21,7 @@ from agro.views import vista_costo_prod, editar_costo_prod, ajax_get_costo, load
 from agro.views import vista_campana, editar_campana, vista_planificacion, editar_planificacion, vista_planificacion_lote
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_planificacion_etapas_reset
 from agro.views import vista_comprobantes, editar_comprobante, vista_numerador, editar_numerador, vista_deposito, editar_deposito
-from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_lluvia
+from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_lluvia, guardar_lluvia
 from django.conf import settings
 from django.conf.urls.static import static
 from .urls_leo import *
@@ -40,6 +40,8 @@ urlpatterns = [
     path('08/',vista_deposito, name='vista_deposito'),
     path('08/<int:id_depo>', editar_deposito, name='editar_deposito'),
     path('regLluvias/', vista_lluvia, name='vista_lluvia'),
+    path('guardar-lluvia/', guardar_lluvia, name='guardar_lluvia'),
+    
 ]
 urlpatterns += url_leo
 # Only add this when we are in debug mode.

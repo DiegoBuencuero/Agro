@@ -1,103 +1,290 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block plugin_css%}
+{% block plugin_css %}
 <link rel="stylesheet" href="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'js/select.dataTables.min.css' %}">
-{% endblock %}                          
+{% endblock %}  
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/modal.css' %}">
+{% endblock head %}
 {% block content %} 
 {% include 'mensajes.html' %}
 <div class="col-12 grid-margin">
   <div class="card">
     <div class="card-body">
-        {% include 'mensajes.html' %}
       <h4 class="card-title">Registro de lluvias</h4>
-      <form class="form-sample" method='post' enctype="multipart/form-data">
+      <form class="form-sample" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <p class="card-description">
-          Informacion general
-        </p>
+        
         {{ form.non_field_errors }}
-        <div class="col-12 grid-margin">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Campo</label>
-                <div class="col-sm-9">
-                  {{form.campo}}
-                  {{form.campo.errors}}
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Nombre</label>
-                <div class="col-sm-9">
-                  {{form.nombre}}
-                  {{form.nombre.erros}}
-                </div>
+        <div class="col-12 d-flex">
+          <div class="col-4">
+            <div class="form-group row d-flex">
+              <label class="col-sm-3 col-form-label">Campo</label>
+              <div class="col-sm-9 d-flex">
+                {{ form.campo }}
+                {{ form.campo.errors }}
               </div>
             </div>
           </div>
-          <div class="card">
-            <div class="card-body">
-        
-              <div class="table-responsive">
-                <table id="tabla_lluvia" class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>Meses</th>
-                      <th colspan="31">Días</th>
-                    </tr>
-                    <tr>
-                      <th></th>
-                      <!-- Encabezados de la columna 1 al 32 -->
-                      <script>
-                      for (var i = 0; i < 32; i++){
-                        document.write('<th>' + i + '</th>')
-                      }                                            
-                      </script>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  </tbody>
-                </table>
-              </div>
-        
-              {% if modificacion %}
-              <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
-              <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
-              {% else %}
-              <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
-              {% endif %}
-              <button type='button' class="btn btn-dark" onclick="window.location.href='/trazabilidad';">Cancelar</button>
-              
+          <div class="col-1 col-sm-0">
+          </div>
+          <div class="col-4">
+            <div class="form-group d-flex align-items-center">
+              <label for="ano" class="mr-2">Seleccione el año:</label>
+              <select id="ano" name="ano" class="form-control">
+                <option value="" selected disabled>Seleccionar año</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+              </select>
             </div>
           </div>
         </div>
-        
-        <script>
-          // genero en la columna 0, los meses del año
-          var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-          var tabla = document.getElementById('tabla_lluvia');
-        
-          for (var i = 0; i < meses.length; i++) {
-            var mes_fila = document.createElement('tr');
-            var mes_celda = document.createElement('td');
-            mes_celda.textContent = meses[i];
-            mes_fila.appendChild(mes_celda);
-        
-            for (var j = 1; j <= 31; j++) {
-              var dia = document.createElement('td');
-              dia.textContent = '0';
-              dia.id = meses[i] + '-' + j;
-              mes_fila.appendChild(dia);
-            }
-        
-            tabla.appendChild(mes_fila);
-          }
-        </script>
-   
+        <div class="table-responsive">
+          <table id="tabla_lluvia" class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Meses</th>
+                <th colspan="31">Días</th>
+              </tr>
+              <tr>
+                <th></th>
+                <!-- Encabezados días -->
+                <script>
+                  for (var i = 1; i < 32; i++) {
+                    document.write('<th>' + i + '</th>');
+                  }
+                </script>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>  
+        <button type="submit" class="btn btn-primary mr-2" id="guardarBtn">Guardar</button>
+        <button type="button" class="btn btn-dark" onclick="window.location.href='/0101';">Cancel</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div id='lluviaModal' class="inno-modal">
+  <div class="inno-modal-content">
+    <div class="card">
+      <div class="card-body">
+          {% include 'mensajes.html' %}
+        <form id='MyForm' class="form-sample" method='post'>
+          {% csrf_token %}
+          <p class="card-description">
+            Detalle
+          </p>         
+          <div class="form-group">
+            <label for="valorLluvia">Valor de Lluvia:</label>
+            <p id="mensajeAdvertencia" style="color: red;"></p>
+            <input type="text" class="form-control" id="valorLluvia">
+          </div>   
+          <button type="button" id="closeLluvia" onclick="" class="btn btn-primary btn-rounded btn-fw">Cerrar</button>
+          <button type="button" id="guardarLluviaBtn" onclick="" class="btn btn-primary btn-rounded btn-fw">Alterar</button>
+        </form>  
+      </div>
+    </div>  
+  </div>
+</div>
+<div id='campoAnoModal' class="inno-modal">
+  <div class="inno-modal-content">
+    <div class="card">
+      <div class="card-body">
+          {% include 'mensajes.html' %}
+        <form id='MyForm' class="form-sample" method='post'>
+          {% csrf_token %}
+          <p class="card-description">
+            <p id="campoAnoMensaje">Por favor seleccione un campo y un año para continuar</p>
+          </p>           
+          <button type="button" id="close" onclick="" class="btn btn-primary btn-rounded btn-fw">Cerrar</button>
+        </form>  
+      </div>
+    </div>  
+  </div>
+</div>
+<script>
+  var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  var tabla = document.querySelector('#tabla_lluvia tbody');
+  var anoSelect = document.getElementById('ano');
+  var campoSelect = document.getElementById("id_campo");
+  registrosLluvia = {}
+ 
+  for (var i = 0; i < meses.length; i++) {
+    var mes_fila = document.createElement('tr');
+    var mes_celda = document.createElement('td');
+    mes_celda.textContent = meses[i];
+    mes_fila.appendChild(mes_celda);
+    
+    for (var j = 1; j < 32; j++) {
+      var dia = document.createElement('td');
+      dia.textContent = '0';
+      dia.classList.add('lluvia-celda');
+      dia.setAttribute('data-mes', meses[i]);
+      dia.setAttribute('data-dia', j);
+               
+      mes_fila.appendChild(dia);
+    }
+
+    tabla.appendChild(mes_fila);
+  }
+
+// Evento para abrir la ventana modal al hacer clic en una celda de lluvia
+var celdasLluvia = document.querySelectorAll('.lluvia-celda');
+celdasLluvia.forEach(function(celda) {
+  celda.addEventListener('click', function() {
+    var mes = this.getAttribute('data-mes');
+    var dia = this.getAttribute('data-dia');
+
+    if (!anoSelect.value || !campoSelect.value) {
+      document.getElementById('campoAnoModal').style.display = "block";
+      return;
+    }
+
+    var cantidadLluvia = registrosLluvia[mes] && registrosLluvia[mes][dia] ? registrosLluvia[mes][dia] : 0;
+
+    var valorLluviaInput = document.getElementById('valorLluvia');
+    document.getElementById('lluviaModal').style.display = "block";
+    document.getElementById('lluviaModal').setAttribute('data-mes', mes);
+    document.getElementById('lluviaModal').setAttribute('data-dia', dia);
+
+    valorLluviaInput.addEventListener('input', function() {
+      var valorLluvia = valorLluviaInput.value.trim(); // Obtener el valor del input y eliminar espacios en blanco
+      var regex = /^\d+$/; // Expresión regular para verificar si solo contiene dígitos enteros
+    
+      if (!regex.test(valorLluvia)) {
+        valorLluviaInput.style.border = "2px solid red"; // Cambiar el borde a rojo
+        document.getElementById('guardarLluviaBtn').disabled = true; // Deshabilitar el botón "alterar"
+        document.getElementById('mensajeAdvertencia').textContent = "Seleccione un valor numérico"; // Mostrar mensaje de advertencia
+      } else {
+        valorLluviaInput.style.border = "2px solid green"; // Cambiar el borde a verde
+        document.getElementById('guardarLluviaBtn').disabled = false; // Habilitar el botón "alterar"
+        document.getElementById('mensajeAdvertencia').textContent = ""; // Ocultar mensaje de advertencia
+      }
+    });
+
+    valorLluviaInput.value = cantidadLluvia;
+    valorLluviaInput.style.border = "2px solid green"; // Cambiar el borde a verde al hacer clic
+  });
+});
   
+  // Evento para cerrar la ventana modal al hacer clic en el botón de cerrar
+  var closeButton = document.getElementById('close');
+  closeButton.addEventListener('click', function() {
+    document.getElementById('campoAnoModal').style.display = "none";
+    document.getElementById('lluviaModal').style.display = "none";
+  });
+  var closeButton = document.getElementById('closeLluvia');
+  closeButton.addEventListener('click', function() {
+    document.getElementById('campoAnoModal').style.display = "none";
+    document.getElementById('lluviaModal').style.display = "none";
+  });  
+ 
+  function actualizarRegistroLluvia(mes, dia, valor) {
+    if (!registrosLluvia[mes]) {
+      registrosLluvia[mes] = {};
+    }
+    registrosLluvia[mes][dia] = valor;
+  }
+  // Evento para actualizar el valor del registro de lluvia al hacer clic en el botón Guardar en la ventana modal
+  document.getElementById('guardarLluviaBtn').addEventListener('click', function() {
+    var mes = document.getElementById('lluviaModal').getAttribute('data-mes');
+    var dia = document.getElementById('lluviaModal').getAttribute('data-dia');
+    var nuevoValor = document.getElementById('valorLluvia').value;
+
+    actualizarRegistroLluvia(mes, dia, nuevoValor);
+
+    // Actualizar visualmente la celda de lluvia
+    var celdaActualizada = document.querySelector('.lluvia-celda[data-mes="' + mes + '"][data-dia="' + dia + '"]');
+    celdaActualizada.textContent = nuevoValor;
+
+    // Cerrar la ventana modal
+    document.getElementById('lluviaModal').style.display = "none";
+  });
+
+  
+  var registrosLluvia = []; // Definir registros como un array vacío antes de la función del evento click
+
+  document.getElementById("guardarLluviaBtn").addEventListener("click", function() {
+    // Obtener los valores de los campos
+    var campo = document.getElementById("id_campo").value;
+    var ano = document.getElementById("ano").value;
+    var mes = 5;
+    var dia = document.getElementById('lluviaModal').getAttribute('data-dia');
+    var cantidadLluvia = document.getElementById("valorLluvia").value;
+  
+    // Crear un objeto con los datos a enviar al servidor
+    var registro = {
+      campo_id: campo,
+      ano: ano,
+      mes: mes,
+      dia: dia,
+      cantidad_lluvia: cantidadLluvia
+    };
+  
+    
+    registrosLluvia.push(registro); // Agregar el objeto a la lista de registros
+    console.log(registrosLluvia);
+  
+    // Limpiar los valores
+    document.getElementById("valorLluvia").value = "";
+  
+    // Mostrar la lista de registros en la consola (solo para verificar)
+    
+  });
+  
+  document.getElementById("guardarBtn").addEventListener("click", function(event) {
+    event.preventDefault();
+  
+    if (registrosLluvia.length === 0) {
+      alert("No hay registros de lluvia para guardar.");
+      return;
+    }
+  
+    // Convertir el objeto de datos a una cadena JSON
+    var jsonData = JSON.stringify(registrosLluvia);
+  
+    // Crear una nueva solicitud AJAX
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/guardar-lluvia/", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+  
+    // Manejar la respuesta del servidor
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        // La solicitud se completó correctamente
+        var response = JSON.parse(xhr.responseText);
+        if (response.success) {
+          // Los registros se guardaron exitosamente
+          alert(response.message);
+          // Limpiar la lista de registros
+          registrosLluvia = [];
+          console.log(registrosLluvia); // Mostrar la lista vacía en la consola (opcional)
+        } else {
+          // Ocurrió un error al guardar los registros
+          alert('Error al guardar los registros.');
+        }
+      } else {
+        // Ocurrió un error durante la solicitud
+        console.error(xhr.status);
+      }
+    };
+  
+    // Manejar los errores de la solicitud AJAX
+    xhr.onerror = function() {
+      console.error('Error de red');
+    };
+  
+    // Enviar la solicitud al servidor
+    xhr.send(jsonData);
+  });
+
+</script>
 {% endblock %}
 {% block nav %}
 {% include 'nav_home.html' %}
@@ -106,6 +293,4 @@
 <script src="{% static 'vendors/datatables.net/jquery.dataTables.js' %}"></script>
 <script src="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.js' %}"></script>
 <script src="{% static 'js/dataTables.select.min.js' %}"></script>
-{% endblock %}
-{% block custom_js %}
 {% endblock %}
