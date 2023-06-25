@@ -10,6 +10,11 @@ from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes, force_str  
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from operator import itemgetter
+from datetime import datetime 
+import json
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import agro_Etapa, Deposito, models, RegistroLluvia
@@ -17,10 +22,7 @@ from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planific
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
 from .forms import FormAsignacionEtapaCosto, DepositoForm, RegLluviaForm
-from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from operator import itemgetter
-from datetime import datetime 
+
 import json
 # Create your views here.
 
@@ -939,27 +941,15 @@ def editar_deposito(request, id_depo):
         return render(request, 'vista_deposito.html', {'form': form, 'empresa': empresa, 'depositos':depositos, 'modificacion': 'S'})
     else:
         return redirect('vista_comprobantes') 
-
-@login_required
+    
 def vista_lluvia(request):
-    regLluvias = RegistroLluvia.objects.filter(empresa = request.user.profile.empresa)
     empresa = request.user.profile.empresa
-    print(request.user)
+    regLluvias = RegistroLluvia.objects.filter(empresa=empresa)
+    campos = Campo.objects.filter(empresa=empresa)
+   
     if request.method == 'POST':
-        form = RegLluviaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('lluvia')
-    else:
-        form = RegLluviaForm()
-    lluvia = RegistroLluvia.objects.all()
-    return render(request, 'vista_lluvia.html', {'form': form, 'lluvia': lluvia})
-
-def guardar_lluvia(request):
-    regLluvias = RegistroLluvia.objects.filter(empresa = request.user.profile.empresa)
-    empresa = request.user.profile.empresa
-    if request.method == 'POST':
-        registros_lluvia = json.loads(request.body)  # Obtener los registros enviados en la solicitud POST
+        # Procesar solicitud POST
+        registros_lluvia = json.loads(request.body)
               
         for registro in registros_lluvia:
             campo_id = registro['campo_id']
@@ -968,14 +958,13 @@ def guardar_lluvia(request):
             dia = registro['dia']
             cantidad_lluvia = registro['cantidad_lluvia']
             
-            # Validar la fecha y crear una instancia de RegistroLluvia
             try:
                 fecha = datetime.strptime(f'{ano}-{mes}-{dia}', '%Y-%m-%d').date()
                 registro_lluvia = RegistroLluvia.objects.create(
                     campo_id=campo_id,
                     fecha=fecha,
                     cantidad=cantidad_lluvia,
-                    empresa  = empresa
+                    empresa=empresa
                 )
             except (ValueError, KeyError):
                 response = {
@@ -984,26 +973,34 @@ def guardar_lluvia(request):
                 }
                 return JsonResponse(response, status=400)
         
-        # Retornar una respuesta JSON indicando que los registros se guardaron correctamente
         response = {
             'success': True,
             'message': 'Registros guardados exitosamente.'
         }
         
-        for registro in registro_lluvia:
-            print(registro)
-
-
         return JsonResponse(response)
     else:
-        # Si la solicitud no es POST, retornar una respuesta de error
-        response = {
-            'success': False,
-            'message': 'Método no permitido.'
-        }
-        return JsonResponse(response, status=405)
-
+        form = RegLluviaForm()
     
+    ano_filter = request.GET.get('ano')
+    campo_filter = request.GET.get('campo')
+
+    if ano_filter and campo_filter:
+        lluvia = regLluvias.filter(ano=ano_filter, campo=campo_filter)
+    elif ano_filter:
+        lluvia = regLluvias.filter(ano=ano_filter)
+    elif campo_filter:
+        lluvia = regLluvias.filter(campo=campo_filter)
+    else:
+        lluvia = regLluvias
+    
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest' and (ano_filter or campo_filter):
+        registros_html = render_to_string('lluvia_filtrada.html', {'lluvia': lluvia})
+        return JsonResponse({'registros_html': registros_html})
+
+    return render(request, 'vista_lluvia.html', {'form': form, 'lluvia': lluvia, 'campos': campos})
+
+
 
 # @login_required
 # def editar_deposito(request, id_depo):

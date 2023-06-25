@@ -17,30 +17,33 @@
         {% csrf_token %}
         
         {{ form.non_field_errors }}
-        <div class="col-12 d-flex">
-          <div class="col-4">
-            <div class="form-group row d-flex">
-              <label class="col-sm-3 col-form-label">Campo</label>
-              <div class="col-sm-9 d-flex">
-                {{ form.campo }}
-                {{ form.campo.errors }}
-              </div>
-            </div>
-          </div>
-          <div class="col-1 col-sm-0">
-          </div>
-          <div class="col-4">
-            <div class="form-group d-flex align-items-center">
-              <label for="ano" class="mr-2">Seleccione el año:</label>
-              <select id="ano" name="ano" class="form-control">
-                <option value="" selected disabled>Seleccionar año</option>
-                <option value="2021">2021</option>
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
+        <div class="col-4">
+          <div class="form-group row d-flex">
+            <label class="col-sm-3 col-form-label">Campo</label>
+            <div class="col-sm-9 d-flex">
+              <select id="campo" class="form-control">
+                <option value="*" selected="selected">Seleccionar campo</option>
+                {% for campo in campos %}
+                  <option value="{{ campo.id }}">{{ campo.nombre }}</option>
+                {% endfor %}
               </select>
             </div>
           </div>
         </div>
+        <div class="col-1 col-sm-0">
+        </div>
+        <div class="col-4">
+          <div class="form-group d-flex align-items-center">
+            <label for="ano" class="mr-2">Seleccione el año:</label>
+            <select id="ano" name="ano" class="form-control">
+              <option value="" {% if not ano_filter %}selected{% endif %} disabled>Seleccionar año</option>
+              <option value="2021" {% if ano_filter == "2021" %}selected{% endif %}>2021</option>
+              <option value="2022" {% if ano_filter == "2022" %}selected{% endif %}>2022</option>
+              <option value="2023" {% if ano_filter == "2023" %}selected{% endif %}>2023</option>
+            </select>
+          </div>
+        </div>         
+          
         <div class="table-responsive">
           <table id="tabla_lluvia" class="table table-bordered">
             <thead>
@@ -111,7 +114,7 @@
 
   var tabla = document.querySelector('#tabla_lluvia tbody');
   var anoSelect = document.getElementById('ano');
-  var campoSelect = document.getElementById("id_campo");
+  var campoSelect = document.getElementById("campo");
   registrosLluvia = {}
  
   for (var i = 0; i < meses.length; i++) {
@@ -140,10 +143,10 @@ celdasLluvia.forEach(function(celda) {
     var mes = this.getAttribute('data-mes');
     var dia = this.getAttribute('data-dia');
 
-    if (!anoSelect.value || !campoSelect.value) {
-      document.getElementById('campoAnoModal').style.display = "block";
-      return;
-    }
+  if (!anoSelect.value || !campoSelect.value) {
+  document.getElementById('campoAnoModal').style.display = "block";
+    return;
+  }
 
     var cantidadLluvia = registrosLluvia[mes] && registrosLluvia[mes][dia] ? registrosLluvia[mes][dia] : 0;
 
@@ -209,9 +212,9 @@ celdasLluvia.forEach(function(celda) {
   
   var registrosLluvia = []; // Definir registros como un array vacío antes de la función del evento click
 
-  document.getElementById("guardarLluviaBtn").addEventListener("click", function() {
+  document.getElementById("guardarBtn").addEventListener("click", function() {
     // Obtener los valores de los campos
-    var campo = document.getElementById("id_campo").value;
+    var campo = document.getElementById("campo").value;
     var ano = document.getElementById("ano").value;
     var mes = 5;
     var dia = document.getElementById('lluviaModal').getAttribute('data-dia');
@@ -250,7 +253,7 @@ celdasLluvia.forEach(function(celda) {
   
     // Crear una nueva solicitud AJAX
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/guardar-lluvia/", true);
+    xhr.open("POST", "/regLluvias/", true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
   
@@ -283,7 +286,22 @@ celdasLluvia.forEach(function(celda) {
     // Enviar la solicitud al servidor
     xhr.send(jsonData);
   });
-
+  
+  function filtrarRegistros() {
+    var ano = document.getElementById('ano').value;
+    var campo = document.getElementById('campo').value;
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', "{% url 'vista_lluvia' %}?ano=" + ano + "&campo=" + campo, true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        var response = JSON.parse(xhr.responseText);
+        document.getElementById('tabla_lluvia').innerHTML = response.registros_html;
+      }
+    };
+    xhr.send();
+  }
+ 
 </script>
 {% endblock %}
 {% block nav %}

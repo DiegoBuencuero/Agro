@@ -447,7 +447,7 @@ class CostoProdo(models.Model):
 
 class RegistroLluvia(models.Model):
     def __str__(self):
-        return f"{self.campo} - {self.fecha}"
+        return f"{self.campo} - {self.fecha} - {self.cantidad}" 
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     campo = models.ForeignKey("Campo", verbose_name=("Campo"), on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)
