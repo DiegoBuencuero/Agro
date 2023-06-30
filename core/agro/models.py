@@ -431,20 +431,6 @@ class CostoProdo(models.Model):
     cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
     especificacion = models.ForeignKey(Especificacion_tipo, on_delete=models.CASCADE, null=True, blank=True)
 
-# class Producto_Stock(models.Model):
-#     nombre = models.CharField(max_length=100)
-#     proveedor = models.CharField(max_length=100)
-#     cantidad = models.IntegerField()
-#     fecha_actualizacion = models.DateField()
-   
-#     precio_compra = models.DecimalField(max_digits=8, decimal_places=2)
-  
-
-#     ubicacion = models.CharField(max_length=100)
-#     numero_lote = models.CharField(max_length=50)
-#     cantidad_minima = models.IntegerField()
-
-
 class RegistroLluvia(models.Model):
     def __str__(self):
         return f"{self.campo} - {self.fecha} - {self.cantidad}" 

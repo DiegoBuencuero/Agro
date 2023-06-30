@@ -40,6 +40,7 @@ urlpatterns = [
     path('08/',vista_deposito, name='vista_deposito'),
     path('08/<int:id_depo>', editar_deposito, name='editar_deposito'),
     path('regLluvias/', vista_lluvia, name='vista_lluvia'),
+  
    
 ]
 urlpatterns += url_leo

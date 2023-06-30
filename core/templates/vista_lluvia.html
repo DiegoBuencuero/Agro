@@ -142,6 +142,7 @@ celdasLluvia.forEach(function(celda) {
   celda.addEventListener('click', function() {
     var mes = this.getAttribute('data-mes');
     var dia = this.getAttribute('data-dia');
+    console.log('valor', mes)
 
   if (!anoSelect.value || !campoSelect.value) {
   document.getElementById('campoAnoModal').style.display = "block";
@@ -208,7 +209,6 @@ celdasLluvia.forEach(function(celda) {
     // Cerrar la ventana modal
     document.getElementById('lluviaModal').style.display = "none";
   });
-
   
   var registrosLluvia = []; // Definir registros como un array vacío antes de la función del evento click
 
@@ -267,7 +267,7 @@ celdasLluvia.forEach(function(celda) {
           alert(response.message);
           // Limpiar la lista de registros
           registrosLluvia = [];
-          console.log(registrosLluvia); // Mostrar la lista vacía en la consola (opcional)
+          console.log(registrosLluvia);
         } else {
           // Ocurrió un error al guardar los registros
           alert('Error al guardar los registros.');
@@ -286,22 +286,20 @@ celdasLluvia.forEach(function(celda) {
     // Enviar la solicitud al servidor
     xhr.send(jsonData);
   });
-  
-  function filtrarRegistros() {
-    var ano = document.getElementById('ano').value;
-    var campo = document.getElementById('campo').value;
+  {% comment %} document.addEventListener('DOMContentLoaded', function() {
+    var selectCampo = document.querySelector('select[name="campo"]');
     
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', "{% url 'vista_lluvia' %}?ano=" + ano + "&campo=" + campo, true);
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        var response = JSON.parse(xhr.responseText);
-        document.getElementById('tabla_lluvia').innerHTML = response.registros_html;
+    selectCampo.addEventListener('change', function() {
+      var campoSeleccionado = this.value;
+      
+      if (campoSeleccionado) {
+        window.location.href = '/vista_lluvia/?campo=' + campoSeleccionado;
+      } else {
+        window.location.href = '/vista_lluvia/';
       }
-    };
-    xhr.send();
-  }
- 
+    });
+  }); {% endcomment %}
+   
 </script>
 {% endblock %}
 {% block nav %}
