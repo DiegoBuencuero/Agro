@@ -35,6 +35,7 @@ def get_producto(origen, id):
 
 @login_required
 def home(request):
+    campos = Campo.objects.filter(empresa = request.user.profile.empresa)
     def buscar_rubro(id_rubro, rubros):
         for i in range(0, len(rubros)):
             if rubros[i]['rubro_id'] == id_rubro:
@@ -75,30 +76,25 @@ def home(request):
                 componentes[comp_index]['saldo'] += importe
     
     def acumular_registros_lluvia():
-        registros = RegistroLluvia.objects.values('fecha__year', 'fecha__month').annotate(total=Sum('cantidad')).order_by('fecha__year', 'fecha__month')
-
-        # diccionario de lluvia acumulada por año y mes
-        lluvia_acumulada = defaultdict(int)
-        for registro in registros:
-            year = registro['fecha__year']
-            month = registro['fecha__month']
-            fecha = datetime(year, month, 1).strftime('%Y-%m')
-            lluvia_acumulada[fecha] += registro['total']
-
+        registros = RegistroLluvia.objects.values('fecha__day', 'fecha__month', 'fecha__year', 'campo__nombre', 'cantidad').order_by('fecha__year', 'fecha__month', 'fecha__day')
+      
         resultado_lluvia = []
-        for year in range(2000, 2024):  # Rango de años ver de hacer dinamico
-            for month in range(1, 13):  # Rango de meses (1 a 12)
-                fecha = datetime(year, month, 1).strftime('%Y-%m')
-                lluvia_mes = {'fecha': fecha, 'total': lluvia_acumulada[fecha]}
-                resultado_lluvia.append(lluvia_mes)
+    
+        for registro in registros:
+            lluvia_registro = {
+                'dia': registro['fecha__day'],
+                'mes': registro['fecha__month'],
+                'ano': registro['fecha__year'],
+                'campo': registro['campo__nombre'],
+                'cantidad': registro['cantidad']
+        }
+        resultado_lluvia.append(lluvia_registro)
 
-        return resultado_lluvia # lista de todos los años
-
+        return resultado_lluvia    
     resultado_lluvia = acumular_registros_lluvia()
-    for lluvia_mes in resultado_lluvia:
-        print("Fecha:", lluvia_mes['fecha'], "Lluvia acumulada:", lluvia_mes['total'])
-
-    return render(request, 'index.html', {'rubros_acumulados': rubros, 'lluvia_acumulada': resultado_lluvia, 'componentes': componentes})
+    print("este es el resultado",resultado_lluvia)
+   
+    return render(request, 'index.html', {'rubros_acumulados': rubros, 'lluvia_acumulada': resultado_lluvia, 'componentes': componentes, 'campos': campos})
 
 @login_required
 def personal_details(request):
@@ -964,7 +960,7 @@ def editar_deposito(request, id_depo):
         return render(request, 'vista_deposito.html', {'form': form, 'empresa': empresa, 'depositos':depositos, 'modificacion': 'S'})
     else:
         return redirect('vista_comprobantes') 
-    
+
 @login_required
 def vista_lluvia(request):
     empresa = request.user.profile.empresa
@@ -974,14 +970,15 @@ def vista_lluvia(request):
     if request.method == 'POST':
         print('si post')
         # Procesar solicitud POST
-        registros_lluvia = json.loads(request.body)
+        registros_lluvia = request.POST.getlist('registros_lluvia[]')
                      
         for registro in registros_lluvia:
-            campo_id = registro['campo_id']
-            ano = registro['ano']
-            mes = registro['mes']
-            dia = registro['dia']
-            cantidad_lluvia = registro['cantidad_lluvia']
+            registro_dict = json.loads(registro)
+            campo_id = registro_dict['campo_id']
+            ano = registro_dict['ano']
+            mes = registro_dict['mes']
+            dia = registro_dict['dia']
+            cantidad_lluvia = registro_dict['cantidad_lluvia']
             
             try:
                 fecha = datetime.strptime(f'{ano}-{mes}-{dia}', '%Y-%m-%d').date()
@@ -1003,6 +1000,9 @@ def vista_lluvia(request):
             'message': 'Registros guardados exitosamente.'
         }        
         return JsonResponse(response)
+    
+    return render(request, 'vista_lluvia.html', { 'empresa': empresa, 'campos': campos })
+
     # if request.method == 'GET':
     #     campo_filter = request.GET.get('campo')
     #     print(campo_filter)
@@ -1015,7 +1015,7 @@ def vista_lluvia(request):
     #         # Si no se proporciona un campo, obtener todos los registros
     #         registros_filtrados = RegistroLluvia.objects.all()
 
-    return render(request, 'vista_lluvia.html', { 'empresa': empresa,'campos': campos })
+    
 
     
 # @login_required

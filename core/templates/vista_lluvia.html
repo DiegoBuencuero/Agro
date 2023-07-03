@@ -210,13 +210,13 @@ celdasLluvia.forEach(function(celda) {
     document.getElementById('lluviaModal').style.display = "none";
   });
   
-  var registrosLluvia = []; // Definir registros como un array vacío antes de la función del evento click
+  var registrosLluvia = []; 
 
   document.getElementById("guardarBtn").addEventListener("click", function() {
     // Obtener los valores de los campos
     var campo = document.getElementById("campo").value;
     var ano = document.getElementById("ano").value;
-    var mes = 5;
+    var mes =  document.getElementById('lluviaModal').getAttribute('data-mes');
     var dia = document.getElementById('lluviaModal').getAttribute('data-dia');
     var cantidadLluvia = document.getElementById("valorLluvia").value;
   
@@ -236,8 +236,7 @@ celdasLluvia.forEach(function(celda) {
     // Limpiar los valores
     document.getElementById("valorLluvia").value = "";
   
-    // Mostrar la lista de registros en la consola (solo para verificar)
-    
+      
   });
   
   document.getElementById("guardarBtn").addEventListener("click", function(event) {

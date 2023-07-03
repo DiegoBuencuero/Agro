@@ -177,24 +177,30 @@
         options: areaOptions
       });
     }
+   
+  
+
     if ($("#sales-chart").length) {
       var SalesChartCanvas = $("#sales-chart").get(0).getContext("2d");
+      var lluvia_datas = "{{ lluvia_datas | safe }}";
       var SalesChart = new Chart(SalesChartCanvas, {
         type: 'bar',
         data: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+          labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago","sep", "oct", "Nov", "Dec"],
           datasets: [{
               label: 'Offline Sales',
-              data: [480, 230, 470, 210, 330],
-              backgroundColor: '#98BDFF'
+              data: lluvia_datas,
+              backgroundColor: '#f9ff6f'
             },
             {
               label: 'Online Sales',
-              data: [400, 340, 550, 480, 170],
-              backgroundColor: '#4B49AC'
+              data: lluvia_datas,
+              backgroundColor: '#6C7383'
             }
           ]
+          
         },
+      
         options: {
           cornerRadius: 5,
           responsive: true,
@@ -260,12 +266,12 @@
           labels: ["Jan", "Feb", "Mar", "Apr", "May"],
           datasets: [{
               label: 'Offline Sales',
-              data: [480, 230, 470, 210, 330],
+              data: lluvia_datas,
               backgroundColor: '#98BDFF'
             },
             {
               label: 'Online Sales',
-              data: [400, 340, 550, 480, 170],
+              data: lluvia_datas,
               backgroundColor: '#4B49AC'
             }
           ]
