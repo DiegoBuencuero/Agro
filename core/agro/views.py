@@ -516,6 +516,29 @@ def editar_costo_prod(request, id_costo):
         return redirect('vista_costo_prod')
 
 
+def ajax_load_lluvias(request):
+    id_campo = request.GET.get('campo')
+    anio = request.GET.get('anio')
+    id_empresa = request.GET.get('empresa')
+    empresa = Empresa.objects.get(id = id_empresa)
+    campo = Campo.objects.get(id = id_campo)
+    registros = RegistroLluvia.objects.filter(empresa = empresa).filter(campo = campo)
+    respuesta = []
+    for registro in registros:
+        if registro.fecha.year == int(anio):
+            print("entra?")
+            linea =  {
+                'mes': registro.fecha.month,
+                'dia': registro.fecha.day,
+                'valor': registro.cantidad,
+            }
+            respuesta.append(linea)
+
+    data = {'data': respuesta}
+    return JsonResponse(data)
+
+
+
 def ajax_get_costo(request):
     costos = agro_CostoProdo.objects.all()
     respuesta = []
@@ -970,6 +993,7 @@ def vista_lluvia(request):
     if request.method == 'POST':
         # Procesar solicitud POST
         registros_lluvia_data = json.loads(request.body)
+        print(registros_lluvia_data)
                      
         for registro in registros_lluvia_data:
             campo_id = registro['campo']
@@ -977,7 +1001,7 @@ def vista_lluvia(request):
             mes = registro['mes']
             dia = registro['dia']
             cantidad_lluvia = registro['valor']
-            
+            print(f'{ano}-{mes}-{dia}')
             try:
                 fecha = datetime.strptime(f'{ano}-{mes}-{dia}', '%Y-%m-%d').date()
                 registro_lluvia = RegistroLluvia.objects.create(
@@ -1000,7 +1024,7 @@ def vista_lluvia(request):
         return JsonResponse(response)
     
     # Si no es una solicitud POST, renderizar la plantilla con los campos y registros existentes
-    return render(request, 'vista_lluvia.html', {'campos': campos, 'registros_lluvia': registros_lluvia})
+    return render(request, 'vista_lluvia.html', {'campos': campos, 'registros_lluvia': registros_lluvia, 'empresa':empresa})
 
     # if request.method == 'GET':
     #     campo_filter = request.GET.get('campo')
