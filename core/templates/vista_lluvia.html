@@ -157,15 +157,15 @@ celdasLluvia.forEach(function(celda) {
     document.getElementById('lluviaModal').setAttribute('data-dia', dia);
 
     valorLluviaInput.addEventListener('input', function() {
-      var valorLluvia = valorLluviaInput.value.trim(); // Obtener el valor del input y eliminar espacios en blanco
-      var regex = /^\d+$/; // Expresión regular para verificar si solo contiene dígitos enteros
+      var valorLluvia = valorLluviaInput.value.trim(); 
+      var regex = /^\d+$/; 
     
       if (!regex.test(valorLluvia)) {
-        valorLluviaInput.style.border = "2px solid red"; // Cambiar el borde a rojo
+        valorLluviaInput.style.border = "2px solid red"; //  borde a rojo
         document.getElementById('guardarLluviaBtn').disabled = true; // Deshabilitar el botón "alterar"
         document.getElementById('mensajeAdvertencia').textContent = "Seleccione un valor numérico"; // Mostrar mensaje de advertencia
       } else {
-        valorLluviaInput.style.border = "2px solid green"; // Cambiar el borde a verde
+        valorLluviaInput.style.border = "2px solid green"; //  borde a verde
         document.getElementById('guardarLluviaBtn').disabled = false; // Habilitar el botón "alterar"
         document.getElementById('mensajeAdvertencia').textContent = ""; // Ocultar mensaje de advertencia
       }
@@ -187,7 +187,7 @@ celdasLluvia.forEach(function(celda) {
     document.getElementById('campoAnoModal').style.display = "none";
     document.getElementById('lluviaModal').style.display = "none";
   });  
-  
+
   var guardarLluviaBtn = document.getElementById('guardarLluviaBtn');
   guardarLluviaBtn.addEventListener('click', function() {
     var mes = document.getElementById('lluviaModal').getAttribute('data-mes');
@@ -219,7 +219,6 @@ celdasLluvia.forEach(function(celda) {
         return;
       }
   
-      // Convertir los registros de lluvia a un formato adecuado para el envío al servidor
       var registros = [];
       for (var mes in registrosLluvia) {
         for (var dia in registrosLluvia[mes]) {
@@ -234,11 +233,10 @@ celdasLluvia.forEach(function(celda) {
           registros.push(registro);
         }
       }
-  
-      // Convertir los registros a una cadena JSON
+       
       var jsonData = JSON.stringify(registros);
+      console.log(jsonData)
   
-      // Crear una nueva solicitud AJAX
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "/vista_lluvia/", true);
       xhr.setRequestHeader("Content-Type", "application/json");
@@ -270,7 +268,7 @@ celdasLluvia.forEach(function(celda) {
         console.error('Error de red');
       };
   
-      // Enviar la solicitud al servidor
+      // Aca se envia la lista de objetos.
       xhr.send(jsonData);
   
       // Limpiar los valores
