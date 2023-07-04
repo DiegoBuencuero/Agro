@@ -87,10 +87,10 @@ def home(request):
                 'ano': registro['fecha__year'],
                 'campo': registro['campo__nombre'],
                 'cantidad': registro['cantidad']
-        }
-        resultado_lluvia.append(lluvia_registro)
+            }
+            resultado_lluvia.append(lluvia_registro)
 
-        return resultado_lluvia    
+        return resultado_lluvia
     resultado_lluvia = acumular_registros_lluvia()
     print("este es el resultado",resultado_lluvia) #aca imkprime el ultimo
    
