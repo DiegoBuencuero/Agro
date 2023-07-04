@@ -964,21 +964,19 @@ def editar_deposito(request, id_depo):
 @login_required
 def vista_lluvia(request):
     empresa = request.user.profile.empresa
-    regLluvias = RegistroLluvia.objects.filter(empresa=empresa)
     campos = Campo.objects.filter(empresa=empresa)
+    registros_lluvia = RegistroLluvia.objects.filter(empresa=empresa)  # Obtener los registros de lluvia
     
     if request.method == 'POST':
-        print('si post')
         # Procesar solicitud POST
-        registros_lluvia = request.POST.getlist('registros_lluvia[]')
+        registros_lluvia_data = json.loads(request.body)
                      
-        for registro in registros_lluvia:
-            registro_dict = json.loads(registro)
-            campo_id = registro_dict['campo_id']
-            ano = registro_dict['ano']
-            mes = registro_dict['mes']
-            dia = registro_dict['dia']
-            cantidad_lluvia = registro_dict['cantidad_lluvia']
+        for registro in registros_lluvia_data:
+            campo_id = registro['campo']
+            ano = registro['ano']
+            mes = registro['mes']
+            dia = registro['dia']
+            cantidad_lluvia = registro['valor']
             
             try:
                 fecha = datetime.strptime(f'{ano}-{mes}-{dia}', '%Y-%m-%d').date()
@@ -1001,7 +999,8 @@ def vista_lluvia(request):
         }        
         return JsonResponse(response)
     
-    return render(request, 'vista_lluvia.html', { 'empresa': empresa, 'campos': campos })
+    # Si no es una solicitud POST, renderizar la plantilla con los campos y registros existentes
+    return render(request, 'vista_lluvia.html', {'campos': campos, 'registros_lluvia': registros_lluvia})
 
     # if request.method == 'GET':
     #     campo_filter = request.GET.get('campo')
