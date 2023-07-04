@@ -187,104 +187,95 @@ celdasLluvia.forEach(function(celda) {
     document.getElementById('campoAnoModal').style.display = "none";
     document.getElementById('lluviaModal').style.display = "none";
   });  
- 
+  
+  var guardarLluviaBtn = document.getElementById('guardarLluviaBtn');
+  guardarLluviaBtn.addEventListener('click', function() {
+    var mes = document.getElementById('lluviaModal').getAttribute('data-mes');
+    var dia = document.getElementById('lluviaModal').getAttribute('data-dia');
+    var valorLluviaInput = document.getElementById('valorLluvia');
+    var valorLluvia = parseInt(valorLluviaInput.value.trim());
+
+    // Actualizar el valor en la tabla
+    var celdaLluvia = document.querySelector(`.lluvia-celda[data-mes="${mes}"][data-dia="${dia}"]`);
+    celdaLluvia.textContent = valorLluvia;
+
+    // Guardar el valor en el registro de lluvia
+    actualizarRegistroLluvia(mes, dia, valorLluvia);
+
+    // Cerrar la ventana modal
+    document.getElementById('lluviaModal').style.display = "none";
+  });
   function actualizarRegistroLluvia(mes, dia, valor) {
     if (!registrosLluvia[mes]) {
       registrosLluvia[mes] = {};
     }
     registrosLluvia[mes][dia] = valor;
   }
-  // Evento para actualizar el valor del registro de lluvia al hacer clic en el botón Guardar en la ventana modal
-  document.getElementById('guardarLluviaBtn').addEventListener('click', function() {
-    var mes = document.getElementById('lluviaModal').getAttribute('data-mes');
-    var dia = document.getElementById('lluviaModal').getAttribute('data-dia');
-    var nuevoValor = document.getElementById('valorLluvia').value;
-
-    actualizarRegistroLluvia(mes, dia, nuevoValor);
-
-    // Actualizar visualmente la celda de lluvia
-    var celdaActualizada = document.querySelector('.lluvia-celda[data-mes="' + mes + '"][data-dia="' + dia + '"]');
-    celdaActualizada.textContent = nuevoValor;
-
-    // Cerrar la ventana modal
-    document.getElementById('lluviaModal').style.display = "none";
-  });
+    document.getElementById("guardarBtn").addEventListener("click", function(event) {
+      event.preventDefault();
   
-  var registrosLluvia = []; 
-
-  document.getElementById("guardarBtn").addEventListener("click", function() {
-    // Obtener los valores de los campos
-    var campo = document.getElementById("campo").value;
-    var ano = document.getElementById("ano").value;
-    var mes =  document.getElementById('lluviaModal').getAttribute('data-mes');
-    var dia = document.getElementById('lluviaModal').getAttribute('data-dia');
-    var cantidadLluvia = document.getElementById("valorLluvia").value;
-  
-    // Crear un objeto con los datos a enviar al servidor
-    var registro = {
-      campo_id: campo,
-      ano: ano,
-      mes: mes,
-      dia: dia,
-      cantidad_lluvia: cantidadLluvia
-    };
-  
-    
-    registrosLluvia.push(registro); // Agregar el objeto a la lista de registros
-    console.log(registrosLluvia);
-  
-    // Limpiar los valores
-    document.getElementById("valorLluvia").value = "";
-  
-      
-  });
-  
-  document.getElementById("guardarBtn").addEventListener("click", function(event) {
-    event.preventDefault();
-  
-    if (registrosLluvia.length === 0) {
-      alert("No hay registros de lluvia para guardar.");
-      return;
-    }
-  
-    // Convertir el objeto de datos a una cadena JSON
-    var jsonData = JSON.stringify(registrosLluvia);
-  
-    // Crear una nueva solicitud AJAX
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/regLluvias/", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-  
-    // Manejar la respuesta del servidor
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        // La solicitud se completó correctamente
-        var response = JSON.parse(xhr.responseText);
-        if (response.success) {
-          // Los registros se guardaron exitosamente
-          alert(response.message);
-          // Limpiar la lista de registros
-          registrosLluvia = [];
-          console.log(registrosLluvia);
-        } else {
-          // Ocurrió un error al guardar los registros
-          alert('Error al guardar los registros.');
-        }
-      } else {
-        // Ocurrió un error durante la solicitud
-        console.error(xhr.status);
+      if (registrosLluvia.length === 0) {
+        alert("No hay registros de lluvia para guardar.");
+        return;
       }
-    };
   
-    // Manejar los errores de la solicitud AJAX
-    xhr.onerror = function() {
-      console.error('Error de red');
-    };
+      // Convertir los registros de lluvia a un formato adecuado para el envío al servidor
+      var registros = [];
+      for (var mes in registrosLluvia) {
+        for (var dia in registrosLluvia[mes]) {
+          var valor = registrosLluvia[mes][dia];
+          var registro = {
+            mes: mes,
+            dia: dia,
+            valor: valor,
+            ano: anoSelect.value,
+            campo: campoSelect.value
+          };
+          registros.push(registro);
+        }
+      }
   
-    // Enviar la solicitud al servidor
-    xhr.send(jsonData);
-  });
+      // Convertir los registros a una cadena JSON
+      var jsonData = JSON.stringify(registros);
+  
+      // Crear una nueva solicitud AJAX
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/vista_lluvia/", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+  
+      // Manejar la respuesta del servidor
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          // La solicitud se completó correctamente
+          var response = JSON.parse(xhr.responseText);
+          if (response.success) {
+            // Los registros se guardaron exitosamente
+            alert(response.message);
+            // Limpiar la lista de registros
+            registrosLluvia = {};
+            console.log(registrosLluvia);
+          } else {
+            // Ocurrió un error al guardar los registros
+            alert('Error al guardar los registros.');
+          }
+        } else {
+          // Ocurrió un error durante la solicitud
+          console.error(xhr.status);
+        }
+      };
+  
+      // Manejar los errores de la solicitud AJAX
+      xhr.onerror = function() {
+        console.error('Error de red');
+      };
+  
+      // Enviar la solicitud al servidor
+      xhr.send(jsonData);
+  
+      // Limpiar los valores
+      document.getElementById("valorLluvia").value = "";
+    });
   {% comment %} document.addEventListener('DOMContentLoaded', function() {
     var selectCampo = document.querySelector('select[name="campo"]');
     

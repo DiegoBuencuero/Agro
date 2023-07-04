@@ -77,7 +77,7 @@ def home(request):
     
     def acumular_registros_lluvia():
         registros = RegistroLluvia.objects.values('fecha__day', 'fecha__month', 'fecha__year', 'campo__nombre', 'cantidad').order_by('fecha__year', 'fecha__month', 'fecha__day')
-      
+        print("este es el resultado",registros)
         resultado_lluvia = []
     
         for registro in registros:
@@ -92,7 +92,7 @@ def home(request):
 
         return resultado_lluvia    
     resultado_lluvia = acumular_registros_lluvia()
-    print("este es el resultado",resultado_lluvia)
+    print("este es el resultado",resultado_lluvia) #aca imkprime el ultimo
    
     return render(request, 'index.html', {'rubros_acumulados': rubros, 'lluvia_acumulada': resultado_lluvia, 'componentes': componentes, 'campos': campos})
 
