@@ -213,15 +213,15 @@ celdasLluvia.forEach(function(celda) {
     celda.style.color  = "white";
     celda.style.fontWeight = "bold";    
    }
- function dehabilitarColorCelda(){
-    var celdasLluvia = document.querySelectorAll('.lluvia-celda');
+  function dehabilitarColorCelda(){
+      var celdasLluvia = document.querySelectorAll('.lluvia-celda');
     celdasLluvia.forEach(function(celda) { // recorro toda la tabla y le quito el estilo.
       celda.style.background  = "";
       celda.style.color  = "";
       celda.style.fontWeight = "";
     });
   } 
-  
+
   function actualizarRegistroLluvia(mes, dia, valor) {
     if (!registrosLluvia[mes]) {
       registrosLluvia[mes] = {};
@@ -345,13 +345,16 @@ celdasLluvia.forEach(function(celda) {
   function refresh_table() {
     if (id_campo.value != "*" && ano.value != "") 
       ajax_actualizar(id_campo.value, ano.value);
+      registrosLluvia = {};// romper la matriz
   }
   window.addEventListener('load', async() => {
     id_campo.addEventListener('change', async() => {
       refresh_table(); 
-      deshabilitarBotonGuardar()     
+      deshabilitarBotonGuardar(); 
+     // guardarBtn.enabled = false;    
       dehabilitarColorCelda();
     });
+
     ano.addEventListener('change', async() => {
       refresh_table();  
       deshabilitarBotonGuardar();
