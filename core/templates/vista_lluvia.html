@@ -65,7 +65,7 @@
             </tbody>
           </table>
         </div>  
-        <button type="submit" class="btn btn-primary mr-2" id="guardarBtn">Guardar</button>
+        <button type="submit" class="btn btn-primary mr-2" id="guardarBtn" disabled>Guardar</button>
         <button type="button" class="btn btn-dark" onclick="window.location.href='/regLluvias';">Cancel</button>
       </form>
     </div>
@@ -197,6 +197,7 @@ celdasLluvia.forEach(function(celda) {
     // Actualizar el valor en la tabla
     var celdaLluvia = document.querySelector(`.lluvia-celda[data-mes="${mes}"][data-dia="${dia}"]`);
     celdaLluvia.textContent = valorLluvia;
+    habilitarBotonGuardar();
 
     // Guardar el valor en el registro de lluvia
     actualizarRegistroLluvia(mes, dia, valorLluvia);
@@ -210,6 +211,18 @@ celdasLluvia.forEach(function(celda) {
     }
     registrosLluvia[mes][dia] = valor;
   }
+
+  //habilita boton cuando carga la pagina
+  function habilitarBotonGuardar() {
+    var boton = document.getElementById('guardarBtn');
+    boton.disabled = false;
+  }
+  //deshabilita boton cuando carga la pagina
+  function deshabilitarBotonGuardar() {
+    var boton = document.getElementById('guardarBtn');
+    boton.disabled = true;
+  }
+
   document.getElementById("guardarBtn").addEventListener("click", function(event) {
     event.preventDefault();
     console.log(registrosLluvia)
@@ -271,13 +284,14 @@ celdasLluvia.forEach(function(celda) {
 
     // Limpiar los valores
     document.getElementById("valorLluvia").value = "";
+    deshabilitarBotonGuardar()
+
   });
 
   function armar_tabla(datos) {
     var celda = tabla_lluvia.rows[datos.mes + 1].cells[datos.dia];
     celda.innerHTML = datos.valor;
   }
-
 
   function ajax_actualizar(campo, anio) {
     $.ajax({
@@ -309,20 +323,20 @@ celdasLluvia.forEach(function(celda) {
     });
   }
 
-
   function refresh_table() {
     if (id_campo.value != "*" && ano.value != "") 
       ajax_actualizar(id_campo.value, ano.value);
   }
   window.addEventListener('load', async() => {
     id_campo.addEventListener('change', async() => {
-      refresh_table();      
+      refresh_table(); 
+      deshabilitarBotonGuardar()     
     });
     ano.addEventListener('change', async() => {
-      refresh_table();      
+      refresh_table();  
+      deshabilitarBotonGuardar()    
     });
   });
-
    
 </script>
 {% endblock %}
