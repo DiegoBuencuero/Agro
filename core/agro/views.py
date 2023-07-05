@@ -21,7 +21,7 @@ from .models import agro_Etapa, Deposito, models, RegistroLluvia
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
-from .forms import FormAsignacionEtapaCosto, DepositoForm
+from .forms import FormAsignacionEtapaCosto, DepositoForm, RegLluviaCargaForm
 
 
 # Create your views here.
@@ -987,9 +987,8 @@ def editar_deposito(request, id_depo):
 @login_required
 def vista_lluvia(request):
     empresa = request.user.profile.empresa
-    campos = Campo.objects.filter(empresa=empresa)
     registros_lluvia = RegistroLluvia.objects.filter(empresa=empresa)  # Obtener los registros de lluvia
-    
+    form = RegLluviaCargaForm(empresa)
     if request.method == 'POST':
         # Procesar solicitud POST
         registros_lluvia_data = json.loads(request.body)
@@ -1004,12 +1003,13 @@ def vista_lluvia(request):
             print(f'{ano}-{mes}-{dia}')
             try:
                 fecha = datetime.strptime(f'{ano}-{mes}-{dia}', '%Y-%m-%d').date()
-                registro_lluvia = RegistroLluvia.objects.create(
+                RegistroLluvia.objects.create(
                     campo_id=campo_id,
                     fecha=fecha,
                     cantidad=cantidad_lluvia,
                     empresa=empresa
-                )
+                ) 
+
             except (ValueError, KeyError):
                 response = {
                     'success': False,
@@ -1020,11 +1020,11 @@ def vista_lluvia(request):
         response = {
             'success': True,
             'message': 'Registros guardados exitosamente.'
-        }        
+        }
         return JsonResponse(response)
     
     # Si no es una solicitud POST, renderizar la plantilla con los campos y registros existentes
-    return render(request, 'vista_lluvia.html', {'campos': campos, 'registros_lluvia': registros_lluvia, 'empresa':empresa})
+    return render(request, 'vista_lluvia.html', {'form':form, 'registros_lluvia': registros_lluvia, 'empresa':empresa})
 
     # if request.method == 'GET':
     #     campo_filter = request.GET.get('campo')

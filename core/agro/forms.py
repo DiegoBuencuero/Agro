@@ -7,7 +7,7 @@ from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planific
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com, Num
 from .models import Deposito, RegistroLluvia
 from string import Template
-
+from datetime import datetime
     
 class SignupForm(UserCreationForm):  
     def __init__(self, *args, **kwargs):
@@ -243,3 +243,19 @@ class RegLluviaForm(BaseForm):
         model =  RegistroLluvia
         fields = '__all__'
         exclude = ['empresa']
+
+
+
+class RegLluviaCargaForm(forms.Form):
+    def __init__(self, company, *args, **kwargs):
+        super(RegLluviaCargaForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            
+        self.fields['campo'].queryset = Campo.objects.filter(empresa=company)
+        anio_actual = datetime.now().year
+        tablita_anios = [(anio_actual -2, anio_actual -2), (anio_actual - 1, anio_actual - 1), (anio_actual, anio_actual)]
+        self.fields['anio'].choices = tablita_anios
+
+    campo = forms.ModelChoiceField(queryset=Campo.objects.all(), empty_label='Seleccione campo', help_text='Required')
+    anio = forms.ChoiceField()
