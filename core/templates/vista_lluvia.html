@@ -137,7 +137,7 @@
   }
 
 // Evento para abrir la ventana modal al hacer clic en una celda de lluvia
-var celdasLluvia = document.querySelectorAll('.lluvia-celda');
+var celdasLluvia = document.querySelectorAll('#tabla_lluvia .lluvia-celda');
 celdasLluvia.forEach(function(celda) {
   celda.addEventListener('click', function() {
     var mes = this.getAttribute('data-mes');
@@ -194,17 +194,34 @@ celdasLluvia.forEach(function(celda) {
     var valorLluviaInput = document.getElementById('valorLluvia');
     var valorLluvia = parseInt(valorLluviaInput.value.trim());
 
+     
     // Actualizar el valor en la tabla
     var celdaLluvia = document.querySelector(`.lluvia-celda[data-mes="${mes}"][data-dia="${dia}"]`);
     celdaLluvia.textContent = valorLluvia;
     habilitarBotonGuardar();
-
-    // Guardar el valor en el registro de lluvia
+    habilitarColorCelda(celdaLluvia);
+    
+   // Guardar el valor en el registro de lluvia
     actualizarRegistroLluvia(mes, dia, valorLluvia);
 
     // Cerrar la ventana modal
     document.getElementById('lluviaModal').style.display = "none";
   });
+
+  function habilitarColorCelda(celda){
+    celda.style.background  = "green";
+    celda.style.color  = "white";
+    celda.style.fontWeight = "bold";    
+   }
+ function dehabilitarColorCelda(){
+    var celdasLluvia = document.querySelectorAll('.lluvia-celda');
+    celdasLluvia.forEach(function(celda) { // recorro toda la tabla y le quito el estilo.
+      celda.style.background  = "";
+      celda.style.color  = "";
+      celda.style.fontWeight = "";
+    });
+  } 
+  
   function actualizarRegistroLluvia(mes, dia, valor) {
     if (!registrosLluvia[mes]) {
       registrosLluvia[mes] = {};
@@ -282,6 +299,8 @@ celdasLluvia.forEach(function(celda) {
     // Aca se envia la lista de objetos.
     xhr.send(jsonData);
 
+    desabilitarColorCelda();
+    
     // Limpiar los valores
     document.getElementById("valorLluvia").value = "";
     deshabilitarBotonGuardar()
@@ -331,10 +350,13 @@ celdasLluvia.forEach(function(celda) {
     id_campo.addEventListener('change', async() => {
       refresh_table(); 
       deshabilitarBotonGuardar()     
+      dehabilitarColorCelda();
     });
     ano.addEventListener('change', async() => {
       refresh_table();  
-      deshabilitarBotonGuardar()    
+      deshabilitarBotonGuardar();
+      dehabilitarColorCelda();
+      
     });
   });
    
