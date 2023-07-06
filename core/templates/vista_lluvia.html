@@ -43,10 +43,10 @@
         <div class="table-responsive">
           <table id="tabla_lluvia" class="table table-bordered">
             <thead>
-              {% comment %} <tr>
+              <tr>
                 <th>Meses</th>
                 <th colspan="31">Días</th>
-              </tr> {% endcomment %}
+              </tr>
               <tr>
                 <th></th>
                 <!-- Encabezados días -->
@@ -297,9 +297,7 @@ celdasLluvia.forEach(function(celda) {
 
     // Aca se envia la lista de objetos.
     xhr.send(jsonData);
-      deshabilitarBotonGuardar();
-      dehabilitarColorCelda();
-
+    
   });
 
   function armar_tabla(datos) {
