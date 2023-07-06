@@ -190,6 +190,7 @@
           datasets: [{
               label: 'Offline Sales',
               data: lluvia_datas,
+             
               backgroundColor: '#f9ff6f'
             },
             {

@@ -35,7 +35,9 @@ def get_producto(origen, id):
 
 @login_required
 def home(request):
-    campos = Campo.objects.filter(empresa = request.user.profile.empresa)
+    empresa = request.user.profile.empresa
+    campo= Campo.objects.filter(empresa=empresa)  # Obtener los registros de lluvia
+    form = RegLluviaCargaForm(empresa)
     def buscar_rubro(id_rubro, rubros):
         for i in range(0, len(rubros)):
             if rubros[i]['rubro_id'] == id_rubro:
@@ -76,7 +78,7 @@ def home(request):
                 componentes[comp_index]['saldo'] += importe
     
     def acumular_registros_lluvia():
-        registros = RegistroLluvia.objects.values('fecha__day', 'fecha__month', 'fecha__year', 'campo__nombre', 'cantidad').order_by('fecha__year', 'fecha__month', 'fecha__day')
+        registros = RegistroLluvia.objects.filter(fecha__year=2023).values('fecha__day', 'fecha__month', 'fecha__year', 'campo__nombre', 'cantidad').order_by('fecha__year', 'fecha__month', 'fecha__day')
         print("este es el resultado",registros)
         resultado_lluvia = []
     
@@ -94,7 +96,7 @@ def home(request):
     resultado_lluvia = acumular_registros_lluvia()
     print("este es el resultado",resultado_lluvia) #aca imkprime el ultimo
    
-    return render(request, 'index.html', {'rubros_acumulados': rubros, 'lluvia_acumulada': resultado_lluvia, 'componentes': componentes, 'campos': campos})
+    return render(request, 'index.html', {'form': form, 'rubros_acumulados': rubros, 'lluvia_acumulada': resultado_lluvia, 'componentes': componentes})
 
 @login_required
 def personal_details(request):
