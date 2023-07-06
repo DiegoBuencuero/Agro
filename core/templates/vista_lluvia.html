@@ -7,6 +7,7 @@
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/modal.css' %}">
 <link rel="stylesheet" href="{% static 'css/lluvia.css' %}">
+
 {% endblock head %}
 {% block content %} 
 {% include 'mensajes.html' %}
@@ -15,7 +16,8 @@
     <div class="col-12">
       <h3 class="col-3 mt-5">Registro de lluvias</h3>
       <form class="form-sample" method="post" enctype="multipart/form-data">
-        {% csrf_token %}        
+        {% csrf_token %}
+        
         {{ form.non_field_errors }}
         <div class="row mt-4 align-items-center">
           <div class="col-6 col-sm-6">
@@ -36,7 +38,8 @@
               </div>
             </div>
           </div>
-        </div>         
+        </div> 
+        
         <div class="table-responsive">
           <table id="tabla_lluvia" class="table table-bordered">
             <thead>
@@ -294,8 +297,8 @@ celdasLluvia.forEach(function(celda) {
 
     // Aca se envia la lista de objetos.
     xhr.send(jsonData);
-    deshabilitarBotonGuardar();
-    dehabilitarColorCelda();
+      deshabilitarBotonGuardar();
+      dehabilitarColorCelda();
 
   });
 
