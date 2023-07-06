@@ -6,43 +6,47 @@
 {% endblock %}  
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/lluvia.css' %}">
+
 {% endblock head %}
 {% block content %} 
 {% include 'mensajes.html' %}
 <div class="col-12 grid-margin">
   <div class="card">
-    <div class="card-body">
-      <h4 class="card-title">Registro de lluvias</h4>
+    <div class="col-12">
+      <h3 class="col-3 mt-5">Registro de lluvias</h3>
       <form class="form-sample" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
         {{ form.non_field_errors }}
-        <div class="col-4">
-          <div class="form-group row d-flex">
-            <label class="col-sm-3 col-form-label">Campo</label>
-            <div class="col-sm-9 d-flex">
-              {{form.campo}}
-              {{form.campo.errors}}
+        <div class="row mt-4 align-items-center">
+          <div class="col-6 col-sm-6">
+            <div class="form-group row d-flex align-items-center">
+              <label class="col-6 col-sm-4 ms-3 col-form-label">Seleccione un campo</label>
+              <div class="col-6 col-sm-6 d-flex">
+                {{ form.campo }}
+                {{ form.campo.errors }}
+              </div>
             </div>
           </div>
-        </div>
-        <div class="col-1 col-sm-0">
-        </div>
-        <div class="col-4">
-          <div class="form-group d-flex align-items-center">
-            <label for="id_anio" class="mr-2">Seleccione el año:</label>
-            {{form.anio}}
-            {{form.anio.erros}}
+          <div class="col-6 col-sm-6">
+            <div class="form-group row d-flex align-items-center">
+              <label for="id_anio" class="col-6 col-sm-4 col-form-label">Seleccione el año:</label>
+              <div class="col-6 col-sm-6 d-flex">
+                {{ form.anio }}
+                {{ form.anio.errors }}
+              </div>
+            </div>
           </div>
-        </div>
-
+        </div> 
+        
         <div class="table-responsive">
           <table id="tabla_lluvia" class="table table-bordered">
             <thead>
-              <tr>
+              {% comment %} <tr>
                 <th>Meses</th>
                 <th colspan="31">Días</th>
-              </tr>
+              </tr> {% endcomment %}
               <tr>
                 <th></th>
                 <!-- Encabezados días -->
@@ -57,8 +61,10 @@
             </tbody>
           </table>
         </div>  
-        <button type="submit" class="btn btn-primary mr-2" id="guardarBtn" disabled>Guardar</button>
+        <div class="mt-5 mb-5">
+          <button type="submit" class="btn btn-primary mr-2" id="guardarBtn" disabled>Guardar</button>
         <button type="button" class="btn btn-dark" onclick="window.location.href='/regLluvias';">Cancel</button>
+        </div>        
       </form>
     </div>
   </div>
@@ -219,6 +225,7 @@ celdasLluvia.forEach(function(celda) {
       registrosLluvia[mes] = {};
     }
     registrosLluvia[mes][dia] = valor;
+    
   }
 
   //habilita boton cuando carga la pagina
@@ -290,12 +297,8 @@ celdasLluvia.forEach(function(celda) {
 
     // Aca se envia la lista de objetos.
     xhr.send(jsonData);
-
-    desabilitarColorCelda();
-    
-    // Limpiar los valores
-    document.getElementById("valorLluvia").value = "";
-    deshabilitarBotonGuardar()
+    deshabilitarBotonGuardar();
+    dehabilitarColorCelda();
 
   });
 
@@ -338,6 +341,7 @@ celdasLluvia.forEach(function(celda) {
     if (id_campo.value != "*" && id_anio.value != "") 
       ajax_actualizar(id_campo.value, id_anio.value);
       registrosLluvia = {};// romper la matriz
+    
   }
   window.addEventListener('load', async() => {
     id_campo.addEventListener('change', async() => {
