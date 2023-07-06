@@ -1005,6 +1005,9 @@ def vista_lluvia(request):
             print(f'{ano}-{mes}-{dia}')
             try:
                 fecha = datetime.strptime(f'{ano}-{mes}-{dia}', '%Y-%m-%d').date()
+                existente = RegistroLluvia.objects.filter(fecha = fecha)
+                for e in existente:
+                    e.delete()
                 RegistroLluvia.objects.create(
                     campo_id=campo_id,
                     fecha=fecha,
