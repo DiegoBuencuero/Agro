@@ -677,8 +677,9 @@
     var componentes_cololes = [];
     var lluvia_labels =[];
     var lluvia_datas = [];
-
-
+    var campo = document.getElementById("id_campo");
+    var anio = document.getElementById('id_anio');
+   
     {% for rubro in rubros_acumulados %}
     rubros_labels.push('{{rubro.rubro_desc}}');
     rubros_datas.push('{{rubro.saldo}}');
@@ -709,12 +710,12 @@
         texto_grafico2 +='</div>'
       }
     texto_grafico2 += '</div>'
-  
-    function ajax_actualizar(campo, anio) {
+   
+    function ajax_filtrar(campo, anio) {
       $.ajax({
         url : "{% url 'ajax_load_lluvias' %}",
         data : {
-          'empresa': {{empresa.id}},
+          //'empresa': {{empresa.id}},
           'campo' : campo ,
           'anio' : anio,
         },
