@@ -182,7 +182,6 @@
 
     if ($("#sales-chart").length) {
       var SalesChartCanvas = $("#sales-chart").get(0).getContext("2d");
-      var lluvia_datas = "{{ lluvia_datas | safe }}";
       var SalesChart = new Chart(SalesChartCanvas, {
         type: 'bar',
         data: {

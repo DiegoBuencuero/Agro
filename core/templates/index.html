@@ -37,7 +37,7 @@
       <div class="row">
         <div class="col-md-6 mb-4 stretch-card transparent">
           <div class="card card-tale">
-            <div class="card-body">
+            <div class="card-body"> armar con un for 
               <p class="mb-4">Campo 01</p>
               <p class="fs-30 mb-2">150 Ha - Trigo -</p>
               <p>Fecha sde Siembra: 25/07/2023</p>
@@ -76,30 +76,6 @@
       </div>
     </div>
   </div>
-  <form class="form-sample" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    <div class="row mt-4 align-items-center">
-      <div class="col-6 col-sm-6">
-        <div class="form-group row d-flex align-items-center">
-          <label class="col-6 col-sm-4 ms-3 col-form-label">Seleccione un campo</label>
-          <div class="col-6 col-sm-6 d-flex">
-            {{ form.campo }}
-            {{ form.campo.errors }}
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-sm-6">
-        <div class="form-group row d-flex align-items-center">
-          <label for="id_anio" class="col-6 col-sm-4 col-form-label">Seleccione el año:</label>
-          <div class="col-6 col-sm-6 d-flex">
-            {{ form.anio }}
-            {{ form.anio.errors }}
-          </div>
-        </div>
-      </div>
-    </div> 
- </form>
   <div class="row">
     <div class="col-md-12 grid-margin stretch-card">
       <div class="card position-relative">
@@ -677,8 +653,7 @@
     var componentes_cololes = [];
     var lluvia_labels =[];
     var lluvia_datas = [];
-    var campo = document.getElementById("id_campo");
-    var anio = document.getElementById('id_anio');
+    
    
     {% for rubro in rubros_acumulados %}
     rubros_labels.push('{{rubro.rubro_desc}}');
@@ -691,9 +666,10 @@
     componentes_cololes.push('{{componente.color}}')
     {% endfor %}
 
-    {% for lluvia_mes in ultimo_ano %}
-    lluvia_datas.push({{ lluvia_mes.total }});
+    {% for lluvia_mes in lluvia_acumulada %}
+    lluvia_datas.push({{lluvia_mes.valor}});
     {% endfor %}
+    console.log(lluvia_datas)
 
     var texto_grafico1 = '<div class="report-chart">';
       for (var i = 0; i < rubros_labels.length; i++) {
@@ -710,36 +686,7 @@
         texto_grafico2 +='</div>'
       }
     texto_grafico2 += '</div>'
-   
-    function ajax_filtrar(campo, anio) {
-      $.ajax({
-        url : "{% url 'ajax_load_lluvias' %}",
-        data : {
-          //'empresa': {{empresa.id}},
-          'campo' : campo ,
-          'anio' : anio,
-        },
-        method : 'GET',
-        success : function(response) {
-          for (var i = 2; i < 14; i++) {
-            for( var j = 1; j < 32; j++) {
-              var celda = tabla_lluvia.rows[i].cells[j];
-              celda.innerHTML = 0;
-            }
-          }        
-          response.data.forEach(function(item, index) {
-            armar_tabla( item );
-          });
-  
-        },
-        error: function(xhr, status, error) {
-          // La función que se ejecutará si ocurre un error en la solicitud
-          console.log('Error en la solicitud');
-          console.log(xhr.responseText);
-        }
-  
-      });
-    }  
+      
   
   </script>
 

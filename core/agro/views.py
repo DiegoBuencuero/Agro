@@ -80,23 +80,17 @@ def home(request):
     def acumular_registros_lluvia():
         registros = RegistroLluvia.objects.filter(fecha__year=2023).values('fecha__day', 'fecha__month', 'fecha__year', 'campo__nombre', 'cantidad').order_by('fecha__year', 'fecha__month', 'fecha__day')
         print("este es el resultado",registros)
-        resultado_lluvia = []
-    
-        for registro in registros:
-            lluvia_registro = {
-                'dia': registro['fecha__day'],
-                'mes': registro['fecha__month'],
-                'ano': registro['fecha__year'],
-                'campo': registro['campo__nombre'],
-                'cantidad': registro['cantidad']
-            }
-            resultado_lluvia.append(lluvia_registro)
+       
+        lista = [{'mes': 1, 'valor': 0}, {'mes': 2, 'valor':0},{'mes': 3, 'valor': 0}, {'mes': 4, 'valor':0}, {'mes': 5, 'valor': 0}, {'mes': 6, 'valor':0}, {'mes': 7, 'valor': 0}, {'mes': 8, 'valor':0}, {'mes': 9, 'valor': 0}, {'mes': 10, 'valor':0}, {'mes': 11, 'valor': 0}, {'mes': 12, 'valor':0}] # 12 meses
+        for registro in registros:  
+            lista[registro['fecha__month']-1]['valor'] += registro['cantidad']
 
-        return resultado_lluvia
+
+        return lista
     resultado_lluvia = acumular_registros_lluvia()
     print("este es el resultado",resultado_lluvia) #aca imkprime el ultimo
    
-    return render(request, 'index.html', {'form': form, 'rubros_acumulados': rubros, 'lluvia_acumulada': resultado_lluvia, 'componentes': componentes})
+    return render(request, 'index.html', {'form': form, 'rubros_acumulados': rubros, 'lluvia_acumulada':  resultado_lluvia, 'componentes': componentes})
 
 @login_required
 def personal_details(request):
