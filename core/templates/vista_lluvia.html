@@ -40,27 +40,29 @@
           </div>
         </div> 
         
-        <div class="table-responsive">
-          <table id="tabla_lluvia" class="table table-bordered">
+        <div class="table-responsive border border-secondary border-1 ">
+          <div class="table-container">
+          <table id="tabla_lluvia" class="table table-striped table-hover">
             <thead>
               <tr>
-                <th>Meses</th>
-                <th colspan="31">Días</th>
+                <th id="meses"class="text-center border-0 sticky-column"style="position: sticky; top: 0; background-color: #d1d3d3">Meses</th>
+                <th id="dias"colspan="25" class="text-center" style="position: sticky; top: 0; background-color: #d1d3d3">Días</th>
               </tr>
               <tr>
-                <th></th>
+                <th class="sticky-column"style=""></th>
                 <!-- Encabezados días -->
                 <script>
                   for (var i = 1; i < 32; i++) {
-                    document.write('<th>' + i + '</th>');
+                    document.write('<th style="position: sticky; top: 35px; background-color: #fff;">' + i + '</th>');
                   }
                 </script>
               </tr>
             </thead>
-            <tbody>
+            <tbody class"">
             </tbody>
           </table>
-        </div>  
+        </div>        
+       </div>  
         <div class="mt-5 mb-5">
           <button type="submit" class="btn btn-primary mr-2" id="guardarBtn" disabled>Guardar</button>
         <button type="button" class="btn btn-dark" onclick="window.location.href='/regLluvias';">Cancel</button>
@@ -119,11 +121,12 @@
     var mes_fila = document.createElement('tr');
     var mes_celda = document.createElement('td');
     mes_celda.textContent = meses[i];
+    mes_celda.classList.add('sticky-column');
     mes_fila.appendChild(mes_celda);
     
     for (var j = 1; j < 32; j++) {
-      var dia = document.createElement('td');
-      dia.textContent = '0';
+      var dia = document.createElement('td'); // aca se arma el mes
+      dia.textContent = '';
       dia.classList.add('lluvia-celda');
       dia.setAttribute('data-mes', i+1);
       dia.setAttribute('data-dia', j);
@@ -132,6 +135,17 @@
     }
 
     tabla.appendChild(mes_fila);
+  }
+
+  function FechaValida(mes, dia){
+    var fecha = new Date(anoSelect.value, mes -1, dia, 0,0,0,0);
+    if(fecha.getFullYear() === parseInt(anoSelect.value) &&
+       fecha.getMonth() === (mes-1) && 
+       fecha.getDate() === parseInt(dia)
+    )
+      return true;
+    else
+      return false;
   }
 
 // Evento para abrir la ventana modal al hacer clic en una celda de lluvia
@@ -145,8 +159,10 @@ celdasLluvia.forEach(function(celda) {
   document.getElementById('campoAnoModal').style.display = "block";
     return;
   }
-
-    var cantidadLluvia = registrosLluvia[mes] && registrosLluvia[mes][dia] ? registrosLluvia[mes][dia] : 0;
+  if (!anoSelect.value || !campoSelect.value || !FechaValida(mes, dia)) {
+  document.getElementById('campoAnoModal').style.display = "block";
+    return;
+  }
 
     var valorLluviaInput = document.getElementById('valorLluvia');
     document.getElementById('lluviaModal').style.display = "block";
@@ -320,7 +336,7 @@ celdasLluvia.forEach(function(celda) {
         for (var i = 2; i < 14; i++) {
           for( var j = 1; j < 32; j++) {
             var celda = tabla_lluvia.rows[i].cells[j];
-            celda.innerHTML = 0;
+            celda.innerHTML = '';
           }
         }        
         response.data.forEach(function(item, index) {
@@ -358,7 +374,7 @@ celdasLluvia.forEach(function(celda) {
       
     });
   });
-   
+ 
 </script>
 {% endblock %}
 {% block nav %}

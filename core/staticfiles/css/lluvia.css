@@ -1,17 +1,6 @@
-tr:nth-child(even) {
-    background-color: #d7dfd0;
-  }
-
-  tr:nth-child(odd) {
-    background-color: white;
-  }
-  .table-responsive {
-    height: 450px;
-    overflow-y: scroll;
-  }
-
-  thead th {
-    position: sticky;
-    top: 0;
-    background-color: #f5f5f5;
-  }
+.sticky-column {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background-color: #fff;
+}
