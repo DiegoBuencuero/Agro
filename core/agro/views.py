@@ -36,7 +36,7 @@ def get_producto(origen, id):
 @login_required
 def home(request):
     empresa = request.user.profile.empresa
-    campo= Campo.objects.filter(empresa=empresa)  # Obtener los registros de lluvia
+    campo= Campo.objects.filter(empresa=empresa)  
     form = RegLluviaCargaForm(empresa)
     def buscar_rubro(id_rubro, rubros):
         for i in range(0, len(rubros)):
@@ -87,9 +87,58 @@ def home(request):
 
         return lista
     resultado_lluvia = acumular_registros_lluvia()
-    print("este es el resultado",resultado_lluvia) #aca imkprime el ultimo
-   
-    return render(request, 'index.html', {'form': form, 'rubros_acumulados': rubros, 'lluvia_acumulada':  resultado_lluvia, 'componentes': componentes})
+    print("este es el resultado",resultado_lluvia) #aca imprime el ultimo
+      
+    def detalle_campos():
+        empresa = request.user.profile.empresa
+        campos = Campo.objects.filter(empresa=empresa)
+        campos_con_lotes_1 = []
+        campos_con_lotes_2 = []
+        campos_con_lotes_3 = []
+
+        for i, campo in enumerate(campos):
+            lotes = Lote.objects.filter(campo=campo)
+            lotes_con_hectareas = []
+
+            for lote in lotes:
+                lotes_con_hectareas.append({
+                    'lote': lote,
+                    'ha_productivas': lote.ha_productivas,
+                    'ha_totales': lote.ha_totales
+                })
+
+            if i < 2:
+                campos_con_lotes_1.append({
+                    'campo': campo,
+                    'lotes': lotes_con_hectareas
+                })
+            elif 2<i>4:
+                campos_con_lotes_2.append({
+                    'campo': campo,
+                    'lotes': lotes_con_hectareas
+                })
+            else:
+                campos_con_lotes_3.append({
+                    'campo': campo,
+                    'lotes': lotes_con_hectareas
+                })
+
+        return campos_con_lotes_1, campos_con_lotes_2, campos_con_lotes_3
+
+    # Dentro de la vista home
+    campos_con_lotes_1, campos_con_lotes_2, campos_con_lotes_3 = detalle_campos()
+
+    context = {
+        'form': form,
+        'rubros_acumulados': rubros,
+        'lluvia_acumulada': resultado_lluvia,
+        'componentes': componentes,
+        'campos_con_lotes_1': campos_con_lotes_1,
+        'campos_con_lotes_2': campos_con_lotes_2,
+        'campos_con_lotes_3': campos_con_lotes_3
+    }    
+
+    return render(request, 'index.html', context) 
 
 @login_required
 def personal_details(request):
