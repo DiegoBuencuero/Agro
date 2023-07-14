@@ -112,7 +112,7 @@ def home(request):
                 print(lote)
         
             for lote in lotes:
-                trazabilidades = Trazabilidad.objects.filter(lote=lote, campo=campo)
+                trazabilidades = Trazabilidad.objects.filter(lote=lote)
                 # print("Este es el resultado:")
                 # for trazabilidad in trazabilidades:
                 #     print(trazabilidad)
