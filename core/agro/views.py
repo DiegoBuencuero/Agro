@@ -113,9 +113,10 @@ def home(request):
         
             for lote in lotes:
                 trazabilidades = Trazabilidad.objects.filter(lote=lote)
-                # print("Este es el resultado:")
-                # for trazabilidad in trazabilidades:
-                #     print(trazabilidad)
+
+                print("Este es el resultado:")
+                for trazabilidad in trazabilidades:
+                     print(trazabilidad)
                 ultimo_cultivo = None
                 ultima_fecha_siembra = None
         
