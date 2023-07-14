@@ -132,12 +132,14 @@ class Lote(models.Model):
     ha_totales = models.DecimalField(max_digits=6, decimal_places=2)
     ha_productivas = models.DecimalField(max_digits=6, decimal_places=2)
 
+
 class Actividad(models.Model):
     class Meta:
         pass
     def __str__(self):
         return self.nombre
     nombre = models.CharField(max_length=50)
+    codigo = models.CharField(max_length=2)
 
 class UM(models.Model):
     class Meta:
@@ -146,6 +148,13 @@ class UM(models.Model):
         return self.nombre
     nombre = models.CharField(max_length=50)
     abreviado = models.CharField(max_length=5)
+
+class EstadoLote(models.Model):
+    lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
+    planificacion = models.ForeignKey("Planificacion_cultivo", on_delete=models.CASCADE, null=True, blank=True)
+    cultivo = models.ForeignKey("Cultivo", on_delete=models.CASCADE)
+    fecha_desde = models.DateField(default=timezone.now) 
+    fecha_hasta = models.DateField(default=timezone.now)
 
 class Trazabilidad(models.Model):
     class Meta:

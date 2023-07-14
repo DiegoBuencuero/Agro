@@ -123,8 +123,8 @@ def home(request):
                 # último cultivo del lote
                 if trazabilidades.exists():
                     ultima_trazabilidad = trazabilidades.latest('fecha')
-                  
-                    ultimo_cultivo = ultima_trazabilidad.planificacion.descripcion
+                    if ultima_trazabilidad.planificacion != None:
+                        ultimo_cultivo = ultima_trazabilidad.planificacion.descripcion
         
                 # última fechi de siembra del lote
                 ultima_fecha_siembra = lote.ultima_fecha_siembra if hasattr(lote, 'ultima_fecha_siembra') else None
