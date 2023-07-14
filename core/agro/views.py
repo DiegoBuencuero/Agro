@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import agro_Etapa, Deposito, models, RegistroLluvia
+from .models import agro_Etapa, Deposito, models, RegistroLluvia, Trazabilidad, Actividad
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
@@ -36,8 +36,9 @@ def get_producto(origen, id):
 @login_required
 def home(request):
     empresa = request.user.profile.empresa
-    campo= Campo.objects.filter(empresa=empresa)  
+    campo = Campo.objects.filter(empresa=empresa)  # Obtener los registros de campo
     form = RegLluviaCargaForm(empresa)
+
     def buscar_rubro(id_rubro, rubros):
         for i in range(0, len(rubros)):
             if rubros[i]['rubro_id'] == id_rubro:
@@ -54,91 +55,107 @@ def home(request):
         ubicacion = 'Pinamar'
     else:
         ubicacion = request.user.profile.ciudad.nombre
+
     empresa = request.user.profile.empresa
-    costo_head = CostoProd.objects.filter(empresa = empresa).latest('fecha')
-    costos = CostoProdo.objects.filter(costo_prod = costo_head)
+    costo_head = CostoProd.objects.filter(empresa=empresa).latest('fecha')
+    costos = CostoProdo.objects.filter(costo_prod=costo_head)
     rubros = []
     componentes = []
-    for costo in costos: # buscamos los datos para el grafico uno 'componentes-gastos-seguros etc'
+
+    for costo in costos:  # Buscamos los datos para el gráfico uno 'componentes-gastos-seguros, etc.'
         producto = get_producto(costo.origen, costo.producto_id)
         rubro_index = buscar_rubro(producto.agro_rubro.id, rubros)
         importe = (costo.precio_unitario * costo.cantidad)
+
         if rubro_index == -1:
-            linea = {'rubro_id': producto.agro_rubro.id, 'letra': producto.agro_rubro.letra, 'rubro_desc': producto.agro_rubro.nombre, 'color': producto.agro_rubro.color, 'orden': producto.agro_rubro.orden, 'saldo': importe}
+            linea = {'rubro_id': producto.agro_rubro.id, 'letra': producto.agro_rubro.letra,
+                     'rubro_desc': producto.agro_rubro.nombre, 'color': producto.agro_rubro.color,
+                     'orden': producto.agro_rubro.orden, 'saldo': importe}
             rubros.append(linea)
         else:
             rubros[rubro_index]['saldo'] += importe
 
-        if producto.agro_rubro.letra == 'A': # buscamos los datos para el grafico dos 'componentes "A"'
+        if producto.agro_rubro.letra == 'A':  # Buscamos los datos para el gráfico dos 'componentes "A"'
             comp_index = buscar_componente(producto.agro_tipo.id, componentes)
             if comp_index == -1:
-                linea = {'id': producto.agro_tipo.id, 'componente_desc': producto.agro_tipo.nombre, 'saldo': importe, 'color': producto.agro_tipo.color}
+                linea = {'id': producto.agro_tipo.id, 'componente_desc': producto.agro_tipo.nombre,
+                         'saldo': importe, 'color': producto.agro_tipo.color}
                 componentes.append(linea)
             else:
                 componentes[comp_index]['saldo'] += importe
-    
+
     def acumular_registros_lluvia():
         registros = RegistroLluvia.objects.filter(fecha__year=2023).values('fecha__day', 'fecha__month', 'fecha__year', 'campo__nombre', 'cantidad').order_by('fecha__year', 'fecha__month', 'fecha__day')
-        print("este es el resultado",registros)
-       
-        lista = [{'mes': 1, 'valor': 0}, {'mes': 2, 'valor':0},{'mes': 3, 'valor': 0}, {'mes': 4, 'valor':0}, {'mes': 5, 'valor': 0}, {'mes': 6, 'valor':0}, {'mes': 7, 'valor': 0}, {'mes': 8, 'valor':0}, {'mes': 9, 'valor': 0}, {'mes': 10, 'valor':0}, {'mes': 11, 'valor': 0}, {'mes': 12, 'valor':0}] # 12 meses
-        for registro in registros:  
-            lista[registro['fecha__month']-1]['valor'] += registro['cantidad']
+        lista = [{'mes': 1, 'valor': 0}, {'mes': 2, 'valor': 0}, {'mes': 3, 'valor': 0}, {'mes': 4, 'valor': 0},
+                 {'mes': 5, 'valor': 0}, {'mes': 6, 'valor': 0}, {'mes': 7, 'valor': 0}, {'mes': 8, 'valor': 0},
+                 {'mes': 9, 'valor': 0}, {'mes': 10, 'valor': 0}, {'mes': 11, 'valor': 0}, {'mes': 12, 'valor': 0}]
+
+        for registro in registros:
+            lista[registro['fecha__month'] - 1]['valor'] += registro['cantidad']
 
         return lista
+
     resultado_lluvia = acumular_registros_lluvia()
-    print("este es el resultado",resultado_lluvia) #aca imprime el ultimo
-      
-    def detalle_campos():
+
+    @login_required
+    def obtener_datos_trazabilidad(request):
         empresa = request.user.profile.empresa
         campos = Campo.objects.filter(empresa=empresa)
-        campos_con_lotes_1 = []
-        campos_con_lotes_2 = []
-        campos_con_lotes_3 = []
-
-        for i, campo in enumerate(campos):
+        datos_trazabilidad = []
+        
+        for campo in campos:
+            print("Campo:", campo)
             lotes = Lote.objects.filter(campo=campo)
-            lotes_con_hectareas = []
-
+            lotes_datos = []
+            print("Estos son los lotes:")
             for lote in lotes:
-                lotes_con_hectareas.append({
+                print(lote)
+        
+            for lote in lotes:
+                trazabilidades = Trazabilidad.objects.filter(lote=lote, campo=campo)
+                # print("Este es el resultado:")
+                # for trazabilidad in trazabilidades:
+                #     print(trazabilidad)
+                ultimo_cultivo = None
+                ultima_fecha_siembra = None
+        
+                # último cultivo del lote
+                if trazabilidades.exists():
+                    ultima_trazabilidad = trazabilidades.latest('fecha')
+                  
+                    ultimo_cultivo = ultima_trazabilidad.planificacion.descripcion
+        
+                # última fechi de siembra del lote
+                ultima_fecha_siembra = lote.ultima_fecha_siembra if hasattr(lote, 'ultima_fecha_siembra') else None
+        
+                lote_datos = {
                     'lote': lote,
-                    'ha_productivas': lote.ha_productivas,
-                    'ha_totales': lote.ha_totales
-                })
-
-            if i < 2:
-                campos_con_lotes_1.append({
-                    'campo': campo,
-                    'lotes': lotes_con_hectareas
-                })
-            elif 2<i>4:
-                campos_con_lotes_2.append({
-                    'campo': campo,
-                    'lotes': lotes_con_hectareas
-                })
-            else:
-                campos_con_lotes_3.append({
-                    'campo': campo,
-                    'lotes': lotes_con_hectareas
-                })
-
-        return campos_con_lotes_1, campos_con_lotes_2, campos_con_lotes_3
-
-    # Dentro de la vista home
-    campos_con_lotes_1, campos_con_lotes_2, campos_con_lotes_3 = detalle_campos()
-
+                    'ultimo_cultivo': ultimo_cultivo,
+                    'ultima_fecha_siembra': ultima_fecha_siembra,
+                }        
+                lotes_datos.append(lote_datos)
+        
+            campo_datos = {
+                'campo': campo,
+                'lotes': lotes_datos,
+            }
+        
+            datos_trazabilidad.append(campo_datos)
+        
+        return datos_trazabilidad
+    
+    datos_trazabilidad = obtener_datos_trazabilidad(request)
+        
     context = {
         'form': form,
         'rubros_acumulados': rubros,
         'lluvia_acumulada': resultado_lluvia,
         'componentes': componentes,
-        'campos_con_lotes_1': campos_con_lotes_1,
-        'campos_con_lotes_2': campos_con_lotes_2,
-        'campos_con_lotes_3': campos_con_lotes_3
-    }    
+        'datos_trazabilidad': datos_trazabilidad,
+        }
 
-    return render(request, 'index.html', context) 
+  
+    return render(request, 'index.html', context)
 
 @login_required
 def personal_details(request):
