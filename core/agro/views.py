@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
-from .models import agro_Etapa, Deposito, models, RegistroLluvia, Trazabilidad, Actividad
+from .models import agro_Etapa, Deposito, models, RegistroLluvia, Trazabilidad, Actividad, EstadoLote
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
@@ -36,7 +36,8 @@ def get_producto(origen, id):
 @login_required
 def home(request):
     empresa = request.user.profile.empresa
-    campo = Campo.objects.filter(empresa=empresa)  # Obtener los registros de campo
+    campo = Campo.objects.filter(lote__campo__empresa=empresa)  # Obtener los registros de campo
+    
     form = RegLluviaCargaForm(empresa)
 
     def buscar_rubro(id_rubro, rubros):
@@ -97,65 +98,36 @@ def home(request):
 
     resultado_lluvia = acumular_registros_lluvia()
 
-    @login_required
-    def obtener_datos_trazabilidad(request):
+   
+    def obtener_datos_lotes():
         empresa = request.user.profile.empresa
-        campos = Campo.objects.filter(empresa=empresa)
-        datos_trazabilidad = []
-        
-        for campo in campos:
-            print("Campo:", campo)
-            lotes = Lote.objects.filter(campo=campo)
-            lotes_datos = []
-            print("Estos son los lotes:")
-            for lote in lotes:
-                print(lote)
-        
-            for lote in lotes:
-                trazabilidades = Trazabilidad.objects.filter(lote=lote)
+        campos = Campo.objects.filter(empresa=empresa)  # campos de la empresa
 
-                print("Este es el resultado:")
-                for trazabilidad in trazabilidades:
-                     print(trazabilidad)
-                ultimo_cultivo = None
-                ultima_fecha_siembra = None
-        
-                # último cultivo del lote
-                if trazabilidades.exists():
-                    ultima_trazabilidad = trazabilidades.latest('fecha')
-                    if ultima_trazabilidad.planificacion != None:
-                        ultimo_cultivo = ultima_trazabilidad.planificacion.descripcion
-        
-                # última fechi de siembra del lote
-                ultima_fecha_siembra = lote.ultima_fecha_siembra if hasattr(lote, 'ultima_fecha_siembra') else None
-        
-                lote_datos = {
-                    'lote': lote,
-                    'ultimo_cultivo': ultimo_cultivo,
-                    'ultima_fecha_siembra': ultima_fecha_siembra,
-                }        
-                lotes_datos.append(lote_datos)
-        
-            campo_datos = {
-                'campo': campo,
-                'lotes': lotes_datos,
-            }
-        
-            datos_trazabilidad.append(campo_datos)
-        
-        return datos_trazabilidad
-    
-    datos_trazabilidad = obtener_datos_trazabilidad(request)
-        
+        datos_cultivo = []  # Lista para almacenar los valores de cultivo
+
+        for campo in campos:
+            lotes = campo.lote_set.all()
+
+            for lote in lotes:
+                estado_lotes = lote.estadolote_set.all()
+
+                for estado in estado_lotes:
+                    cultivo = estado.cultivo
+                    datos_cultivo.append(cultivo)
+            print(datos_cultivo)
+        return datos_cultivo
+        print(datos_cultivo)
+
+    datos_cultivo = obtener_datos_lotes()  # Llamar a la función para obtener los datos de los lotes
+
     context = {
         'form': form,
         'rubros_acumulados': rubros,
         'lluvia_acumulada': resultado_lluvia,
         'componentes': componentes,
-        'datos_trazabilidad': datos_trazabilidad,
-        }
+        'datos_cultivo': datos_cultivo,  # Agregar la lista al contexto
+    }    
 
-  
     return render(request, 'index.html', context)
 
 @login_required
