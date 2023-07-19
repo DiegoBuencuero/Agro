@@ -165,13 +165,11 @@ def vista_estado_lote(request):
         else:
             linea = {'lote': lote,  'encontre': encontre, 'p': porciento}
             lista.append(linea)
-
     return render(request, 'vista_estado_lote.html', {'estados': lista, 'hoy': hoy, 'empresa': empresa, })
 
 
 @login_required
 def vista_asign_lote(request, id_lote):
-
     empresa = request.user.profile.empresa
     try:
         lote = Lote.objects.get(id=id_lote)
