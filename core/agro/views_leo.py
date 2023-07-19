@@ -170,19 +170,38 @@ def vista_estado_lote(request):
 
 @login_required
 def vista_asign_lote(request, id_lote):
+    hoy = datetime.today().date()
     empresa = request.user.profile.empresa
     try:
         lote = Lote.objects.get(id=id_lote)
     except:
         return redirect('vista_estado_lote')
 
+    modificacion = False
+    estados = EstadoLote.objects.filter(lote = lote).filter(fecha_desde__lte = hoy).filter(fecha_hasta__gte = hoy)
+    print(estados)
+    if len(estados) > 0:
+        for i, estado in enumerate(estados):
+            if i > 0:
+                estado.delete()
+        estado_edit = estados[0]
+        modificacion = True
     if request.method == 'POST':
-        form = EstadoLoteForm(empresa, request.POST)
+        if modificacion:
+            form = EstadoLoteForm(empresa, request.POST, instance = estado_edit)
+        else:
+            form = EstadoLoteForm(empresa, request.POST)
         if form.is_valid():
             estado = form.save(commit=False)
             estado.lote = lote
             estado.save()
-            form = EstadoLoteForm(empresa)
+            return redirect('vista_estado_lote')
     else:
-        form = EstadoLoteForm(empresa)
-    return render(request, 'vista_asign_lote.html', { 'lote':lote, 'form': form, 'empresa': empresa })
+        if modificacion:
+            form = EstadoLoteForm(empresa, instance = estado_edit)
+        else:
+            form = EstadoLoteForm(empresa)
+    context = { 'lote':lote, 'form': form, 'empresa': empresa }
+    if modificacion:
+        context["modificacion"] = 'M'
+    return render(request, 'vista_asign_lote.html', context )

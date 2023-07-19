@@ -39,10 +39,11 @@
                         <p class="mb-4">Campo: {{ estado.lote.campo.nombre }} - Lote: {{estado.lote.nombre}}</p>
                         {% if estado.encontre %}
                           <p class="fs-30 mb-2">{{ estado.estado.cultivo.nombre }}</p>
+                          <p>Desde: {{ estado.estado.fecha_desde }} - Hasta: {{estado.estado.fecha_hasta}}</p>
                         {% else %}
                           <p class="fs-30 mb-2">Sin cultivo</p>
+                          <p>Ha totales: {{ estado.lote.ha_totales }} - Productivas: {{estado.lote.ha_productivas}} ({{estado.p|floatformat:0}}%)</p>
                         {% endif %}
-                        <p>Ha totales: {{ estado.lote.ha_totales }} - Productivas: {{estado.lote.ha_productivas}} ({{estado.p|floatformat:0}}%)</p>
                       </div>
                     </div>
                   </div>
