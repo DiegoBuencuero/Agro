@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block plugin_css%}
+{% endblock %}                          
+{% block content %} 
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+        {% include 'mensajes.html' %}
+      <h4 class="card-title">Estado del lote {lote.nombre}</h4>
+      <form class="form-sample" method='post' enctype="multipart/form-data">
+        {% csrf_token %}
+        <p class="card-description">
+          Establecimiento: {{lote.campo.nombre}}
+        </p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Planificacion</label>
+              <div class="col-sm-9">
+                {{form.planificacion}}
+                {{form.planificacion.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Cultivo</label>
+              <div class="col-sm-9">
+                {{form.cultivo}}
+                {{form.cultivo.errors}}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Fecha desde</label>
+                <div class="col-sm-9">
+                  {{form.fecha_desde}}
+                  {{form.fecha_desde.errors}}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Fecha hasta</label>
+                <div class="col-sm-9">
+                    {{form.fecha_hasta}}
+                    {{form.fecha_hasta.errors}}
+                </div>
+              </div>
+            </div>
+        </div>
+
+  
+        {% if modificacion %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+        {% else %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+        {% endif %}
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/02';">Cancel</button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}
+
+{% block plugin_js %}
+{% endblock %}
+
+{% block custom_js %}
+{% endblock %}
+
+
+

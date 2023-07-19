@@ -1,7 +1,7 @@
 from django import forms  
 from .forms import BaseForm
 from .models import Trazabilidad, agro_Producto, Producto, Especificacion_tipo, Campo, Lote
-from .models import Contactos, agro_CategoriaContacto
+from .models import Contactos, agro_CategoriaContacto, EstadoLote, Planificacion_cultivo
 
 class TrazabilidadForm(BaseForm):
     def __init__(self, company, *args,**kwargs):
@@ -47,3 +47,17 @@ class ContactoForm(BaseForm):
         model = Contactos
         fields = '__all__'
         exclude = ['empresa']
+
+
+class EstadoLoteForm(BaseForm):
+    def __init__(self, company, *args,**kwargs):
+        super (EstadoLoteForm,self ).__init__(*args,**kwargs)
+        self.fields['planificacion'].queryset = Planificacion_cultivo.objects.filter(empresa = company)
+    class Meta:
+        model = EstadoLote
+        fields = '__all__'
+        exclude = ['lote']
+        widgets = {
+                'fecha_desde': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+                'fecha_hasta': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
+            }

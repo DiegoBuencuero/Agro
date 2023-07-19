@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block plugin_css%}
+{% endblock %}                          
+{% block content %} 
+<div class="main-panel">
+    <div class="content-wrapper">
+      <div class="row">
+        <div class="col-md-12 grid-margin">
+          <div class="row">
+            <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+              <h3 class="font-weight-bold">Estado de los lotes</h3>
+              <h6 class="font-weight-normal mb-0">Empresa: {{empresa}}</h6>
+            </div>
+            <div class="col-12 col-xl-4">
+             <div class="justify-content-end d-flex">
+              <div class="dropdown flex-md-grow-1 flex-xl-grow-0">
+                <button class="btn btn-sm btn-light bg-white dropdown-toggle" type="button" id="dropdownMenuDate2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                 <i class="mdi mdi-calendar"></i> {{hoy}}
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuDate2">
+                  <a class="dropdown-item" href="#">January - March</a>
+                  <a class="dropdown-item" href="#">March - June</a>
+                  <a class="dropdown-item" href="#">June - August</a>
+                  <a class="dropdown-item" href="#">August - November</a>
+                </div>
+              </div>
+             </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-md-12 grid-margin transparent">
+              <div class="row">
+                {% for estado in estados %}
+                  <div class="col-md-6 mb-4 stretch-card transparent">
+                    <div onclick="window.location.href='/asign-lote/{{estado.lote.id}}';" class="card {% if forloop.counter0|add:'0'|divisibleby:4 %}card-tale{% endif %}{% if forloop.counter0|add:'-1'|divisibleby:4 %}card-dark-blue{% endif %}{% if forloop.counter0|add:'-2'|divisibleby:4 %}card-light-blue{% endif %}{% if forloop.counter0|add:'-3'|divisibleby:4 %}card-light-danger{% endif %}">
+                      <div class="card-body">
+                        <p class="mb-4">Campo: {{ estado.lote.campo.nombre }} - Lote: {{estado.lote.nombre}}</p>
+                        {% if encontre %}
+                          <p class="fs-30 mb-2">{{ estado.estado.cultivo.nombre }}</p>
+                        {% else %}
+                          <p class="fs-30 mb-2">Sin cultivo</p>
+                        {% endif %}
+                        <p>Ha totales: {{ estado.lote.ha_totales }} - Productivas: {{estado.lote.ha_productivas}} ({{estado.p|floatformat:0}}%)</p>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}
+
+{% block plugin_js %}
+{% endblock %}
+
+{% block custom_js %}
+{% endblock %}
+
+
+

@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Trazabilidad, Lote, Especificacion_tipo, Mov, Com, Deposito, Contactos
-from .forms_leo import TrazabilidadForm, ContactoForm
+from .models import Campo, EstadoLote
+from .forms_leo import TrazabilidadForm, ContactoForm, EstadoLoteForm
 from .views import get_producto
+from datetime import datetime
 
 
 def get_traza_list(empresa):
@@ -140,3 +142,49 @@ def editar_contacto(request, id_contacto):
     else:
         form = ContactoForm(instance = contacto)
     return render(request, 'vista_contacto.html', {'contactos': contactos, 'form': form, 'empresa': empresa,  'modificacion': 'S' })
+
+
+@login_required
+def vista_estado_lote(request):
+    hoy = datetime.today().date()
+    empresa = request.user.profile.empresa
+    campos = Campo.objects.filter(empresa=empresa)
+    lotes = Lote.objects.filter(campo__in = campos)
+    lista = []
+    for lote in lotes:
+        porciento = (lote.ha_productivas/lote.ha_totales) * 100
+        estados = EstadoLote.objects.filter(lote = lote)
+        encontre = False
+        for estado in estados:
+            if hoy >= estado.fecha_desde and hoy <= estado.fecha_hasta:
+                encontre = True
+                break
+        if encontre:
+            linea = {'lote': lote, 'estado': estado, 'encontre': encontre, 'p':porciento}
+            lista.append(linea)
+        else:
+            linea = {'lote': lote,  'encontre': encontre, 'p': porciento}
+            lista.append(linea)
+
+    return render(request, 'vista_estado_lote.html', {'estados': lista, 'hoy': hoy, 'empresa': empresa, })
+
+
+@login_required
+def vista_asign_lote(request, id_lote):
+
+    empresa = request.user.profile.empresa
+    try:
+        lote = Lote.objects.get(id=id_lote)
+    except:
+        return redirect('vista_estado_lote')
+
+    if request.method == 'POST':
+        form = EstadoLoteForm(empresa, request.POST)
+        if form.is_valid():
+            estado = form.save(commit=False)
+            estado.lote = lote
+            estado.save()
+            form = EstadoLoteForm(empresa)
+    else:
+        form = EstadoLoteForm(empresa)
+    return render(request, 'vista_asign_lote.html', { 'lote':lote, 'form': form, 'empresa': empresa })
