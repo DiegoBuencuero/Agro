@@ -7,7 +7,7 @@ from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_e
 from agro.views import vista_comprobantes
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas
 from agro.views_leo import vista_trazabilidad, editar_trazabilidad, vista_contactos, editar_contacto
-from agro.views_leo import vista_estado_lote, vista_asign_lote
+from agro.views_leo import vista_estado_lote, vista_asign_lote, ajax_get_planificacion
 url_leo = [
 
     path('01/', vista_campos, name='vista_campos'),
@@ -42,5 +42,6 @@ url_leo = [
     path('general/contacto/<int:id_contacto>', editar_contacto, name='editar_contacto'),
     path('estado-lote', vista_estado_lote, name='vista_estado_lote'),
     path('asign-lote/<int:id_lote>', vista_asign_lote, name='vista_asign_lote'),
+    path('statuslote', ajax_get_planificacion, name = 'ajax_get_planificacion')
 
 ]

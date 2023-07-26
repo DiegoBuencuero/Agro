@@ -7,7 +7,7 @@
   <div class="card">
     <div class="card-body">
         {% include 'mensajes.html' %}
-      <h4 class="card-title">Estado del lote {lote.nombre}</h4>
+      <h4 class="card-title">Estado del lote {{lote.nombre}}</h4>
       <form class="form-sample" method='post' enctype="multipart/form-data">
         {% csrf_token %}
         <p class="card-description">
@@ -58,7 +58,7 @@
   
         {% if modificacion %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
-        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+        <button type="submit" name='borrar' class="btn btn-primary mr-2">Liberar</button>
         {% else %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
         {% endif %}
@@ -69,7 +69,30 @@
     </div>
   </div>
 </div>
+<script>
+  window.addEventListener('load', async() => {
+    id_planificacion.addEventListener('change', async() => {
+      load_plani();
+    });
+  });
 
+  function load_plani() { 
+    $.ajax({
+      url : "{% url 'ajax_get_planificacion' %}",
+      data : {
+        'plani' : id_planificacion.value,
+      },
+      method : 'GET',
+      success : function(response) {
+        console.log(response);
+        id_fecha_desde.value = response.desde;
+        id_fecha_hasta.value = response.hasta;
+        id_cultivo.value = response.cultivo_id;
+
+      } // reference to below
+    });
+  }
+</script>
 {% endblock %}
 {% block nav %}
 {% include 'nav_home.html' %}

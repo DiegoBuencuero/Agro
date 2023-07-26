@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Trazabilidad, Lote, Especificacion_tipo, Mov, Com, Deposito, Contactos
-from .models import Campo, EstadoLote
+from .models import Campo, EstadoLote, Planificacion_cultivo
 from .forms_leo import TrazabilidadForm, ContactoForm, EstadoLoteForm
 from .views import get_producto
 from datetime import datetime
+from django.http import HttpResponse, JsonResponse
 
 
 def get_traza_list(empresa):
@@ -193,9 +194,16 @@ def vista_asign_lote(request, id_lote):
             form = EstadoLoteForm(empresa, request.POST)
         if form.is_valid():
             estado = form.save(commit=False)
-            estado.lote = lote
-            estado.save()
-            return redirect('vista_estado_lote')
+            if request.POST.get('borrar') == '':
+                estado.delete()
+                return redirect('vista_estado_lote')
+            else:
+                estado.lote = lote
+                if estado.fecha_hasta <= estado.fecha_desde:
+                    form.add_error('fecha_hasta', 'La fecha origen debe ser menor a la fecha de finalizacion del cultivo')
+                else:
+                    estado.save()
+                    return redirect('vista_estado_lote')
     else:
         if modificacion:
             form = EstadoLoteForm(empresa, instance = estado_edit)
@@ -205,3 +213,10 @@ def vista_asign_lote(request, id_lote):
     if modificacion:
         context["modificacion"] = 'M'
     return render(request, 'vista_asign_lote.html', context )
+
+
+def ajax_get_planificacion(request):
+    plani_id = request.GET.get('plani')
+    planificacion = Planificacion_cultivo.objects.get(id = plani_id)
+    data = {'desde': planificacion.fecha_desde, 'hasta': planificacion.fecha_hasta, 'cultivo_nombre':planificacion.costo.cultivo.nombre, 'cultivo_id':planificacion.costo.cultivo.id}
+    return JsonResponse(data)
