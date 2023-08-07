@@ -200,7 +200,8 @@ def vista_asign_lote(request, id_lote):
             else:
                 estado.lote = lote
                 if estado.fecha_hasta <= estado.fecha_desde:
-                    form.add_error('fecha_hasta', 'La fecha origen debe ser menor a la fecha de finalizacion del cultivo')
+                    form.add_error('fecha_desde', 'La fecha origen debe ser menor a la fecha de finalizacion del cultivo')
+                    form.add_error('fecha_hasta', 'La fecha final debe ser mayor a la fecha de inicio del cultivo')
                 else:
                     estado.save()
                     return redirect('vista_estado_lote')
