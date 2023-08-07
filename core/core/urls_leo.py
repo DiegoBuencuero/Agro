@@ -8,6 +8,7 @@ from agro.views import vista_comprobantes
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas
 from agro.views_leo import vista_trazabilidad, editar_trazabilidad, vista_contactos, editar_contacto
 from agro.views_leo import vista_estado_lote, vista_asign_lote, ajax_get_planificacion
+from agro.views_leo import vista_lote_trazabilidad
 url_leo = [
 
     path('01/', vista_campos, name='vista_campos'),
@@ -36,7 +37,7 @@ url_leo = [
     path('05-3/<int:id_plani>', vista_planificacion_etapas, name='vista_planificacion_etapas'),
     path('05-3-reset/<int:id_plani>', vista_planificacion_etapas_reset, name='vista_planificacion_etapas_reset'),
     path('07/', vista_comprobantes, name='vista_comprobantes'),
-    path('trazabilidad/', vista_trazabilidad, name='vista_trazabilidad'),
+    path('trazabilidad/', vista_lote_trazabilidad, name='vista_lote_trazabilidad'),
     path('trazabilidad/<int:id_traza>', editar_trazabilidad, name='editar_trazabilidad'),
     path('general/contactos/', vista_contactos, name='vista_contactos'),
     path('general/contacto/<int:id_contacto>', editar_contacto, name='editar_contacto'),
