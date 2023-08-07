@@ -221,3 +221,27 @@ def ajax_get_planificacion(request):
     planificacion = Planificacion_cultivo.objects.get(id = plani_id)
     data = {'desde': planificacion.fecha_desde, 'hasta': planificacion.fecha_hasta, 'cultivo_nombre':planificacion.costo.cultivo.nombre, 'cultivo_id':planificacion.costo.cultivo.id}
     return JsonResponse(data)
+
+
+
+@login_required
+def vista_lote_trazabilidad(request):
+    hoy = datetime.today().date()
+    empresa = request.user.profile.empresa
+    campos = Campo.objects.filter(empresa=empresa)
+    lotes = Lote.objects.filter(campo__in = campos)
+    lista = []
+    for lote in lotes:
+        porciento = (lote.ha_productivas/lote.ha_totales) * 100
+        estados = EstadoLote.objects.filter(lote = lote)
+        encontre = False
+        for estado in estados:
+            if hoy >= estado.fecha_desde and hoy <= estado.fecha_hasta:
+                encontre = True
+                break
+        if encontre:
+            dias = estado.fecha_hasta - hoy
+            linea = {'lote': lote, 'estado': estado,  'p':porciento, 'dias': dias.days}
+            lista.append(linea)
+    return render(request, 'vista_lote_trazabilidad.html', {'estados': lista, 'hoy': hoy, 'empresa': empresa, })
+
