@@ -34,7 +34,7 @@
               <div class="row">
                 {% for estado in estados %}
                   <div class="col-md-6 mb-4 stretch-card transparent">
-                    <div onclick="window.location.href='/asign-lote/{{estado.lote.id}}';" class="card {% if forloop.counter0|add:'0'|divisibleby:4 %}card-tale{% endif %}{% if forloop.counter0|add:'-1'|divisibleby:4 %}card-dark-blue{% endif %}{% if forloop.counter0|add:'-2'|divisibleby:4 %}card-light-blue{% endif %}{% if forloop.counter0|add:'-3'|divisibleby:4 %}card-light-danger{% endif %}">
+                    <div onclick="window.location.href='/traza-lote/{{estado.estado.id}}';" class="card {% if forloop.counter0|add:'0'|divisibleby:4 %}card-tale{% endif %}{% if forloop.counter0|add:'-1'|divisibleby:4 %}card-dark-blue{% endif %}{% if forloop.counter0|add:'-2'|divisibleby:4 %}card-light-blue{% endif %}{% if forloop.counter0|add:'-3'|divisibleby:4 %}card-light-danger{% endif %}">
                       <div class="card-body">
                         <p class="mb-4 font-weight-bolder">Campo: {{ estado.lote.campo.nombre }} - Lote: {{estado.lote.nombre}}</p>
                         <p class="fs-30 mb-2">{{ estado.estado.cultivo.nombre }}</p>

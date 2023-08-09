@@ -19,27 +19,15 @@ class TrazabilidadForm(BaseForm):
         for e in esp:
             opciones.append((e.id, e.nombre))
         self.fields['espec'].choices = opciones
-        opciones = []
-        campos = Campo.objects.filter(empresa = company)
-        for e in campos:
-            opciones.append((e.id, e.nombre))
-        self.fields['campo'].choices = opciones
-        lotes = Lote.objects.filter(campo__in = campos)
-        opciones = []
-        for l in lotes:
-            opciones.append((l.id, l.nombre))
-        self.fields['lote_campo'].choices = opciones
     class Meta:
         model = Trazabilidad
         fields = '__all__'
-        exclude = ['empresa','lote', 'origen_prod', 'producto_id', 'especificacion', 'perfil', 'id_mov']
+        exclude = ['empresa', 'origen_prod', 'producto_id', 'especificacion', 'perfil', 'id_mov']
         widgets = {
                 'fecha': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
     producto = forms.ChoiceField()
     espec = forms.ChoiceField()
-    campo = forms.ChoiceField()
-    lote_campo = forms.ChoiceField()
 
 
 class ContactoForm(BaseForm):
@@ -56,7 +44,7 @@ class EstadoLoteForm(BaseForm):
     class Meta:
         model = EstadoLote
         fields = '__all__'
-        exclude = ['lote']
+        exclude = ['lote', 'estado']
         widgets = {
                 'fecha_desde': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
                 'fecha_hasta': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
