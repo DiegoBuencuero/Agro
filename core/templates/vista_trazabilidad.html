@@ -11,7 +11,11 @@
       <form class="form-sample" method='post' enctype="multipart/form-data">
         {% csrf_token %}
         <p class="card-description">
-          Actividad
+          {% if estado_lote.planificacion %}
+            Planificacion: {{estado_lote.planificacion}}
+          {% else %}
+            Sin planificacion
+          {% endif %}
         </p>
         <div class="row">
           <div class="col-md-6">
@@ -25,33 +29,15 @@
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Planificacion</label>
+              <label class="col-sm-3 col-form-label">Actividad</label>
               <div class="col-sm-9">
-                {{form.planificacion}}
-                {{form.planificacion.errors}}
+                {{form.actividad}}
+                {{form.actividad.errors}}
               </div>
             </div>
           </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Actividad</label>
-                <div class="col-sm-9">
-                  {{form.actividad}}
-                  {{form.actividad.errors}}
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Futuro Uso</label>
-                <div class="col-sm-9">
-                </div>
-              </div>
-            </div>
-        </div>
         <div class="row">
             <div class="col-md-6">
               <div class="form-group row">

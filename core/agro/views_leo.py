@@ -249,48 +249,48 @@ def vista_trazabilidad_lote(request, id_estado):
             print(form.errors.as_data)
     else:
         form = TrazabilidadForm(empresa)
-    return render(request, 'vista_trazabilidad.html', {'trazabilidades': traza_list, 'form': form, 'empresa': empresa })
+    return render(request, 'vista_trazabilidad.html', {'trazabilidades': traza_list, 'form': form, 'estado_lote': estado, 'empresa': empresa })
 
-@login_required
-def editar_trazabilidad_lote(request, id_traza):
-    empresa = request.user.profile.empresa
-    traza_list = get_traza_list(empresa)
-    try:
-        trazabilidad = Trazabilidad.objects.get(id = id_traza)
-    except:
-        return redirect('vista_trazabilidad')
-    if trazabilidad.empresa == empresa:
-        if request.method == 'POST':
-            form = TrazabilidadForm(request.POST, instance = trazabilidad)
-            if form.is_valid():
-                traz = form.save(commit=False)
-                if request.POST.get('borrar') == '':
-                    traz.delete()
-                else:
-                    try:
-                        traz.lote = Lote.objects.get(id = form.cleaned_data['lote_campo'])
-                        traz.origen_prod = form.cleaned_data['producto'][0:1]
-                        traz.producto_id = int(form.cleaned_data['producto'][1:])
-                        try:
-                            traz.especificacion = Especificacion_tipo.objects.get(id = form.cleaned_data['espec'])
-                            traz.save()
-                            traza_list = get_traza_list(empresa)
-                            return redirect('vista_planificacion')
-                        except:
-                            form.add_error('espec', 'Error inesperado, la especificacion no existe')
-                    except:
-                        form.add_error('lote_campo', 'Error inesperado, el lote no existe')
-        else:
-            initial_data = {
-                'producto': trazabilidad.origen_prod + str(trazabilidad.producto_id),
-                'espec': trazabilidad.especificacion,
-                'campo': trazabilidad.lote.campo.id,
-                'lote_campo': trazabilidad.lote,
-            }
-            form = TrazabilidadForm(empresa, initial = initial_data, instance = trazabilidad)
-        return render(request, 'vista_trazabilidad.html', {'form': form, 'empresa': empresa, 'trazabilidades':traza_list, 'modificacion': 'S'})
-    else:
-        return redirect('vista_trazabilidad')
+# @login_required
+# def editar_trazabilidad_lote(request, id_traza):
+#     empresa = request.user.profile.empresa
+#     traza_list = get_traza_list(empresa)
+#     try:
+#         trazabilidad = Trazabilidad.objects.get(id = id_traza)
+#     except:
+#         return redirect('vista_trazabilidad')
+#     if trazabilidad.empresa == empresa:
+#         if request.method == 'POST':
+#             form = TrazabilidadForm(request.POST, instance = trazabilidad)
+#             if form.is_valid():
+#                 traz = form.save(commit=False)
+#                 if request.POST.get('borrar') == '':
+#                     traz.delete()
+#                 else:
+#                     try:
+#                         traz.lote = Lote.objects.get(id = form.cleaned_data['lote_campo'])
+#                         traz.origen_prod = form.cleaned_data['producto'][0:1]
+#                         traz.producto_id = int(form.cleaned_data['producto'][1:])
+#                         try:
+#                             traz.especificacion = Especificacion_tipo.objects.get(id = form.cleaned_data['espec'])
+#                             traz.save()
+#                             traza_list = get_traza_list(empresa)
+#                             return redirect('vista_planificacion')
+#                         except:
+#                             form.add_error('espec', 'Error inesperado, la especificacion no existe')
+#                     except:
+#                         form.add_error('lote_campo', 'Error inesperado, el lote no existe')
+#         else:
+#             initial_data = {
+#                 'producto': trazabilidad.origen_prod + str(trazabilidad.producto_id),
+#                 'espec': trazabilidad.especificacion,
+#                 'campo': trazabilidad.lote.campo.id,
+#                 'lote_campo': trazabilidad.lote,
+#             }
+#             form = TrazabilidadForm(empresa, initial = initial_data, instance = trazabilidad)
+#         return render(request, 'vista_trazabilidad.html', {'form': form, 'empresa': empresa, 'trazabilidades':traza_list, 'modificacion': 'S'})
+#     else:
+#         return redirect('vista_trazabilidad')
 
 def ajax_get_prods_actividad(request):
     actividad_id = request.GET.get('actividad')

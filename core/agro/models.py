@@ -162,7 +162,6 @@ class EstadoLote(models.Model):
 class Trazabilidad(models.Model):
     class Meta:
         pass
-    planificacion = models.ForeignKey("Planificacion_cultivo", on_delete=models.CASCADE, null=True, blank=True)
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     actividad = models.ForeignKey("Actividad", on_delete=models.CASCADE) 
     fecha = models.DateField(null=True, blank=True)

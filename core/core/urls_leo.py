@@ -45,5 +45,6 @@ url_leo = [
     path('statuslote', ajax_get_planificacion, name = 'ajax_get_planificacion'),
     path('traza-lote/<int:id_estado>', vista_trazabilidad_lote, name='vista_trazabilidad_lote'),
     path('99-getprods', ajax_get_prods_actividad, name = 'ajax_get_prods_actividad'),
+    path('trazabilidad', vista_lote_trazabilidad, name = 'vista_trazabilidad')
 
 ]
