@@ -193,17 +193,44 @@
   </div>
   <script type="text/javascript">
     window.addEventListener('load', async() => {
-      id_campo.addEventListener('change', async() => {
-        load_lotes("{% url 'ajax_get_lote' %}", id_campo.value, id_lote_campo);
+      id_actividad.addEventListener("change", async() => {
+        load_productos("{% url 'ajax_get_prods_actividad' %}", id_actividad.value);
       });
-      load_lotes("{% url 'ajax_get_lote' %}", id_campo.value, id_lote_campo, id_lote_campo.value);
-    });
-    window.addEventListener('load', async() => {
       id_producto.addEventListener('change', async() => {
         load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_espec);
       });
-      load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_espec, id_espec.value);
-    });
+      var oprod = id_producto.value;
+      var oespe = id_espec.value;
+      console.log(oprod);
+      load_productos("{% url 'ajax_get_prods_actividad' %}", id_actividad.value, oprod);
+      load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_espec, oespe);
+  });
+    function load_productos( url_param, actividad, oprod) {
+      if (actividad === '') {
+        var opciones = "<option value '' selected>---------</option>";
+        id_producto.innerHTML = opciones;
+      }
+      else {
+        $.ajax({
+          url : url_param,
+          data : {
+            'actividad' : actividad,
+          },
+          method : 'GET',
+          success : function(response) {
+            var opciones = "<option value '' selected>---------</option>";
+            response.data.forEach(function(item, index) {
+              opciones += '<option value="' + item.id + '">' + item.desc + '</option>';
+            });
+            id_producto.innerHTML = opciones;
+            if (oprod != undefined) id_producto.value = oprod;
+            load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_espec);
+    
+          } // reference to below
+        });
+  
+      }
+    }
 </script>
 
 {% endblock %}

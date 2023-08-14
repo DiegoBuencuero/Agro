@@ -1,4 +1,8 @@
 function load_especificaciones(url_ajax, clave, objeto_detino, parametro) { 
+  if (clave === '') {
+    objeto_detino.innerHTML = "<option value '' selected>---------</option>";
+  }
+  else {
     $.ajax({
       url : url_ajax,
       data : {
@@ -15,5 +19,7 @@ function load_especificaciones(url_ajax, clave, objeto_detino, parametro) {
 
       } 
     });
+
+  }
 
   }

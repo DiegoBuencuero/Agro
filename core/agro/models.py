@@ -140,6 +140,8 @@ class Actividad(models.Model):
         return self.nombre
     nombre = models.CharField(max_length=50)
     codigo = models.CharField(max_length=2)
+    agro_tipo = models.ManyToManyField("agro_TipoProd")
+
 
 class UM(models.Model):
     class Meta:
