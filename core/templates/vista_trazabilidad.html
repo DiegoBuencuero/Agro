@@ -183,13 +183,13 @@
         load_productos("{% url 'ajax_get_prods_actividad' %}", id_actividad.value);
       });
       id_producto.addEventListener('change', async() => {
-        load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_espec);
+        load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_unidad_medida, id_espec);
       });
       var oprod = id_producto.value;
       var oespe = id_espec.value;
       console.log(oprod);
       load_productos("{% url 'ajax_get_prods_actividad' %}", id_actividad.value, oprod);
-      load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_espec, oespe);
+      load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_unidad_medida, id_espec, oespe);
   });
     function load_productos( url_param, actividad, oprod) {
       if (actividad === '') {
@@ -210,7 +210,7 @@
             });
             id_producto.innerHTML = opciones;
             if (oprod != undefined) id_producto.value = oprod;
-            load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_espec);
+            load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_unidad_medida, id_espec);
     
           } // reference to below
         });

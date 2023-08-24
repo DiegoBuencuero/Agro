@@ -595,7 +595,7 @@ def ajax_get_espec(request):
     for e in especificaciones:
         linea = {'id': e.id, 'nombre': e.nombre}
         respuesta.append(linea)
-    data = {'data': respuesta}
+    data = {'data': respuesta, 'um': {'id':producto.um.id, 'desc':producto.um.nombre}}
     return JsonResponse(data)
 
 

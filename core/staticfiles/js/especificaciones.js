@@ -1,4 +1,4 @@
-function load_especificaciones(url_ajax, clave, objeto_detino, parametro) { 
+function load_especificaciones(url_ajax, clave, um, objeto_detino, parametro) { 
   if (clave === '') {
     objeto_detino.innerHTML = "<option value '' selected>---------</option>";
   }
@@ -10,6 +10,7 @@ function load_especificaciones(url_ajax, clave, objeto_detino, parametro) {
       },
       method : 'GET',
       success : function(response) {
+        um.value = response.um.id;
         var opciones = "";
         response.data.forEach(function(item, index) {
           opciones += '<option value="' + item.id + '">' + item.nombre + '</option>';

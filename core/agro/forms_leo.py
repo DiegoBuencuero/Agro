@@ -2,6 +2,7 @@ from django import forms
 from .forms import BaseForm
 from .models import Trazabilidad, agro_Producto, Producto, Especificacion_tipo, Campo, Lote
 from .models import Contactos, agro_CategoriaContacto, EstadoLote, Planificacion_cultivo
+from datetime import datetime
 
 class TrazabilidadForm(BaseForm):
     def __init__(self, company, *args,**kwargs):
@@ -19,6 +20,8 @@ class TrazabilidadForm(BaseForm):
         for e in esp:
             opciones.append((e.id, e.nombre))
         self.fields['espec'].choices = opciones
+        self.fields['fecha'].widget.attrs['value'] = datetime.now().strftime('%Y-%m-%d')
+        self.fields['moneda'].initial = company.moneda.id
     class Meta:
         model = Trazabilidad
         fields = '__all__'

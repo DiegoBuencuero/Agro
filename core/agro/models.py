@@ -239,6 +239,7 @@ class agro_Producto(models.Model):
     agro_rubro = models.ForeignKey(agro_RubroProd, on_delete=models.CASCADE, null=True, blank=True)
     image = models.ImageField(default='default.jpg', upload_to='lotes')
     status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ], default='O')
+    um = models.ForeignKey(UM, on_delete=models.CASCADE)
     add_date = models.DateTimeField(default=timezone.now)
 
 class Producto(models.Model):
@@ -251,6 +252,7 @@ class Producto(models.Model):
     rubro = models.ForeignKey("Rubro", on_delete=models.CASCADE, null=True, blank=True) 
     image = models.ImageField(default='default.jpg', upload_to='lotes')
     status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ], default='O')
+    um = models.ForeignKey(UM, on_delete=models.CASCADE)
     add_date = models.DateTimeField(default=timezone.now)
 
 
