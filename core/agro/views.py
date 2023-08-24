@@ -98,25 +98,29 @@ def home(request):
 
     resultado_lluvia = acumular_registros_lluvia()
 
-   
     def obtener_datos_lotes():
+        hoy = datetime.today().date()
         empresa = request.user.profile.empresa
-        campos = Campo.objects.filter(empresa=empresa)  # campos de la empresa
-
-        datos_cultivo = []  # Lista para almacenar los valores de cultivo
-
-        for campo in campos:
-            lotes = campo.lote_set.all()
-
-            for lote in lotes:
-                estado_lotes = lote.estadolote_set.all()
-
-                for estado in estado_lotes:
-                    cultivo = estado.cultivo
-                    datos_cultivo.append(cultivo)
-            print(datos_cultivo)
-        return datos_cultivo
-        print(datos_cultivo)
+        campos = Campo.objects.filter(empresa=empresa)
+        lotes = Lote.objects.filter(campo__in = campos)
+        lista = []
+        contador = 0
+        for lote in lotes:
+            porciento = (lote.ha_productivas/lote.ha_totales) * 100
+            estados = EstadoLote.objects.filter(lote = lote)
+            encontre = False
+            for estado in estados:
+                if hoy >= estado.fecha_desde and hoy <= estado.fecha_hasta and estado.estado != 'C':
+                    encontre = True
+                    break
+            if encontre:
+                linea = {'lote': lote, 'estado': estado, 'encontre': encontre, 'p':porciento}
+                lista.append(linea)
+                contador += 1
+                if contador == 4:
+                    break
+            
+        return lista
 
     datos_cultivo = obtener_datos_lotes()  # Llamar a la función para obtener los datos de los lotes
 
