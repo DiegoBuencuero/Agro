@@ -14,6 +14,7 @@ from datetime import datetime
 from collections import defaultdict
 from django.db.models import Sum
 from django.views.decorators.csrf import csrf_exempt
+import requests
 import json
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
@@ -22,6 +23,7 @@ from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planific
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
 from .forms import FormAsignacionEtapaCosto, DepositoForm, RegLluviaCargaForm
+import yfinance as yf
 
 
 # Create your views here.
@@ -96,7 +98,7 @@ def home(request):
 
         return lista
 
-    resultado_lluvia = acumular_registros_lluvia()
+    resultado_lluvia = acumular_registros_lluvia()    
 
     def obtener_datos_lotes():
         hoy = datetime.today().date()
@@ -124,13 +126,86 @@ def home(request):
 
     datos_cultivo = obtener_datos_lotes()  # Llamar a la función para obtener los datos de los lotes
 
+
+
+    def obtener_nombre_mes(numero_mes):
+        nombres_meses = {
+            1: 'Jan',
+            2: 'Fev',
+            3: 'Mar',
+            4: 'Abr',
+            5: 'Maio',
+            6: 'Jun',
+            7: 'Jul',
+            8: 'Ago',
+            9: 'Set',
+            10: 'Out',
+            11: 'Nov',
+            12: 'Dez'
+        }
+        
+        return nombres_meses.get(numero_mes, 'Mes no válido')
+
+    def cotizacion_ultimo_ano():
+        ticker = yf.Ticker("USDBRL=X")  # objeto de yahoo finance
+
+        valores = ticker.history(period="1y", interval="1d")  # datos del último año
+
+        # Calculamos el promedio mensual manualmente
+        valores_por_mes = {} #almacenos los valores por mes
+        for fecha, valor in zip(valores.index, valores['Close']):# la funcion zipconvina dos secuencias (fecha y valor) 
+            mes = fecha.month                                    #por cada vuelta fecha toma el valor .index y valor el valor correspo de la colum
+            nombre_mes = obtener_nombre_mes(mes)  # mes rescato el numero entero, se lo paso a la funcion de arriba, y obtengo el nombre del mes
+            if nombre_mes in valores_por_mes:
+                valores_por_mes[nombre_mes].append(valor) #si exite agrega el valor actual a la lista
+            else:
+                valores_por_mes[nombre_mes] = [valor] #junta la cotizacion del mismo en la lista
+
+        # Calculamos el promedio mensual
+        promedios_mensuales = {}
+        for nombre_mes, valores_mes in valores_por_mes.items(): #el metodo items() sirve para iterar los pares (clave-valor) del dicc
+            promedio = sum(valores_mes) / len(valores_mes) #SUM funcion q calculala suma y  el len cuenta cuanto y sacamos el promedio mes.
+            promedios_mensuales[nombre_mes] = promedio #por cada vuelta agrega  la clave(nombremes) y el promedio de ese mes.
+
+        return promedios_mensuales
+
+    ano_cotizacion = cotizacion_ultimo_ano()
+    #print(ano_cotizacion)
+
+    def cotizacion_dia():
+        ticker = yf.Ticker("USDBRL=X")
+        valores = ticker.history(period="1d", interval="1d")
+
+        valor_apertura = valores['Open']
+        valor_minimo = valores['Low']
+        valor_maximo = valores['High']
+        valor_cierre = valores['Close']
+        date = valores.index  
+
+        valores_cotizacion = {
+            'maximo': valor_maximo,
+            'minimo': valor_minimo,
+            'apertura': valor_apertura,
+            'cierre': valor_cierre,
+            'dia': date,
+        }
+
+        return valores_cotizacion
+
+    dolar_dia = cotizacion_dia()
+
     context = {
         'form': form,
         'rubros_acumulados': rubros,
         'lluvia_acumulada': resultado_lluvia,
         'componentes': componentes,
-        'datos_cultivo': datos_cultivo,  # Agregar la lista al contexto
-    }    
+        'datos_cultivo': datos_cultivo,  
+        'datos_cotizacion':  ano_cotizacion,
+        'dolar_dia': dolar_dia, 
+        
+    }
+
+
 
     return render(request, 'index.html', context)
 

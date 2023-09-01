@@ -3,10 +3,10 @@
   $(function() {
     if ($("#order-chart").length) {
       var areaData = {
-        labels: ["10","","","20","","","30","","","40","","", "50","","", "60","","","70"],
+        labels: dolar_labels,
         datasets: [
           {
-            data: [200, 480, 700, 600, 620, 350, 380, 350, 850, "600", "650", "350", "590", "350", "620", "500", "990", "780", "650"],
+            data: dolar_valor,
             borderColor: [
               '#4747A1'
             ],
@@ -15,7 +15,7 @@
             label: "Orders"
           },
           {
-            data: [400, 450, 410, 500, 480, 600, 450, 550, 460, "560", "450", "700", "450", "640", "550", "650", "400", "850", "800"],
+            data: [],
             borderColor: [
               '#F09397'
             ],
@@ -54,9 +54,9 @@
               display: true,
               autoSkip: false,
               maxRotation: 0,
-              stepSize: 200,
-              min: 200,
-              max: 1200,
+              stepSize: 0.25,
+              min: 4.5,
+              max: 6,
               padding: 18,
               fontColor:"#6C7383"
             },
@@ -89,12 +89,15 @@
         options: areaOptions
       });
     }
+
+    
+
     if ($("#order-chart-dark").length) {
       var areaData = {
-        labels: ["10","","","20","","","30","","","40","","", "50","","", "60","","","70"],
+        labels: dolar_labels,
         datasets: [
           {
-            data: [200, 480, 700, 600, 620, 350, 380, 350, 850, "600", "650", "350", "590", "350", "620", "500", "990", "780", "650"],
+            data: dolar_valor,
             borderColor: [
               '#4747A1'
             ],
@@ -143,8 +146,8 @@
               autoSkip: false,
               maxRotation: 0,
               stepSize: 200,
-              min: 200,
-              max: 1200,
+              min: 4,
+              max: 5,
               padding: 18,
               fontColor:"#fff"
             },
@@ -179,6 +182,7 @@
     }
    
   
+  //start  grafico lluvia//
 
     if ($("#sales-chart").length) {
       var SalesChartCanvas = $("#sales-chart").get(0).getContext("2d");
@@ -258,6 +262,84 @@
       });
       document.getElementById('sales-legend').innerHTML = SalesChart.generateLegend();
     }
+    // End grafico lluvia //
+
+    // Start grafico dolar//
+
+    if ($("#dolar-chart").length) {
+      var SalesChartCanvas = $("#dolar-chart").get(0).getContext("2d");
+      var SalesChart = new Chart(SalesChartCanvas, {
+        type: 'bar',
+        data: {
+          labels: dolar_labels,
+          datasets: [{
+              label: 'Cotação dolar',
+              data: dolar_valor,
+             
+              backgroundColor: '#4B49AC'
+            },            
+          ]          
+        },
+      
+        options: {
+          cornerRadius: 5,
+          responsive: true,
+          maintainAspectRatio: true,
+          layout: {
+            padding: {
+              left: 0,
+              right: 1,
+              top: 0,
+              bottom: 0
+            }
+          },
+          scales: {
+            yAxes: [{
+              display: true,
+              gridLines: {
+                display: true,
+                drawBorder: false,
+                color: "#ffffff"
+              },
+              ticks: {
+                display: true,
+                min: 4,
+                max: 6,
+                callback: function(value, index, values) {
+                  return  value + '' ;
+                },
+                autoSkip: true,
+                maxTicksLimit: 10,
+                fontColor:"#6C7383"
+              }
+            }],
+            xAxes: [{
+              stacked: false,
+              ticks: {
+                beginAtZero: true,
+                fontColor: "#6C7383"
+              },
+              gridLines: {
+                color: "rgba(120, 1, 5, 0)",
+                display: false
+              },
+              barPercentage: 1
+            }]
+          },
+          legend: {
+            display: false
+          },
+          elements: {
+            point: {
+              radius: 0
+            }
+          }
+        },
+      });
+      document.getElementById('sales-legend').innerHTML = SalesChart.generateLegend();
+    }
+    //end grafico dolar//
+
     if ($("#sales-chart-dark").length) {
       var SalesChartCanvas = $("#sales-chart-dark").get(0).getContext("2d");
       var SalesChart = new Chart(SalesChartCanvas, {

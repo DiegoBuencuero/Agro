@@ -34,22 +34,31 @@
       </div>
     </div>
     <div class="col-md-6 grid-margin transparent">
-      <div class="row">
-        {% for lote in datos_cultivo %}
-            <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
-                    <div class="card {% if forloop.counter0|add:'0'|divisibleby:4 %}card-tale{% endif %}{% if forloop.counter0|add:'-1'|divisibleby:4 %}card-dark-blue{% endif %}{% if forloop.counter0|add:'-2'|divisibleby:4 %}card-light-blue{% endif %}{% if forloop.counter0|add:'-3'|divisibleby:4 %}card-light-danger{% endif %}">
-                    <div class="card-body">
-                      <p class="mb-4">Campo: {{ lote.lote.campo.nombre }} - Lote: {{lote.lote.nombre}}</p>
-                      {% if lote.encontre %}
-                        <p class="fs-30 mb-2">{{ lote.estado.cultivo.nombre }}</p>
-                        <p>Desde: {{ lote.estado.fecha_desde }} - Hasta: {{lote.estado.fecha_hasta}}</p>
-                      {% else %}
-                        <p class="fs-30 mb-2">Sin cultivo</p>
-                        <p>Ha totales: {{ lote.lote.ha_totales }} - Productivas: {{lote.lote.ha_productivas}} ({{lote.p|floatformat:0}}%)</p>                      {% endif %}
-                    </div>
-                </div>
+      <div class="row"><div class="card-body">
+        <div class="d-flex justify-content-between">
+         <h3 class="card-title">Cotação Dolar</h3>
+         <a href="#" class="text-info">View all</a>
+        </div>
+          <div class="d-flex flex-wrap mb-5">
+            <div class="mr-5 mt-3">
+              <p class="text-muted">Order value</p>
+              <h3 class="text-primary fs-30 font-weight-medium">{{ dolar_dia.maximo|floatformat:2 }}</h3>
             </div>
-        {% endfor %}
+            <div class="mr-5 mt-3">
+              <p class="text-muted">Orders</p>
+              <h3 class="text-primary fs-30 font-weight-medium">{{ dolar_dia.maximo|floatformat:2 }}</h3>
+            </div>
+            <div class="mr-5 mt-3">
+              <p class="text-muted">Users</p>
+              <h4 class="text-primary fs-20 font-weight-medium">{{ dolar_dia.minimo|floatformat:2 }}</h4>
+            </div>
+            <div class="mt-3">
+              <p class="text-muted">Downloads</p>
+              <h4 class="text-primary fs-30 font-weight-medium">{{ dolar_dia.cierre|floatformat:2 }}</h4>
+            </div> 
+    
+         <canvas id="dolar-chart"></canvas>
+       </div>            
     </div>
   </div>
   </div>
@@ -630,6 +639,9 @@
     var componentes_cololes = [];
     var lluvia_labels =[];
     var lluvia_datas = [];
+    var dolar_labels =[];
+    var dolar_valor = [];
+
     
    
     {% for rubro in rubros_acumulados %}
@@ -647,6 +659,24 @@
     lluvia_datas.push({{lluvia_mes.valor}});
     {% endfor %}
     console.log(lluvia_datas)
+
+    {% for mes, valor in datos_cotizacion.items %}
+    dolar_labels.push('{{ mes }}');
+    dolar_valor.push({{ valor }});
+    {% endfor %}
+
+    // Ahora puedes utilizar los arreglos dolar_labels y dolar_valores en JavaScript.
+    console.log(dolar_labels);
+    console.log(dolar_valor);
+    </script>
+
+   
+
+
+
+
+
+
 
     var texto_grafico1 = '<div class="report-chart">';
       for (var i = 0; i < rubros_labels.length; i++) {

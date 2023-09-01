@@ -41,6 +41,7 @@ urlpatterns = [
     path('08/<int:id_depo>', editar_deposito, name='editar_deposito'),
     path('regLluvias/', vista_lluvia, name='vista_lluvia'),
     path('ajax-load-lluvias/', ajax_load_lluvias, name='ajax_load_lluvias'),
+ 
   
    
 ]
