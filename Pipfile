@@ -9,6 +9,7 @@ psycopg2 = "*"
 pillow = "*"
 six = "*"
 django-allauth = "*"
+yfinance = "*"
 
 [dev-packages]
 
