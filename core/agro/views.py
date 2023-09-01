@@ -150,24 +150,29 @@ def home(request):
         ticker = yf.Ticker("USDBRL=X")  # objeto de yahoo finance
 
         valores = ticker.history(period="1y", interval="1d")  # datos del último año
+        valores_dict = {}  # Diccionario para almacenar los valores por fecha
+
+        for fecha, valor in zip(valores.index, valores['Close']):
+            valores_dict[fecha.strftime('%Y-%m-%d')] = valor  # Almacena el valor por fecha en formato 'YYYY-MM-DD'
 
         # Calculamos el promedio mensual manualmente
-        valores_por_mes = {} #almacenos los valores por mes
-        for fecha, valor in zip(valores.index, valores['Close']):# la funcion zipconvina dos secuencias (fecha y valor) 
-            mes = fecha.month                                    #por cada vuelta fecha toma el valor .index y valor el valor correspo de la colum
-            nombre_mes = obtener_nombre_mes(mes)  # mes rescato el numero entero, se lo paso a la funcion de arriba, y obtengo el nombre del mes
-            if nombre_mes in valores_por_mes:
-                valores_por_mes[nombre_mes].append(valor) #si exite agrega el valor actual a la lista
-            else:
-                valores_por_mes[nombre_mes] = [valor] #junta la cotizacion del mismo en la lista
+        # valores_por_mes = {} #almacenos los valores por mes
+        # for fecha, valor in zip(valores.index, valores['Close']):# la funcion zipconvina dos secuencias (fecha y valor) 
+        #     mes = fecha.month                                    #por cada vuelta fecha toma el valor .index y valor el valor correspo de la colum
+        #     nombre_mes = obtener_nombre_mes(mes)  # mes rescato el numero entero, se lo paso a la funcion de arriba, y obtengo el nombre del mes
+        #     if nombre_mes in valores_por_mes:
+        #         valores_por_mes[nombre_mes].append(valor) #si exite agrega el valor actual a la lista
+        #     else:
+        #         valores_por_mes[nombre_mes] = [valor] #junta la cotizacion del mismo en la lista
 
-        # Calculamos el promedio mensual
-        promedios_mensuales = {}
-        for nombre_mes, valores_mes in valores_por_mes.items(): #el metodo items() sirve para iterar los pares (clave-valor) del dicc
-            promedio = sum(valores_mes) / len(valores_mes) #SUM funcion q calculala suma y  el len cuenta cuanto y sacamos el promedio mes.
-            promedios_mensuales[nombre_mes] = promedio #por cada vuelta agrega  la clave(nombremes) y el promedio de ese mes.
+        # # Calculamos el promedio mensual
+        # promedios_mensuales = {}
+        # for nombre_mes, valores_mes in valores_por_mes.items(): #el metodo items() sirve para iterar los pares (clave-valor) del dicc
+        #     promedio = sum(valores_mes) / len(valores_mes) #SUM funcion q calculala suma y  el len cuenta cuanto y sacamos el promedio mes.
+        #     promedios_mensuales[nombre_mes] = promedio #por cada vuelta agrega  la clave(nombremes) y el promedio de ese mes.
 
-        return promedios_mensuales
+        # return promedios_mensuales
+        return valores_dict
 
     ano_cotizacion = cotizacion_ultimo_ano()
     #print(ano_cotizacion)
