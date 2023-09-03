@@ -30,7 +30,7 @@
         maintainAspectRatio: true,
         plugins: {
           filler: {
-            propagate: false
+            propagate: true
           }
         },
         scales: {
@@ -268,6 +268,9 @@
 
     if ($("#dolar-chart").length) {
       var SalesChartCanvas = $("#dolar-chart").get(0).getContext("2d");
+      //var mesesUnicos = [...new Set(dolar_labels)]; operador de propagación (...) para desempaquetar el conjunto y convertirlo en un arreglo
+     // console.log(mesesUnicos)
+    
       var SalesChart = new Chart(SalesChartCanvas, {
         type: 'bar',
         data: {
@@ -442,19 +445,7 @@
           enabled: true
         },
         legendCallback: function(chart) { 
-          //var texto_grafico1 = [];
-          // text.push('<div class="report-chart">');
-          //   text.push('<div class="d-flex justify-content-between mx-4 mx-xl-5 mt-3"><div class="d-flex align-items-center"><div class="mr-3" style="width:20px; height:20px; border-radius: 50%; background-color: ' + chart.data.datasets[0].backgroundColor[0] + '"></div><p class="mb-0">Offline sales</p></div>');
-          //   text.push('<p class="mb-0">495343</p>');
-          //   text.push('</div>');
-          //   text.push('<div class="d-flex justify-content-between mx-4 mx-xl-5 mt-3"><div class="d-flex align-items-center"><div class="mr-3" style="width:20px; height:20px; border-radius: 50%; background-color: ' + chart.data.datasets[0].backgroundColor[1] + '"></div><p class="mb-0">Online sales</p></div>');
-          //   text.push('<p class="mb-0">630983</p>');
-          //   text.push('</div>');
-          //   text.push('<div class="d-flex justify-content-between mx-4 mx-xl-5 mt-3"><div class="d-flex align-items-center"><div class="mr-3" style="width:20px; height:20px; border-radius: 50%; background-color: ' + chart.data.datasets[0].backgroundColor[2] + '"></div><p class="mb-0">Returns</p></div>');
-          //   text.push('<p class="mb-0">290831</p>');
-          //   text.push('</div>');
-          // text.push('</div>');
-          // return text.join("");
+      
           return texto_grafico1;
         },
         

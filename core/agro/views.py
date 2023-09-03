@@ -144,16 +144,23 @@ def home(request):
             12: 'Dez'
         }
         
-        return nombres_meses.get(numero_mes, 'Mes no válido')
+        return nombres_meses.get(numero_mes)
 
     def cotizacion_ultimo_ano():
         ticker = yf.Ticker("USDBRL=X")  # objeto de yahoo finance
 
         valores = ticker.history(period="1y", interval="1d")  # datos del último año
-        valores_dict = {}  # Diccionario para almacenar los valores por fecha
-
-        for fecha, valor in zip(valores.index, valores['Close']):
-            valores_dict[fecha.strftime('%Y-%m-%d')] = valor  # Almacena el valor por fecha en formato 'YYYY-MM-DD'
+        valores_dolar = valores['Close']
+        fechas_dolar = [obtener_nombre_mes(mes.month) for mes in valores.index]
+        #fechas_dolar = list(dict.fromkeys(fechas_dolar))
+       
+       
+        return valores_dolar, fechas_dolar
+    
+    valores_dolar, fechas_dolar = cotizacion_ultimo_ano()
+       
+        #for fecha, valor in zip(valores.index, valores['Close']):
+           # valores_dict[fecha.strftime('%Y-%m-%d')] = valor  # Almacena el valor por fecha en formato 'YYYY-MM-DD'
 
         # Calculamos el promedio mensual manualmente
         # valores_por_mes = {} #almacenos los valores por mes
@@ -172,29 +179,29 @@ def home(request):
         #     promedios_mensuales[nombre_mes] = promedio #por cada vuelta agrega  la clave(nombremes) y el promedio de ese mes.
 
         # return promedios_mensuales
-        return valores_dict
-
-    ano_cotizacion = cotizacion_ultimo_ano()
+   
     #print(ano_cotizacion)
 
     def cotizacion_dia():
         ticker = yf.Ticker("USDBRL=X")
         valores = ticker.history(period="1d", interval="1d")
+ 
 
-        valor_apertura = valores['Open']
-        valor_minimo = valores['Low']
-        valor_maximo = valores['High']
-        valor_cierre = valores['Close']
-        date = valores.index  
+        valor_apertura = round(valores['Open'][0], 3) #redondeo a 3 decimales y co .iloc[] ssscedo a la ubicacion.
+        valor_minimo = round(valores['Low'][0], 3) #: Es un atributo de DataFrame en pandas
+        valor_maximo = round(valores['High'][0], 3) #puedo acceder a los datos accediendo a la ubicacion
+        valor_cierre = round(valores['Close'][0], 3)
+        print (valor_apertura)
+    
 
         valores_cotizacion = {
             'maximo': valor_maximo,
             'minimo': valor_minimo,
             'apertura': valor_apertura,
             'cierre': valor_cierre,
-            'dia': date,
+            
         }
-
+        
         return valores_cotizacion
 
     dolar_dia = cotizacion_dia()
@@ -205,12 +212,12 @@ def home(request):
         'lluvia_acumulada': resultado_lluvia,
         'componentes': componentes,
         'datos_cultivo': datos_cultivo,  
-        'datos_cotizacion':  ano_cotizacion,
+        'valores_dolar': valores_dolar, 
+        'fechas_dolar' :fechas_dolar, 
         'dolar_dia': dolar_dia, 
         
     }
-
-
+    print(dolar_dia)
 
     return render(request, 'index.html', context)
 
