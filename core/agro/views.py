@@ -10,11 +10,12 @@ from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes, force_str  
 from django.http import HttpResponse, JsonResponse
 from operator import itemgetter
-from datetime import datetime 
 from collections import defaultdict
 from django.db.models import Sum
 from django.views.decorators.csrf import csrf_exempt
 import requests
+import datetime
+#from datetime import datetime 
 import json
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
@@ -101,7 +102,7 @@ def home(request):
     resultado_lluvia = acumular_registros_lluvia()    
 
     def obtener_datos_lotes():
-        hoy = datetime.today().date()
+        hoy = datetime.datetime.today().date()
         empresa = request.user.profile.empresa
         campos = Campo.objects.filter(empresa=empresa)
         lotes = Lote.objects.filter(campo__in = campos)
@@ -125,8 +126,6 @@ def home(request):
         return lista
 
     datos_cultivo = obtener_datos_lotes()  # Llamar a la función para obtener los datos de los lotes
-
-
 
     def obtener_nombre_mes(numero_mes):
         nombres_meses = {
@@ -152,60 +151,33 @@ def home(request):
         valores = ticker.history(period="1y", interval="1d")  # datos del último año
         valores_dolar = valores['Close']
         fechas_dolar = [obtener_nombre_mes(mes.month) for mes in valores.index]
-        #fechas_dolar = list(dict.fromkeys(fechas_dolar))
-       
-       
+        #fechas_dolar = list(dict.fromkeys(fechas_dolar)) # tomafechas_dolar, elimina duplicado
+              
         return valores_dolar, fechas_dolar
     
     valores_dolar, fechas_dolar = cotizacion_ultimo_ano()
-       
-        #for fecha, valor in zip(valores.index, valores['Close']):
-           # valores_dict[fecha.strftime('%Y-%m-%d')] = valor  # Almacena el valor por fecha en formato 'YYYY-MM-DD'
-
-        # Calculamos el promedio mensual manualmente
-        # valores_por_mes = {} #almacenos los valores por mes
-        # for fecha, valor in zip(valores.index, valores['Close']):# la funcion zipconvina dos secuencias (fecha y valor) 
-        #     mes = fecha.month                                    #por cada vuelta fecha toma el valor .index y valor el valor correspo de la colum
-        #     nombre_mes = obtener_nombre_mes(mes)  # mes rescato el numero entero, se lo paso a la funcion de arriba, y obtengo el nombre del mes
-        #     if nombre_mes in valores_por_mes:
-        #         valores_por_mes[nombre_mes].append(valor) #si exite agrega el valor actual a la lista
-        #     else:
-        #         valores_por_mes[nombre_mes] = [valor] #junta la cotizacion del mismo en la lista
-
-        # # Calculamos el promedio mensual
-        # promedios_mensuales = {}
-        # for nombre_mes, valores_mes in valores_por_mes.items(): #el metodo items() sirve para iterar los pares (clave-valor) del dicc
-        #     promedio = sum(valores_mes) / len(valores_mes) #SUM funcion q calculala suma y  el len cuenta cuanto y sacamos el promedio mes.
-        #     promedios_mensuales[nombre_mes] = promedio #por cada vuelta agrega  la clave(nombremes) y el promedio de ese mes.
-
-        # return promedios_mensuales
-   
-    #print(ano_cotizacion)
-
+     
     def cotizacion_dia():
         ticker = yf.Ticker("USDBRL=X")
         valores = ticker.history(period="1d", interval="1d")
  
 
-        valor_apertura = round(valores['Open'][0], 3) #redondeo a 3 decimales y co .iloc[] ssscedo a la ubicacion.
-        valor_minimo = round(valores['Low'][0], 3) #: Es un atributo de DataFrame en pandas
-        valor_maximo = round(valores['High'][0], 3) #puedo acceder a los datos accediendo a la ubicacion
-        valor_cierre = round(valores['Close'][0], 3)
-        print (valor_apertura)
+        valor_apertura = round(valores['Open'].iloc[0], 3) #redondeo a 3 decimales
+        valor_minimo = round(valores['Low'].iloc[0], 3) 
+        valor_maximo = round(valores['High'].iloc[0], 3) #puedo acceder a los datos accediendo a la ubicacion
+        valor_cierre = round(valores['Close'].iloc[0], 3)
     
-
         valores_cotizacion = {
             'maximo': valor_maximo,
             'minimo': valor_minimo,
             'apertura': valor_apertura,
-            'cierre': valor_cierre,
-            
+            'cierre': valor_cierre,            
         }
         
         return valores_cotizacion
 
     dolar_dia = cotizacion_dia()
-
+   
     context = {
         'form': form,
         'rubros_acumulados': rubros,
@@ -215,10 +187,9 @@ def home(request):
         'valores_dolar': valores_dolar, 
         'fechas_dolar' :fechas_dolar, 
         'dolar_dia': dolar_dia, 
-        
+    
     }
-    print(dolar_dia)
-
+    
     return render(request, 'index.html', context)
 
 @login_required
@@ -1163,9 +1134,7 @@ def vista_lluvia(request):
     #         #print(registros_filtrados)
     #     else:
     #         # Si no se proporciona un campo, obtener todos los registros
-    #         registros_filtrados = RegistroLluvia.objects.all()
-
-    
+    #         registros_filtrados = RegistroLluvia.objects.all()   
 
     
 # @login_required
@@ -1190,4 +1159,111 @@ def vista_lluvia(request):
 #             form = DepositoForm(instance = depo)
 #         return render(request, 'vista_deposito.html', {'form': form, 'empresa': empresa, 'depositos':depositos, 'modificacion': 'S'})
 #     else:
-#         return redirect('vista_comprobantes')     
+#         return redirect('vista_comprobantes')
+# 
+
+
+def vista_meteorologia(request):
+    # Clave API personal y datos de ubicación
+    api_key = '7ece8d9ba9376a304069fdb5daa34ec4'
+    latitud = -34
+    longitud = -58
+
+    
+
+    # Función para obtener la información actual del tiempo
+    def tiempo_now():
+        link = f"https://api.openweathermap.org/data/2.5/onecall?lat={latitud}&lon={longitud}&appid={api_key}&lang=pt_br"
+
+        info = requests.get(link)
+        info_dic = info.json()
+        datos_actualidad = info_dic['current']
+        temp_actual_k = datos_actualidad['temp']
+        temp_actual_c = temp_actual_k - 273.15
+        humedad = datos_actualidad['humidity']
+        presion = datos_actualidad['pressure']
+        velocidad_viento_ms = datos_actualidad['wind_speed']
+        velocidad_viento_kh = velocidad_viento_ms * 3.6
+        rafagas_ms = datos_actualidad['wind_gust']
+        rafagas_kh = rafagas_ms * 3.6
+        amanecer = datos_actualidad['sunrise']
+        puesta_de_sol = datos_actualidad['sunset']
+        duracion_luz_segundos = puesta_de_sol - amanecer
+        duracion_luz_horas = duracion_luz_segundos / 3600
+        descripcion = datos_actualidad['weather'][0]['description']
+        icono = f"https://openweathermap.org/img/wn/{datos_actualidad['weather'][0]['icon']}.png"
+
+        tiempo_actual = {
+            'temp_actual': temp_actual_c,
+            'humedad': humedad,
+            'presion': presion,
+            'velocidad_viento': velocidad_viento_kh,
+            'rafagas': rafagas_kh,
+            'duracion_dia': duracion_luz_horas,
+            'descripcion': descripcion,
+            'icono': icono,
+        }
+
+        return tiempo_actual
+
+    # Llama a tu función para obtener la información actual del tiempo
+    tiempo_actual = tiempo_now()
+
+         
+    def pronostico_tiempo():
+    # Consulta la API para obtener el pronóstico del tiempo
+        url = f"https://api.openweathermap.org/data/3.0/onecall?lat={latitud}&lon={longitud}&appid={api_key}"
+        response = requests.get(url)
+        datos_pronostico = response.json()
+
+        # Procesa los datos del pronóstico diario
+        daily_forecast = datos_pronostico['daily']
+
+        pronostico = []
+
+        for day_data in daily_forecast:
+            timestamp = day_data['dt']
+            date = datetime.datetime.utcfromtimestamp(timestamp).strftime('%A %d/%m')
+            max_temp = day_data['temp']['max'] - 273.15
+            min_temp = day_data['temp']['min']- 273.15
+            description = day_data['weather'][0]['description']
+            icon_code = day_data['weather'][0]['icon']
+            icon_url = f"http://openweathermap.org/img/wn/{icon_code}.png"                  
+            pressure = day_data['pressure'] 
+            humidity = day_data['humidity']        
+            wind_speed = day_data['wind_speed']
+            wind_deg = day_data['wind_deg']
+            wind_gust = day_data['wind_gust']
+            weather_description = day_data['weather'][0]['description']
+
+            pronostico.append({
+                'date': date,
+                'max_temp': max_temp,
+                'min_temp': min_temp,
+                'description': description,
+                'icon_url': icon_url,                
+                'pressure': pressure,
+                'humidity': humidity,                
+                'wind_speed': wind_speed,
+                'wind_deg': wind_deg,
+                'wind_gust': wind_gust,
+                'weather_description': weather_description,
+            })
+
+        return pronostico
+        
+    pronostico=pronostico_tiempo()
+    print(pronostico)
+
+    context = {
+        #'pronostico': datos_meteorologicos,
+        'tiempo_actual': tiempo_actual,  # Asegúrate de tener esta variable definida o reemplázala con los datos que desees mostrar
+        'pronostico' :   pronostico,
+    }
+
+    return render(request, 'vista_meteorologia.html', context)  
+
+            
+       
+
+    
