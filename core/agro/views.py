@@ -1217,24 +1217,24 @@ def vista_meteorologia(request):
         datos_pronostico = response.json()
 
         # Procesa los datos del pronóstico diario
-        daily_forecast = datos_pronostico['daily']
+        pronostico_dias = datos_pronostico['daily']
 
         pronostico = []
 
-        for day_data in daily_forecast:
-            timestamp = day_data['dt']
-            date = datetime.datetime.utcfromtimestamp(timestamp).strftime('%A %d/%m')
-            max_temp = day_data['temp']['max'] - 273.15
-            min_temp = day_data['temp']['min']- 273.15
-            description = day_data['weather'][0]['description']
-            icon_code = day_data['weather'][0]['icon']
+        for datos_dia in pronostico_dias:
+            timestamp = datos_dia['dt']
+            date = datetime.datetime.utcfromtimestamp(timestamp).strftime('%A %d/%m')# no entiendo por que el datetime.datetime
+            max_temp = datos_dia['temp']['max'] - 273.15
+            min_temp = datos_dia['temp']['min']- 273.15
+            description = datos_dia['weather'][0]['description']
+            icon_code = datos_dia['weather'][0]['icon']
             icon_url = f"http://openweathermap.org/img/wn/{icon_code}.png"                  
-            pressure = day_data['pressure'] 
-            humidity = day_data['humidity']        
-            wind_speed = day_data['wind_speed']
-            wind_deg = day_data['wind_deg']
-            wind_gust = day_data['wind_gust']
-            weather_description = day_data['weather'][0]['description']
+            pressure = datos_dia['pressure'] 
+            humidity = datos_dia['humidity']        
+            wind_speed = datos_dia['wind_speed']
+            wind_deg = datos_dia['wind_deg']
+            wind_gust = datos_dia['wind_gust']
+            weather_description = datos_dia['weather'][0]['description']
 
             pronostico.append({
                 'date': date,
