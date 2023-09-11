@@ -17,8 +17,8 @@
         {{ form.non_field_errors }}
         <div class="form-group">
           <label for="id_descripcion">Descripcion</label>
-          {{form.nombre}}
-          {{form.nombre.erros}}
+          {{form.descripcion}}
+          {{form.descripcion.erros}}
         </div>
         {% if modificacion %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
@@ -54,7 +54,7 @@
             {% for rubro in rubros %}
                 <tr>
                     <td>
-                    <a href="/02-rubro/{{rubro.id}}">{{rubro.nombre}}</a> 
+                    <a href="/02-rubro/{{rubro.id}}">{{rubro.descripcion}}</a> 
                     </td>
                 </tr>
             {% endfor %}

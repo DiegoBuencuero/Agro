@@ -21,6 +21,7 @@ from .tokens import account_activation_token
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import agro_Etapa, Deposito, models, RegistroLluvia, Trazabilidad, Actividad, EstadoLote
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
+from .models import Prod, TipoProd, RubroProd, ClaseProd
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
 from .forms import FormAsignacionEtapaCosto, DepositoForm, RegLluviaCargaForm
@@ -418,7 +419,7 @@ def editar_tipo_producto(request, id_tipo):
 
 @login_required
 def vista_rubro_producto(request):
-    rubros = Rubro.objects.filter(empresa = request.user.profile.empresa)
+    rubros = RubroProd.objects.filter(empresa = request.user.profile.empresa)
     empresa = request.user.profile.empresa
     if request.method == 'POST':
         form = RubroProdForm(request.POST)
@@ -433,9 +434,9 @@ def vista_rubro_producto(request):
 
 @login_required
 def editar_rubro_producto(request, id_rubro):
-    rubros = Rubro.objects.filter(empresa = request.user.profile.empresa)
+    rubros = RubroProd.objects.filter(empresa = request.user.profile.empresa)
     try:
-        rubro = Rubro.objects.get(id = id_rubro)
+        rubro = RubroProd.objects.get(id = id_rubro)
     except:
         return redirect('vista_rubro_producto')
     empresa = request.user.profile.empresa
@@ -457,17 +458,16 @@ def editar_rubro_producto(request, id_rubro):
 
 @login_required
 def vista_producto(request):
-    productos = Producto.objects.filter(empresa = request.user.profile.empresa)
+    productos = Prod.objects.filter()
     empresa = request.user.profile.empresa
     if request.method == 'POST':
-        form = ProductoForm(empresa, request.POST, request.FILES)
+        form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
             producto = form.save(commit=False)
-            producto.empresa = empresa
             producto.save()
-            form = ProductoForm(empresa)
+            form = ProductoForm()
     else:
-        form = ProductoForm(empresa)
+        form = ProductoForm()
     return render(request, 'vista_producto.html', {'form': form, 'productos': productos, 'empresa': empresa })
 
 

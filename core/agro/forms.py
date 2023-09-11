@@ -2,10 +2,11 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User  
 from django.forms import ModelForm
-from .models import Pais, Profile, Campo, Lote, Producto, Tipo, Rubro, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
+from .models import Pais, Profile, Campo, Lote, Producto, Tipo, RubroProd, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com, Num
 from .models import Deposito, RegistroLluvia
+from .models import Prod
 from string import Template
 from datetime import datetime
     
@@ -103,14 +104,12 @@ class LoteForm(BaseForm):
 
 
 class ProductoForm(BaseForm):
-    def __init__(self,company,*args,**kwargs):
+    def __init__(self,*args,**kwargs):
         super (ProductoForm,self ).__init__(*args,**kwargs) # populates the post
-        self.fields['tipo'].queryset = Tipo.objects.filter(empresa=company)
-        self.fields['rubro'].queryset = Rubro.objects.filter(empresa=company)
     class Meta:
-        model = Producto
+        model = Prod
         fields = '__all__'
-        exclude = ['empresa', 'add_date']
+        exclude = [ 'add_date']
 
 class TipoProdForm(BaseForm):
     class Meta:
@@ -120,7 +119,7 @@ class TipoProdForm(BaseForm):
 
 class RubroProdForm(BaseForm):
     class Meta:
-        model = Rubro
+        model = RubroProd
         fields = '__all__'
         exclude = ['empresa', ]        
 

@@ -16,15 +16,6 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Codigo</label>
-              <div class="col-sm-9">
-                {{form.codigo}}
-                {{form.codigo.errors}}
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group row">
               <label class="col-sm-3 col-form-label">Descripcion</label>
               <div class="col-sm-9">
                 {{form.descripcion}}
@@ -32,7 +23,36 @@
               </div>
             </div>
           </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Observaciones</label>
+              <div class="col-sm-9">
+                {{form.observaciones}}
+                {{form.observaciones.errors}}
+              </div>
+            </div>
+          </div>
         </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Especificacion</label>
+              <div class="col-sm-9">
+                {{form.especificacion}}
+                {{form.especificacion.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label"></label>
+              <div class="col-sm-9">
+              </div>
+            </div>
+          </div>
+      </div>
+
 
         <div class="row">
             <div class="col-md-6">
@@ -46,10 +66,10 @@
             </div>
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Rubro</label>
+                <label class="col-sm-3 col-form-label">Clase</label>
                 <div class="col-sm-9">
-                    {{form.rubro}}
-                    {{form.rubro.errors}}
+                    {{form.clase}}
+                    {{form.clase.errors}}
                 </div>
               </div>
             </div>

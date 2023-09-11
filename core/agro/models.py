@@ -255,6 +255,41 @@ class Producto(models.Model):
     um = models.ForeignKey(UM, on_delete=models.CASCADE)
     add_date = models.DateTimeField(default=timezone.now)
 
+class TipoProd(models.Model):
+    def __str__(self):
+        return self.descripcion
+    descripcion = models.CharField(max_length=100)
+
+class RubroProd(models.Model):
+    def __str__(self):
+        return self.descripcion
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    descripcion = models.CharField(max_length=100)
+
+class ClaseProd(models.Model):
+    def __str__(self):
+        return self.descripcion
+    codigo = models.CharField(max_length=1, choices=[('I', 'Insumo'), ('P', 'Producto venta')])
+    descripcion = models.CharField(max_length=100)
+
+class Prod(models.Model):
+    descripcion = models.CharField(max_length=100)
+    observaciones = models.TextField()
+    clase = models.ForeignKey(ClaseProd, on_delete=models.CASCADE)
+    tipo = models.ForeignKey(TipoProd, on_delete=models.CASCADE)
+    especificacion = models.CharField(max_length=80, default='')
+    image = models.ImageField(default='default.jpg', upload_to='lotes')
+    status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ], default='O')
+    um = models.ForeignKey(UM, on_delete=models.CASCADE)
+    add_date = models.DateTimeField(default=timezone.now)
+
+class Prod_Conf(models.Model):
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    producto = models.ForeignKey(Prod, on_delete=models.CASCADE)
+    stock = models.CharField(max_length=1, choices=[('S', 'Si'), ('N', 'No')], default = 'N')
+    rubro = models.ForeignKey(RubroProd, on_delete=models.CASCADE)
+    descripcion = models.CharField(max_length=100, default='')
+    especificacion = models.CharField(max_length=80, default='')
 
 class Tipo(models.Model):
     class Meta:
