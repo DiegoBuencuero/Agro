@@ -1,6 +1,6 @@
 from django.urls import path
 from agro.views import home, login_page, signup, activate, personal_details, ChangePassword, vista_campos, editar_campos, vista_lotes, editar_lote
-from agro.views import vista_producto, vista_tipo_producto, editar_producto, editar_tipo_producto, vista_rubro_producto, editar_rubro_producto
+from agro.views import vista_producto, editar_producto, vista_rubro_producto, editar_rubro_producto
 from agro.views import vista_costo_prod, editar_costo_prod, ajax_get_costo, load_costo_agro, ajax_get_espec, editar_costo_prod_linea
 from agro.views import vista_campana, editar_campana, vista_planificacion, editar_planificacion, vista_planificacion_lote
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_planificacion_etapas_reset
@@ -9,6 +9,8 @@ from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_e
 from agro.views_leo import vista_trazabilidad, editar_trazabilidad, vista_contactos, editar_contacto
 from agro.views_leo import vista_estado_lote, vista_asign_lote, ajax_get_planificacion
 from agro.views_leo import vista_lote_trazabilidad, vista_trazabilidad_lote, ajax_get_prods_actividad
+from agro.views_leo import vista_conf_producto, editar_conf_producto
+
 url_leo = [
 
     path('01/', vista_campos, name='vista_campos'),
@@ -17,8 +19,8 @@ url_leo = [
     path('0101/<int:id_lote>', editar_lote, name='editar_lote'),
     path('02/', vista_producto, name='vista_producto'),
     path('02/<int:id_prod>', editar_producto, name='editar_producto'),
-    path('02-tipo/', vista_tipo_producto, name='vista_tipo_producto'),
-    path('02-tipo/<int:id_tipo>', editar_tipo_producto, name='editar_tipo_producto'),
+    path('02-conf/', vista_conf_producto, name='vista_conf_producto'),
+    path('02-conf/<int:id_prod>', editar_conf_producto, name='editar_conf_producto'),
     path('02-rubro/', vista_rubro_producto, name='vista_rubro_producto'),
     path('02-rubro/<int:id_rubro>', editar_rubro_producto, name='editar_rubro_producto'),
     path('03/', vista_costo_prod, name='vista_costo_prod'),

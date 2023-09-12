@@ -1,7 +1,8 @@
 from django import forms  
 from .forms import BaseForm
-from .models import Trazabilidad, agro_Producto, Producto, Especificacion_tipo, Campo, Lote
-from .models import Contactos, agro_CategoriaContacto, EstadoLote, Planificacion_cultivo
+from .models import Trazabilidad, agro_Producto, Producto, Especificacion_tipo, RubroProd
+from .models import Contactos, EstadoLote, Planificacion_cultivo
+from .models import Prod_Conf
 from datetime import datetime
 
 class TrazabilidadForm(BaseForm):
@@ -52,3 +53,14 @@ class EstadoLoteForm(BaseForm):
                 'fecha_desde': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
                 'fecha_hasta': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
+
+
+
+class ProdConfForm(BaseForm):
+    def __init__(self, company, *args,**kwargs):
+        super (ProdConfForm,self ).__init__(*args,**kwargs)
+        self.fields['rubro'].queryset = RubroProd.objects.filter(empresa = company)
+    class Meta:
+        model = Prod_Conf
+        fields = '__all__'
+        exclude = ['empresa']

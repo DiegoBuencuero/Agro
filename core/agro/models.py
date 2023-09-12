@@ -273,8 +273,10 @@ class ClaseProd(models.Model):
     descripcion = models.CharField(max_length=100)
 
 class Prod(models.Model):
+    def __str__(self):
+        return self.descripcion
     descripcion = models.CharField(max_length=100)
-    observaciones = models.TextField()
+    observaciones = models.TextField(blank=True, default='')
     clase = models.ForeignKey(ClaseProd, on_delete=models.CASCADE)
     tipo = models.ForeignKey(TipoProd, on_delete=models.CASCADE)
     especificacion = models.CharField(max_length=80, default='')
@@ -288,8 +290,8 @@ class Prod_Conf(models.Model):
     producto = models.ForeignKey(Prod, on_delete=models.CASCADE)
     stock = models.CharField(max_length=1, choices=[('S', 'Si'), ('N', 'No')], default = 'N')
     rubro = models.ForeignKey(RubroProd, on_delete=models.CASCADE)
-    descripcion = models.CharField(max_length=100, default='')
-    especificacion = models.CharField(max_length=80, default='')
+    descripcion = models.CharField(max_length=100, default='', blank=True)
+    especificacion = models.CharField(max_length=80, default='', blank=True)
 
 class Tipo(models.Model):
     class Meta:

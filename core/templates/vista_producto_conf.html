@@ -11,8 +11,29 @@
       <form class="form-sample" method='post' enctype="multipart/form-data">
         {% csrf_token %}
         <p class="card-description">
-          Informacion general
+          Configuracion del producto
         </p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Producto</label>
+              <div class="col-sm-9">
+                {{form.producto}}
+                {{form.producto.errors}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Stock</label>
+              <div class="col-sm-9">
+                {{form.stock}}
+                {{form.stock.errors}}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
@@ -25,29 +46,10 @@
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Observaciones</label>
+              <label class="col-sm-3 col-form-label">Rubro</label>
               <div class="col-sm-9">
-                {{form.observaciones}}
-                {{form.observaciones.errors}}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Especificacion</label>
-              <div class="col-sm-9">
-                {{form.especificacion}}
-                {{form.especificacion.errors}}
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label"></label>
-              <div class="col-sm-9">
+                {{form.rubro}}
+                {{form.rubro.errors}}
               </div>
             </div>
           </div>
@@ -57,68 +59,21 @@
         <div class="row">
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Tipo</label>
+                <label class="col-sm-3 col-form-label">Especificacion</label>
                 <div class="col-sm-9">
-                  {{form.tipo}}
-                  {{form.tipo.errors}}
+                  {{form.especificacion}}
+                  {{form.especificacion.errors}}
                 </div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Clase</label>
+                <label class="col-sm-3 col-form-label"></label>
                 <div class="col-sm-9">
-                    {{form.clase}}
-                    {{form.clase.errors}}
                 </div>
               </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Imagen</label>
-                <div class="col-sm-9">
-                  {{form.image}}
-                  {{form.image.erros}}
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Vista previa</label>
-                <div class="col-sm-9">
-                    <div class='card'>
-                      {% if modificacion %}
-                        <img id= 'id_preview' src={{prod.image.url}} alt="">
-                      {% else %}
-                        <img id= 'id_preview' src="" alt="">
-                        {% endif %}
-                      </div>
-                </div>
-              </div>
-            </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Status</label>
-              <div class="col-sm-9">
-                {{form.status}}
-                {{form.status.errors}}
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Unidad de medida</label>
-              <div class="col-sm-9">
-                {{form.um}}
-                {{form.um.errors}}
-              </div>
-            </div>
-          </div>
-      </div>
 
   
         {% if modificacion %}
@@ -152,7 +107,7 @@
                   Descripcion
                 </th>
                 <th>
-                  Tipo
+                  Stock
                 </th>
                 <th>
                   Rubro
@@ -163,13 +118,17 @@
                 {% for producto in productos %}
                     <tr>
                         <td class="py-1">
-                        <img src={{producto.image.url}} alt="image"/>
+                        <img src={{producto.producto.image.url}} alt="image"/>
                         </td>
                         <td>
-                        <a href="/02/{{producto.id}}">{{producto.descripcion}}</a> 
+                            {% if producto.descripcion %}
+                            <a href="/02-conf/{{producto.id}}">{{producto.descripcion}}</a> 
+                            {% else %}
+                            <a href="/02-conf/{{producto.id}}">Descripcion original</a> 
+                            {% endif %}
                         </td>
                         <td>
-                          {{producto.tipo}}
+                          {{producto.stock}}
                         </td>
                         <td>
                         {{producto.rubro}}
@@ -182,26 +141,6 @@
       </div>
     </div>
   </div>
-  <script type="text/javascript">
-    const archivo = document.getElementById("id_image");
-    const preview = document.getElementById("id_preview");
-    archivo.addEventListener("change", function() { 
-        getImgData();
-    });
-    function getImgData() {
-        const files = archivo.files[0];
-        if (files) {
-          const fileReader = new FileReader();
-          fileReader.readAsDataURL(files);
-          fileReader.addEventListener("load", function () {
-            preview.src = this.result;
-            {% comment %} preview.style.display = "block";
-            preview.innerHTML = '<img src="' + this.result + '" />'; {% endcomment %}
-          });    
-        }
-      }        
-</script>
-
 {% endblock %}
 {% block nav %}
 {% include 'nav_home.html' %}

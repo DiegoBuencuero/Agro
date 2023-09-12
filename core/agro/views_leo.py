@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Trazabilidad, Lote, Especificacion_tipo, Mov, Com, Deposito, Contactos
 from .models import Campo, EstadoLote, Planificacion_cultivo, Actividad
-from .forms_leo import TrazabilidadForm, ContactoForm, EstadoLoteForm, agro_Producto, Producto
+from .models import Prod_Conf
+from .forms_leo import TrazabilidadForm, ContactoForm, EstadoLoteForm, agro_Producto, Producto, ProdConfForm
 from .views import get_producto
 from datetime import datetime
 from django.http import HttpResponse, JsonResponse
@@ -251,47 +252,6 @@ def vista_trazabilidad_lote(request, id_estado):
         form = TrazabilidadForm(empresa)
     return render(request, 'vista_trazabilidad.html', {'trazabilidades': traza_list, 'form': form, 'estado_lote': estado, 'empresa': empresa })
 
-# @login_required
-# def editar_trazabilidad_lote(request, id_traza):
-#     empresa = request.user.profile.empresa
-#     traza_list = get_traza_list(empresa)
-#     try:
-#         trazabilidad = Trazabilidad.objects.get(id = id_traza)
-#     except:
-#         return redirect('vista_trazabilidad')
-#     if trazabilidad.empresa == empresa:
-#         if request.method == 'POST':
-#             form = TrazabilidadForm(request.POST, instance = trazabilidad)
-#             if form.is_valid():
-#                 traz = form.save(commit=False)
-#                 if request.POST.get('borrar') == '':
-#                     traz.delete()
-#                 else:
-#                     try:
-#                         traz.lote = Lote.objects.get(id = form.cleaned_data['lote_campo'])
-#                         traz.origen_prod = form.cleaned_data['producto'][0:1]
-#                         traz.producto_id = int(form.cleaned_data['producto'][1:])
-#                         try:
-#                             traz.especificacion = Especificacion_tipo.objects.get(id = form.cleaned_data['espec'])
-#                             traz.save()
-#                             traza_list = get_traza_list(empresa)
-#                             return redirect('vista_planificacion')
-#                         except:
-#                             form.add_error('espec', 'Error inesperado, la especificacion no existe')
-#                     except:
-#                         form.add_error('lote_campo', 'Error inesperado, el lote no existe')
-#         else:
-#             initial_data = {
-#                 'producto': trazabilidad.origen_prod + str(trazabilidad.producto_id),
-#                 'espec': trazabilidad.especificacion,
-#                 'campo': trazabilidad.lote.campo.id,
-#                 'lote_campo': trazabilidad.lote,
-#             }
-#             form = TrazabilidadForm(empresa, initial = initial_data, instance = trazabilidad)
-#         return render(request, 'vista_trazabilidad.html', {'form': form, 'empresa': empresa, 'trazabilidades':traza_list, 'modificacion': 'S'})
-#     else:
-#         return redirect('vista_trazabilidad')
-
 def ajax_get_prods_actividad(request):
     actividad_id = request.GET.get('actividad')
     actividad = Actividad.objects.get(id = actividad_id)
@@ -351,3 +311,40 @@ def editar_trazabilidad(request, id_traza):
         return render(request, 'vista_trazabilidad.html', {'form': form, 'empresa': empresa, 'trazabilidades':traza_list, 'modificacion': 'S'})
     else:
         return redirect('vista_trazabilidad')
+
+
+@login_required
+def vista_conf_producto(request):
+    empresa = request.user.profile.empresa
+    productos = Prod_Conf.objects.filter(empresa = empresa)
+    if request.method == 'POST':
+        form = ProdConfForm(empresa, request.POST, request.FILES)
+        if form.is_valid():
+            producto = form.save(commit=False)
+            producto.empresa = empresa
+            producto.save()
+            form = ProdConfForm(empresa)
+    else:
+        form = ProdConfForm(empresa)
+    return render(request, 'vista_producto_conf.html', {'form': form, 'productos': productos, 'empresa': empresa })
+
+@login_required
+def editar_conf_producto(request, id_prod):
+    empresa = request.user.profile.empresa
+    productos = Prod_Conf.objects.filter(empresa = empresa)
+    try:
+        producto = Prod_Conf.objects.get(id = id_prod)
+    except:
+        return redirect('vista_conf_producto')
+    if request.method == 'POST':
+        form = ProdConfForm( empresa, request.POST, request.FILES, instance = producto)
+        if form.is_valid():
+            producto = form.save(commit=False)
+            if request.POST.get('borrar') == '':
+                producto.delete()
+            else:
+                producto.save()
+            return redirect('vista_conf_producto')
+    else:
+        form = ProdConfForm(empresa, instance = producto)
+    return render(request, 'vista_producto_conf.html', {'form': form, 'empresa': empresa, 'productos':productos, 'prod':producto, 'modificacion': 'S'})
