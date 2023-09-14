@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Profile, Pais, Provincia, Ciudad, Tipodoc, Nacionalidad, Empresa, Genero, Campo, Tipo, Rubro, Cultivo, SistemaCultivo
 from .models import Especificacion, UM, Moneda, agro_CostoProd, agro_CostoProdo, agro_Producto, agro_TipoProd, agro_RubroProd, Especificacion_tipo
 from .models import CostoProd, CostoProdo, Producto, agro_Etapa, Lote, Planificacion_etapas, Actividad
-from .models import Com, Num, RegistroLluvia, agro_CategoriaContacto, EstadoLote, Trazabilidad
+from .models import Com, Num, RegistroLluvia, agro_CategoriaContacto, EstadoLote, TrazaLote, TrazaLoteItem
 from .models import Prod, TipoProd, RubroProd, ClaseProd
 # Register your models here.
 
@@ -40,7 +40,8 @@ admin.site.register(RegistroLluvia)
 admin.site.register(agro_CategoriaContacto)
 admin.site.register(Actividad)
 admin.site.register(EstadoLote)
-admin.site.register(Trazabilidad)
+admin.site.register(TrazaLote)
+admin.site.register(TrazaLoteItem)
 admin.site.register(Prod)
 admin.site.register(RubroProd)
 admin.site.register(TipoProd)

@@ -41,86 +41,21 @@
         <div class="row">
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Producto</label>
+                <label class="col-sm-3 col-form-label">Observaciones</label>
                 <div class="col-sm-9">
-                  {{form.producto}}
-                  {{form.producto.errors}}
+                  {{form.observaciones}}
+                  {{form.observaciones.errors}}
                 </div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Especificacion</label>
+                <label class="col-sm-3 col-form-label"></label>
                 <div class="col-sm-9">
-                    {{form.espec}}
-                    {{form.espec.errors}}
                   </div>
               </div>
             </div>
         </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Cantidad</label>
-              <div class="col-sm-9">
-                {{form.cantidad}}
-                {{form.cantidad.errors}}
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">UM</label>
-              <div class="col-sm-9">
-                {{form.unidad_medida}}
-                {{form.unidad_medida.errors}}
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Precio Unitario</label>
-              <div class="col-sm-9">
-                {{form.precio_unitario}}
-                {{form.precio_unitario.errors}}
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Uso futuro</label>
-              <div class="col-sm-9">
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="row">
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Moneda</label>
-                <div class="col-sm-9">
-                  {{form.moneda}}
-                  {{form.moneda.errors}}
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Cotizacion</label>
-                <div class="col-sm-9">
-                    {{form.cotizacion}}
-                    {{form.cotizacion.errors}}
-                </div>
-              </div>
-            </div>
-        </div>
-  
   
         {% if modificacion %}
         <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
@@ -129,56 +64,97 @@
         <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
         {% endif %}
         <button type='button' class="btn btn-dark" onclick="window.location.href='/trazabilidad';">Cancel</button>
+        <button type='button' id="add_form" class="btn btn-warning" >+ items</button>
 
+        {{ traza_lote_item_formset.management_form }}
+        <div class="col-lg-12 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Productos</h4>
+              <p class="card-description">
+                {{empresa.nombre}}
+              </p>
+              <div class="table-responsive">
+                <table id= 'tabla-items' class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>
+                        Orden
+                      </th>
+                      <th>
+                        Producto
+                      </th>
+                      <th>
+                        Especificacion
+                      </th>
+                      <th>
+                        Cantidad
+                      </th>
+                      <th>
+                        UM
+                      </th>
+                      <th>
+                        Precio
+                      </th>
+                      <th>
+                        Moneda
+                      </th>
+                      <th>
+                        Cotizacion
+                      </th>
+                      <th>
+                      </th>
+                      
+                    </tr>
+                  </thead>
+                  <tbody id='formset'>
+                      {% for form2 in traza_lote_item_formset %}
+                          <tr>
+                              <td>
+                                {{form2.o}}
+                              </td>
+                              <td>
+                                {{form2.producto}}
+                                {{form2.producto.errors}}
+                              </td>
+                              <td>
+                                {{form2.especificacion}}
+                              </td>
+                              <td>
+                                {{form2.cantidad}}
+                              </td>
+                              <td>
+                                {{form2.unidad_medida}}
+                              </td>
+                              <td>
+                                {{form2.precio_unitario}}
+                              </td>
+                              <td>
+                                {{form2.moneda}}
+                              </td>
+                              <td>
+                                {{form2.cotizacion}}
+                              </td>
+                              <td>
+                                  <i class="ti-close" onclick='eliminar();'></i>
+                              </td>
+                          </tr>
+                      {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>        
       </form>
 
     </div>
   </div>
 </div>
-<div class="col-lg-12 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title">Trazabilidad</h4>
-        <p class="card-description">
-          {{empresa.nombre}}
-        </p>
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>
-                  Actividad
-                </th>
-                <th>
-                  Producto
-                </th>
-                <th>
-                  Cantidad
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-                {% for traza in trazabilidades %}
-                    <tr>
-                        <td>
-                          <a href="/trazabilidad/{{traza.id}}">{{traza.actividad}}</a>
-                        </td>
-                        <td>
-                            {{traza.producto}}
-                        </td>
-                        <td>
-                            {{traza.cantidad}}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script type="text/javascript">
-    window.addEventListener('load', async() => {
+    {% comment %} window.addEventListener('load', async() => {
       id_actividad.addEventListener("change", async() => {
         load_productos("{% url 'ajax_get_prods_actividad' %}", id_actividad.value);
       });
@@ -216,9 +192,34 @@
         });
   
       }
+    } {% endcomment %}
+    $(document).ready(function() {
+      let formset = $('#formset');
+      let addButton = $('#add_form');
+      let totalForms = $('#id_traza_lote_item-TOTAL_FORMS');
+      let formCount = formset.children().length;
+  
+      addButton.click(function() {
+        let newForm = formset.children().first().clone();
+        newForm.find(':input').each(function() {
+          let name = $(this).attr('name').replace('-0-', '-' + formCount + '-');
+          let id = 'id_' + name;
+          $(this).attr({'name': name, 'id': id}).val('').removeAttr('value');
+        });
+        formCount++;
+        totalForms.val(formCount);
+        formset.append(newForm);
+      });
+    });
+    function eliminar() {
+      let formset = $('#formset');
+      let totalForms = $('#id_traza_lote_item-TOTAL_FORMS');
+      let formCount = formset.children().length;
+      $(this).closest('.form-item').remove();
+      formCount--;
+      totalForms.val(formCount);
     }
 </script>
-
 {% endblock %}
 {% block nav %}
 {% include 'nav_home.html' %}

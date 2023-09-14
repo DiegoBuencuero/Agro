@@ -71,7 +71,7 @@ class Empresa(models.Model):
     cuit = models.CharField(max_length=50)
     status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ('S', 'Suspendido'), ], default='O')
     add_date = models.DateTimeField(default=timezone.now)
-    moneda = models.ForeignKey(Moneda, null=True, blank=True, on_delete=models.CASCADE)
+    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE)
     
 
 
@@ -158,6 +158,30 @@ class EstadoLote(models.Model):
     fecha_desde = models.DateField(default=timezone.now) 
     fecha_hasta = models.DateField(default=timezone.now)
     estado = models.CharField(max_length=1, choices=[('A', 'Abierto'), ('C', 'Cerrado')], default='A')
+
+
+class TrazaLote(models.Model):
+    class Meta:
+        pass
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
+    estado_lote = models.ForeignKey("EstadoLote", on_delete=models.CASCADE, null=True, blank=True)
+    fecha = models.DateField(default=timezone.now)
+    actividad = models.ForeignKey("Actividad", on_delete=models.CASCADE) 
+    observaciones = models.TextField()
+    perfil = models.ForeignKey("Profile", on_delete=models.CASCADE)
+
+class TrazaLoteItem(models.Model):
+    class Meta:
+        pass
+    trazalote = models.ForeignKey(TrazaLote, on_delete=models.CASCADE)
+    o = models.IntegerField()
+    producto = models.ForeignKey("Prod", on_delete=models.CASCADE)
+    especificacion = models.CharField(max_length=80, default='')
+    cantidad = models.DecimalField(max_digits=6, decimal_places=2)
+    moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, blank=True) 
+    cotizacion = models.DecimalField(max_digits=12, decimal_places=3, default=1)
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
+    unidad_medida = models.ForeignKey("UM", on_delete=models.CASCADE) 
 
 class Trazabilidad(models.Model):
     class Meta:

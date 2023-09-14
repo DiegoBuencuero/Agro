@@ -6,7 +6,7 @@ from agro.views import vista_campana, editar_campana, vista_planificacion, edita
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_planificacion_etapas_reset
 from agro.views import vista_comprobantes
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas
-from agro.views_leo import vista_trazabilidad, editar_trazabilidad, vista_contactos, editar_contacto
+from agro.views_leo import editar_trazabilidad, vista_contactos, editar_contacto
 from agro.views_leo import vista_estado_lote, vista_asign_lote, ajax_get_planificacion
 from agro.views_leo import vista_lote_trazabilidad, vista_trazabilidad_lote, ajax_get_prods_actividad
 from agro.views_leo import vista_conf_producto, editar_conf_producto
