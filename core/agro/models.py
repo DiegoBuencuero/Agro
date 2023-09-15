@@ -303,7 +303,7 @@ class Prod(models.Model):
     observaciones = models.TextField(blank=True, default='')
     clase = models.ForeignKey(ClaseProd, on_delete=models.CASCADE)
     tipo = models.ForeignKey(TipoProd, on_delete=models.CASCADE)
-    especificacion = models.CharField(max_length=80, default='')
+    especificacion = models.CharField(max_length=80, default='', null=True, blank=True)
     image = models.ImageField(default='default.jpg', upload_to='lotes')
     status = models.CharField(max_length=1, choices=[('O', 'Ok'), ('B', 'Baja'), ], default='O')
     um = models.ForeignKey(UM, on_delete=models.CASCADE)
@@ -316,6 +316,9 @@ class Prod_Conf(models.Model):
     rubro = models.ForeignKey(RubroProd, on_delete=models.CASCADE)
     descripcion = models.CharField(max_length=100, default='', blank=True)
     especificacion = models.CharField(max_length=80, default='', blank=True)
+    tipo = models.ForeignKey(TipoProd, on_delete=models.CASCADE, null=True, blank=True)
+    um = models.ForeignKey(UM, on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField(default='default.jpg', upload_to='lotes', null=True, blank=True)
 
 class Tipo(models.Model):
     class Meta:

@@ -6,10 +6,10 @@ from agro.views import vista_campana, editar_campana, vista_planificacion, edita
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas, vista_planificacion_etapas_reset
 from agro.views import vista_comprobantes
 from agro.views import ajax_get_lote, vista_lote_eliminar, vista_planificacion_etapas
-from agro.views_leo import editar_trazabilidad, vista_contactos, editar_contacto
+from agro.views_leo import  vista_contactos, editar_contacto
 from agro.views_leo import vista_estado_lote, vista_asign_lote, ajax_get_planificacion
 from agro.views_leo import vista_lote_trazabilidad, vista_trazabilidad_lote, ajax_get_prods_actividad
-from agro.views_leo import vista_conf_producto, editar_conf_producto
+from agro.views_leo import vista_conf_producto, editar_conf_producto, vista_resumen_trazabilidad
 
 url_leo = [
 
@@ -39,14 +39,14 @@ url_leo = [
     path('05-3/<int:id_plani>', vista_planificacion_etapas, name='vista_planificacion_etapas'),
     path('05-3-reset/<int:id_plani>', vista_planificacion_etapas_reset, name='vista_planificacion_etapas_reset'),
     path('07/', vista_comprobantes, name='vista_comprobantes'),
-    path('trazabilidad/<int:id_traza>', editar_trazabilidad, name='editar_trazabilidad'),
     path('general/contactos/', vista_contactos, name='vista_contactos'),
     path('general/contacto/<int:id_contacto>', editar_contacto, name='editar_contacto'),
     path('estado-lote', vista_estado_lote, name='vista_estado_lote'),
     path('asign-lote/<int:id_lote>', vista_asign_lote, name='vista_asign_lote'),
     path('statuslote', ajax_get_planificacion, name = 'ajax_get_planificacion'),
-    path('traza-lote/<int:id_estado>', vista_trazabilidad_lote, name='vista_trazabilidad_lote'),
+    path('add-traza-lote/<int:id_estado>', vista_trazabilidad_lote, name='vista_trazabilidad_lote'),
     path('99-getprods', ajax_get_prods_actividad, name = 'ajax_get_prods_actividad'),
-    path('trazabilidad/', vista_lote_trazabilidad, name = 'vista_trazabilidad')
+    path('trazabilidad/', vista_lote_trazabilidad, name = 'vista_trazabilidad'),
+    path('traza-lote/<int:id_estado>', vista_resumen_trazabilidad, name='vista_resumen_trazabilidad'),
 
 ]

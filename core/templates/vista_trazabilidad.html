@@ -57,22 +57,14 @@
             </div>
         </div>
   
-        {% if modificacion %}
-        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
-        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
-        {% else %}
-        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
-        {% endif %}
-        <button type='button' class="btn btn-dark" onclick="window.location.href='/trazabilidad';">Cancel</button>
-        <button type='button' id="add_form" class="btn btn-warning" >+ items</button>
-
         {{ traza_lote_item_formset.management_form }}
         <div class="col-lg-12 grid-margin stretch-card">
           <div class="card">
             <div class="card-body">
               <h4 class="card-title">Productos</h4>
               <p class="card-description">
-                {{empresa.nombre}}
+                <button type='button' id="add_form" class="btn btn-success  btn-rounded btn-icon" ><i class='ti-plus'></i></button>
+                <button type='button' id="subs_form" class="btn btn-danger btn-rounded btn-icon" ><i class='ti-minus'></i></button>
               </p>
               <div class="table-responsive">
                 <table id= 'tabla-items' class="table table-striped">
@@ -101,8 +93,6 @@
                       </th>
                       <th>
                         Cotizacion
-                      </th>
-                      <th>
                       </th>
                       
                     </tr>
@@ -135,9 +125,6 @@
                               <td>
                                 {{form2.cotizacion}}
                               </td>
-                              <td>
-                                  <i class="ti-close" onclick='eliminar();'></i>
-                              </td>
                           </tr>
                       {% endfor %}
                   </tbody>
@@ -147,55 +134,26 @@
           </div>
         </div>        
       </form>
+      <div class="row">
+        {% if modificacion %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+        {% else %}
+        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+        {% endif %}
+        <button type='button' class="btn btn-dark" onclick="window.location.href='/traza-lote/{{estado_lote.id}}';">Cancel</button>
 
+      </div>
     </div>
   </div>
 </div>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script type="text/javascript">
-    {% comment %} window.addEventListener('load', async() => {
-      id_actividad.addEventListener("change", async() => {
-        load_productos("{% url 'ajax_get_prods_actividad' %}", id_actividad.value);
-      });
-      id_producto.addEventListener('change', async() => {
-        load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_unidad_medida, id_espec);
-      });
-      var oprod = id_producto.value;
-      var oespe = id_espec.value;
-      console.log(oprod);
-      load_productos("{% url 'ajax_get_prods_actividad' %}", id_actividad.value, oprod);
-      load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_unidad_medida, id_espec, oespe);
-  });
-    function load_productos( url_param, actividad, oprod) {
-      if (actividad === '') {
-        var opciones = "<option value '' selected>---------</option>";
-        id_producto.innerHTML = opciones;
-      }
-      else {
-        $.ajax({
-          url : url_param,
-          data : {
-            'actividad' : actividad,
-          },
-          method : 'GET',
-          success : function(response) {
-            var opciones = "<option value '' selected>---------</option>";
-            response.data.forEach(function(item, index) {
-              opciones += '<option value="' + item.id + '">' + item.desc + '</option>';
-            });
-            id_producto.innerHTML = opciones;
-            if (oprod != undefined) id_producto.value = oprod;
-            load_especificaciones("{% url 'ajax_get_espec' %}", id_producto.value, id_unidad_medida, id_espec);
-    
-          } // reference to below
-        });
-  
-      }
-    } {% endcomment %}
     $(document).ready(function() {
       let formset = $('#formset');
       let addButton = $('#add_form');
+      let subsButton = $('#subs_form');
       let totalForms = $('#id_traza_lote_item-TOTAL_FORMS');
       let formCount = formset.children().length;
   
@@ -204,21 +162,36 @@
         newForm.find(':input').each(function() {
           let name = $(this).attr('name').replace('-0-', '-' + formCount + '-');
           let id = 'id_' + name;
-          $(this).attr({'name': name, 'id': id}).val('').removeAttr('value');
+          if (name.includes('cotizacion')) {
+            $(this).attr({'name': name, 'id': id}).val({{default_cotizacion}});
+          }
+          else {
+            if (name.includes('moneda')) {
+              $(this).attr({'name': name, 'id': id}).val({{default_moneda.id}});
+            }
+            else {
+              $(this).attr({'name': name, 'id': id}).val('').removeAttr('value');
+            }
+
+          }
         });
         formCount++;
         totalForms.val(formCount);
         formset.append(newForm);
       });
+      subsButton.click(function() {
+        let formset = $('#formset');
+        let totalForms = $('#id_traza_lote_item-TOTAL_FORMS');
+        let formCount = formset.children().length;
+        if (formCount > 1) {
+          item = formset.children().eq(formCount-1);
+          console.log(item);
+          item.remove();
+          formCount--;
+          totalForms.val(formCount);
+        }
+      });
     });
-    function eliminar() {
-      let formset = $('#formset');
-      let totalForms = $('#id_traza_lote_item-TOTAL_FORMS');
-      let formCount = formset.children().length;
-      $(this).closest('.form-item').remove();
-      formCount--;
-      totalForms.val(formCount);
-    }
 </script>
 {% endblock %}
 {% block nav %}

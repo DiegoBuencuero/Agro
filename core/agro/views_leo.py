@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import TrazaLote, Lote, Especificacion_tipo, Mov, Com, Deposito, Contactos
+from .models import TrazaLote, Lote, TrazaLoteItem, Mov, Com, Deposito, Contactos
 from .models import Campo, EstadoLote, Planificacion_cultivo, Actividad
 from .models import Prod_Conf
 from .forms_leo import TrazabilidadForm, TrazaLoteItemFormSet, ContactoForm, EstadoLoteForm, agro_Producto, Producto, ProdConfForm
@@ -174,33 +174,6 @@ def vista_trazabilidad_lote(request, id_estado):
                         item.trazalote = traz
                         item.save()
                 return redirect('vista_trazabilidad')
-                # if traz.fecha is None:
-                #     form.add_error('fecha', 'Este campo es requerido')
-                # else:
-                #     traz.empresa = empresa
-                #     traz.perfil = request.user.profile
-                #     com = Com.objects.get(id=1)
-                #     depo = Deposito.objects.get(id=1)
-                #     movim = Mov(empresa = empresa, n_suc=0, n_com=0, fecha=traz.fecha, com=com, deposito1 = depo)
-                #     movim.save()
-                #     traz.id_mov = movim
-                #     try:
-                #         traz.estado_lote = estado
-                #         traz.origen_prod = form.cleaned_data['producto'][0:1]
-                #         traz.producto_id = int(form.cleaned_data['producto'][1:])
-                #         try:
-                #             traz.especificacion = Especificacion_tipo.objects.get(id = form.cleaned_data['espec'])
-                #             traz.save()
-                #             if traz.actividad.codigo == 'FP':
-                #                 estado.estado = 'C'
-                #                 estado.save()
-                #                 return redirect('vista_lote_trazabilidad')
-                #             traza_list = get_traza_list(empresa, estado)
-                #             form = TrazabilidadForm(empresa)
-                #         except:
-                #             form.add_error('espec', 'Error inesperado, la especificacion no existe')
-                #     except:
-                #         form.add_error('lote_campo', 'Error inesperado, el lote no existe')
             else:
                 print(form.errors.as_data)
                 for x in traza_lote_item_formset:
@@ -208,8 +181,16 @@ def vista_trazabilidad_lote(request, id_estado):
                 #print(traza_lote_item_formset.errors.as_data)
         else:
             form = TrazabilidadForm(empresa)
-            traza_lote_item_formset = TrazaLoteItemFormSet(prefix='traza_lote_item')
-        return render(request, 'vista_trazabilidad.html', {'traza_lote_item_formset': traza_lote_item_formset, 'form': form, 'estado_lote': estado, 'empresa': empresa })
+            traza_lote_item_formset = TrazaLoteItemFormSet(prefix='traza_lote_item', initial=[{'moneda': empresa.moneda.id}])
+        contexto = {
+            'traza_lote_item_formset': traza_lote_item_formset, 
+            'form': form, 
+            'estado_lote': estado, 
+            'empresa': empresa,
+            'default_moneda': empresa.moneda,
+            'default_cotizacion': 1,
+            }            
+        return render(request, 'vista_trazabilidad.html', contexto)
     else:
         return redirect('vista_lote_trazabilidad')
     
@@ -230,48 +211,6 @@ def ajax_get_prods_actividad(request):
     data = {'data': respuesta}
     return JsonResponse(data)
 
-
-@login_required
-def editar_trazabilidad(request, id_traza):
-    empresa = request.user.profile.empresa
-    try:
-        trazabilidad = Trazabilidad.objects.get(id = id_traza)
-    except:
-        return redirect('vista_trazabilidad')
-    estado = trazabilidad.estado_lote
-    traza_list = get_traza_list(empresa, estado)
-
-    if trazabilidad.empresa == empresa:
-        if request.method == 'POST':
-            form = TrazabilidadForm(request.POST, instance = trazabilidad)
-            if form.is_valid():
-                traz = form.save(commit=False)
-                if request.POST.get('borrar') == '':
-                    traz.delete()
-                else:
-                    try:
-                        traz.lote = Lote.objects.get(id = form.cleaned_data['lote_campo'])
-                        traz.origen_prod = form.cleaned_data['producto'][0:1]
-                        traz.producto_id = int(form.cleaned_data['producto'][1:])
-                        try:
-                            traz.especificacion = Especificacion_tipo.objects.get(id = form.cleaned_data['espec'])
-                            traz.save()
-                            traza_list = get_traza_list(empresa)
-                            return redirect('vista_planificacion')
-                        except:
-                            form.add_error('espec', 'Error inesperado, la especificacion no existe')
-                    except:
-                        form.add_error('lote_campo', 'Error inesperado, el lote no existe')
-        else:
-            initial_data = {
-                'producto': trazabilidad.origen_prod + str(trazabilidad.producto_id),
-                'espec': trazabilidad.especificacion.id,
-            }
-            print(initial_data)
-            form = TrazabilidadForm(empresa, initial = initial_data, instance = trazabilidad)
-        return render(request, 'vista_trazabilidad.html', {'form': form, 'empresa': empresa, 'trazabilidades':traza_list, 'modificacion': 'S'})
-    else:
-        return redirect('vista_trazabilidad')
 
 
 @login_required
@@ -309,3 +248,16 @@ def editar_conf_producto(request, id_prod):
     else:
         form = ProdConfForm(empresa, instance = producto)
     return render(request, 'vista_producto_conf.html', {'form': form, 'empresa': empresa, 'productos':productos, 'prod':producto, 'modificacion': 'S'})
+
+
+
+@login_required
+def vista_resumen_trazabilidad(request, id_estado):
+    try:
+        estado = EstadoLote.objects.get(id = id_estado)
+    except:
+        return redirect('/')
+    empresa = request.user.profile.empresa
+    trazabilidades = TrazaLote.objects.filter(empresa=empresa).filter(estado_lote = estado)
+    items = TrazaLoteItem.objects.filter(trazalote__estado_lote = estado)
+    return render(request, 'vista_resumen_trazabilidad.html', {'trazas': trazabilidades, 'items': items, 'lote': estado.lote, 'campo': estado.lote.campo, 'estado': estado })
