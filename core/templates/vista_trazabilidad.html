@@ -133,17 +133,17 @@
             </div>
           </div>
         </div>        
-      </form>
-      <div class="row">
-        {% if modificacion %}
-        <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
-        <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
-        {% else %}
-        <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
-        {% endif %}
-        <button type='button' class="btn btn-dark" onclick="window.location.href='/traza-lote/{{estado_lote.id}}';">Cancel</button>
-
-      </div>
+        <div class="row">
+          {% if modificacion %}
+          <button type="submit" name='ok' class="btn btn-primary mr-2">Actualizar</button>
+          <button type="submit" name='borrar' class="btn btn-primary mr-2">Borrar</button>
+          {% else %}
+          <button type="submit" name='ok' class="btn btn-primary mr-2">Nuevo</button>
+          {% endif %}
+          <button type='button' class="btn btn-dark" onclick="window.location.href='/traza-lote/{{estado_lote.id}}';">Cancel</button>
+  
+        </div>
+        </form>
     </div>
   </div>
 </div>
