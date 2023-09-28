@@ -15,13 +15,14 @@ from django.db.models import Sum
 from django.views.decorators.csrf import csrf_exempt
 import requests
 import datetime
+import os
 #from datetime import datetime 
 import json
 from .tokens import account_activation_token  
 from .models import Empresa, Campo, Lote, Producto, Tipo, Rubro,agro_CostoProd, agro_CostoProdo, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import agro_Etapa, Deposito, models, RegistroLluvia, Trazabilidad, Actividad, EstadoLote
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com , Num
-from .models import Prod, TipoProd, RubroProd, ClaseProd
+from .models import Prod, TipoProd, RubroProd, ClaseProd, Ciudades
 from .forms import PersonalInfoForm, MyPasswordChangeForm, CampoForm, LoteForm, ProductoForm, TipoProdForm, RubroProdForm, CostoProdForm
 from .forms import CostoProd_o_Form, CampanaForm, PlanificacionCultivoForm, PlanificacionLoteForm, ComprobantesForm, NumeradorForm
 from .forms import FormAsignacionEtapaCosto, DepositoForm, RegLluviaCargaForm
@@ -1119,106 +1120,56 @@ def vista_lluvia(request):
 #         return redirect('vista_comprobantes')
 # 
 
-
 def vista_meteorologia(request):
-    # Clave API personal y datos de ubicación
-    api_key = '7ece8d9ba9376a304069fdb5daa34ec4'
-    latitud = -34
-    longitud = -58
+    ciudad = request.GET.get("ciudad")
+    campos = Campo.objects.filter(empresa=request.user.profile.empresa)
 
-    
+    api_key = '556f183d26f044fe9c402102231909'
+    url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={ciudad}&days=7&aqi=no&alerts=yes&lang=pt&alerts=yes"
+    response = requests.get(url)
+    datos_pronostico = response.json()
 
-    # Función para obtener la información actual del tiempo
-    def tiempo_now():
-        link = f"https://api.openweathermap.org/data/2.5/onecall?lat={latitud}&lon={longitud}&appid={api_key}&lang=pt_br"
+    pronostico = []
 
-        info = requests.get(link)
-        info_dic = info.json()
-        datos_actualidad = info_dic['current']
-        temp_actual_k = datos_actualidad['temp']
-        temp_actual_c = temp_actual_k - 273.15
-        humedad = datos_actualidad['humidity']
-        presion = datos_actualidad['pressure']
-        velocidad_viento_ms = datos_actualidad['wind_speed']
-        velocidad_viento_kh = velocidad_viento_ms * 3.6
-        rafagas_ms = datos_actualidad['wind_gust']
-        rafagas_kh = rafagas_ms * 3.6
-        amanecer = datos_actualidad['sunrise']
-        puesta_de_sol = datos_actualidad['sunset']
-        duracion_luz_segundos = puesta_de_sol - amanecer
-        duracion_luz_horas = duracion_luz_segundos / 3600
-        descripcion = datos_actualidad['weather'][0]['description']
-        icono = f"https://openweathermap.org/img/wn/{datos_actualidad['weather'][0]['icon']}.png"
+    if 'forecast' in datos_pronostico:
+        forecast_days = datos_pronostico['forecast']['forecastday']
 
-        tiempo_actual = {
-            'temp_actual': temp_actual_c,
-            'humedad': humedad,
-            'presion': presion,
-            'velocidad_viento': velocidad_viento_kh,
-            'rafagas': rafagas_kh,
-            'duracion_dia': duracion_luz_horas,
-            'descripcion': descripcion,
-            'icono': icono,
-        }
-
-        return tiempo_actual
-
-    # Llama a tu función para obtener la información actual del tiempo
-    tiempo_actual = tiempo_now()
-
-         
-    def pronostico_tiempo():
-    # Consulta la API para obtener el pronóstico del tiempo
-        url = f"https://api.openweathermap.org/data/3.0/onecall?lat={latitud}&lon={longitud}&appid={api_key}"
-        response = requests.get(url)
-        datos_pronostico = response.json()
-
-        # Procesa los datos del pronóstico diario
-        pronostico_dias = datos_pronostico['daily']
-
-        pronostico = []
-
-        for datos_dia in pronostico_dias:
-            timestamp = datos_dia['dt']
-            date = datetime.datetime.utcfromtimestamp(timestamp).strftime('%A %d/%m')# no entiendo por que el datetime.datetime
-            max_temp = datos_dia['temp']['max'] - 273.15
-            min_temp = datos_dia['temp']['min']- 273.15
-            description = datos_dia['weather'][0]['description']
-            icon_code = datos_dia['weather'][0]['icon']
-            icon_url = f"http://openweathermap.org/img/wn/{icon_code}.png"                  
-            pressure = datos_dia['pressure'] 
-            humidity = datos_dia['humidity']        
-            wind_speed = datos_dia['wind_speed']
-            wind_deg = datos_dia['wind_deg']
-            wind_gust = datos_dia['wind_gust']
-            weather_description = datos_dia['weather'][0]['description']
+        for forecast_day in forecast_days:
+            date_str = forecast_day['date']  # Supongamos que date_str es una cadena en formato 'yyyy-mm-dd'
+            date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')  # Convertir la cadena a un objeto datetime
+            date = date_obj.strftime('%d - %m - %y')  # Formatear la fecha como 'dd - mm - yy'
+            max_temp = forecast_day['day']['maxtemp_c']
+            min_temp = forecast_day['day']['mintemp_c']
+            description = forecast_day['day']['condition']['text']
+            icon_url = forecast_day['day']['condition']['icon']
+            pressure = forecast_day['day']['totalprecip_mm']
+            humidity = forecast_day['day']['avghumidity']
+            wind_speed = forecast_day['day']['maxwind_kph']
 
             pronostico.append({
                 'date': date,
                 'max_temp': max_temp,
                 'min_temp': min_temp,
                 'description': description,
-                'icon_url': icon_url,                
+                'icon_url': icon_url,
                 'pressure': pressure,
-                'humidity': humidity,                
+                'humidity': humidity,
                 'wind_speed': wind_speed,
-                'wind_deg': wind_deg,
-                'wind_gust': wind_gust,
-                'weather_description': weather_description,
             })
 
-        return pronostico
-        
-    pronostico=pronostico_tiempo()
-    print(pronostico)
-
     context = {
-        #'pronostico': datos_meteorologicos,
-        'tiempo_actual': tiempo_actual,  # Asegúrate de tener esta variable definida o reemplázala con los datos que desees mostrar
-        'pronostico' :   pronostico,
+        'campos': campos,
+        'pronostico': pronostico,
     }
 
-    return render(request, 'vista_meteorologia.html', context)  
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        return JsonResponse({'pronostico': pronostico})
+        
+    else:
+        return render(request, 'vista_meteorologia.html', context)
+
+
+
 
             
        

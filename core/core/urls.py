@@ -42,10 +42,8 @@ urlpatterns = [
     path('regLluvias/', vista_lluvia, name='vista_lluvia'),
     path('ajax-load-lluvias/', ajax_load_lluvias, name='ajax_load_lluvias'),
     path('meteorologia/', vista_meteorologia, name='vista_meteorologia'),
- 
- 
-  
-   
+
+    
 ]
 urlpatterns += url_leo
 # Only add this when we are in debug mode.

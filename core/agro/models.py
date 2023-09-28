@@ -116,9 +116,22 @@ class Campo(models.Model):
         return self.nombre
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE, null=True, blank=True)
     nombre = models.CharField(max_length=100)
+    ciudad = models.CharField(max_length=100, null=True, blank=True)
     descripcion = models.CharField(max_length=100)
     image = models.ImageField(default='default.jpg', upload_to='campos')
     observaciones = models.TextField(null=True, blank=True)
+
+
+class Ciudades(models.Model):
+    class Meta:
+        pass
+    def __str__(self):
+        return self.nombre
+    nombre =  models.CharField(max_length=100)
+    pais = models.CharField(max_length=10)
+    longitud = models.DecimalField(max_digits=10, decimal_places=6)
+    latitud = models.DecimalField(max_digits=10, decimal_places=6)
+
 
 class Lote(models.Model):
     class Meta:

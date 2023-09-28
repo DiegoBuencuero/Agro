@@ -91,7 +91,7 @@ class MyPasswordChangeForm(PasswordChangeForm):
 class CampoForm(BaseForm):
     class Meta:
         model = Campo
-        fields = ['nombre', 'descripcion', 'image', 'observaciones']
+        fields = ['nombre', 'ciudad', 'descripcion', 'image', 'observaciones']
 
 class LoteForm(BaseForm):
     def __init__(self,company,*args,**kwargs):
