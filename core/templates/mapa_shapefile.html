@@ -1,0 +1,550 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block plugin_css %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'js/select.dataTables.min.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  .content-wrapper {
+    padding: 0 !important;
+  }
+  .panel-camadas {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    width: 260px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    z-index: 1500;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .panel-header {
+    font-size: 16px;
+    color: #4B4B77;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+  }
+  .panel-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .custom-checkbox {
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    color: #333;
+  }
+  .custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .custom-checkbox .checkmark {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    height: 18px;
+    width: 18px;
+    background-color: #eee;
+    border-radius: 4px;
+    border: 2px solid #a084ca;
+  }
+  .custom-checkbox input:checked ~ .checkmark {
+    background-color: #a084ca;
+    border-color: #a084ca;
+  }
+  .custom-checkbox .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  .custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+  }
+  .custom-checkbox .checkmark:after {
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  /* Aplica a todos los <select> dentro de .formulario */
+    .formulario select {
+      font-size: 13px;
+      height: 32px;
+      padding: 2px 10px;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
+      background-color: white;
+      color: #333;
+    }
+    
+    /* Enfocado o activo: violeta */
+    .formulario select:focus {
+      border-color: #6f42c1;
+      outline: none;
+      box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="toolbar" class="toolbar shadow-sm px-3 py-2 bg-white border-bottom">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div class="d-flex align-items-center flex-wrap gap-4 px-2">
+      <div class="d-flex align-items-center gap-2">
+        <label for="id_campo" class="form-label mb-0 fw-semibold" style="min-width: 70px;">
+          {% translate "Fazenda:" %}
+        </label>
+        <div class="form-control">
+          {{ form.campo }}
+          {{ form.campo.error }}
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label for="id_lote" class="form-label mb-0 fw-semibold" style="min-width: 70px;">
+          {% translate "Talhão:" %}
+        </label>
+        <div class="form-control">
+          {{ form.lote }}
+          {{ form.lote.error }}
+        </div>
+      </div>
+    </div> 
+    <div class="dropdown">
+      <button id="btnDropdownCamadas" class="btn btn-secondary btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa-solid fa-layer-group text-white"></i>
+        <span>{% translate "Camadas" %}</span>
+      </button>
+      <div class="dropdown-menu p-0 border-0 shadow" id="menuDropdownCamadas" style="min-width: 220px;">
+        <div class="panel-header px-3 pt-2 pb-1 border-bottom text-muted small">
+          <i class="fas fa-layer-group me-2"></i> {% translate "Tipos disponíveis" %}
+        </div>
+        <div class="panel-body px-2 py-2" id="contenedorCheckboxes"></div>
+      </div>
+    </div>
+
+    <!-- Botón que cambia de color cuando se activa -->
+    <button type="button" id="btnSatelite" class="btn btn-outline-primary btn-sm">
+      <i class="fas fa-satellite me-1"></i> Satélite
+    </button>
+
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" id="btnZoom" class="btn btn-outline-secondary btn-sm" title="{% translate 'Zoom ao lote' %}">
+        <i class="fas fa-crosshairs"></i>
+      </button>
+      <button type="button" id="btnRemover" class="btn btn-outline-danger btn-sm" title="{% translate 'Remover camada' %}">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+      <a href="{% url 'analizar_mapas' %}" class="btn btn-outline-primary btn-sm" id="btnCompararMapas">
+        <i class="fas fa-columns"></i> {% translate "Comparar Mapas" %}
+      </a>
+      <button type="button" id="btnUploadModal" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalUpload">
+        <i class="fas fa-upload me-1"></i> {% translate "Enviar" %}
+      </button>
+      
+    </div>
+  </div>
+</div>
+
+<div id="map" style="height: 100vh; position: relative;">
+  <div id="leyendaMapa" class="card p-3 shadow" style="
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background-color: white;
+    border-radius: 8px;
+    min-width: 160px;
+    display: none;
+    font-size: 13px;
+  ">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <strong class="mb-0">{% translate "Leyenda" %}</strong>
+      <button onclick="document.getElementById('leyendaMapa').style.display='none'" class="btn-close btn-sm" aria-label="{% translate 'Cerrar' %}" style="font-size: 0.6rem;"></button>
+    </div>
+    <div id="leyendaContenedor"></div>
+  </div>
+</div>
+
+<!-- Modal de Comparação de Mapas -->
+<div class="modal fade" id="modalCompararMapas" tabindex="-1" aria-labelledby="modalCompararMapasLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCompararMapasLabel">Comparar Mapas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Área para mapas disponíveis -->
+        <div class="d-flex flex-wrap gap-2 mb-4" id="mapasDisponiveis">
+          <!-- Aqui se colocan miniaturas arrastáveis -->
+          <div class="p-2 border rounded draggable bg-light" draggable="true">Mapa 1</div>
+          <div class="p-2 border rounded draggable bg-light" draggable="true">Mapa 2</div>
+          <div class="p-2 border rounded draggable bg-light" draggable="true">Mapa 3</div>
+          <div class="p-2 border rounded draggable bg-light" draggable="true">Mapa 4</div>
+        </div>
+
+        <!-- Área 2x2 de comparação -->
+        <div class="row g-2">
+          <div class="col-md-6">
+            <div class="border rounded h-100" style="min-height: 300px;" id="quadro1"></div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded h-100" style="min-height: 300px;" id="quadro2"></div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded h-100" style="min-height: 300px;" id="quadro3"></div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded h-100" style="min-height: 300px;" id="quadro4"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <small class="text-muted">Arraste os mapas disponíveis para os quadrantes</small>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block plugin_js %}
+<script src="{% static 'vendors/chart.js/Chart.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/ol@v7.3.0/dist/ol.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+{% block custom_js %}
+<script>
+  const capasActivas = {};
+
+// Capas base (OSM y Satélite)
+const capaOSM = new ol.layer.Tile({
+  source: new ol.source.OSM(),
+  visible: true
+});
+
+const capaSatelite = new ol.layer.Tile({
+  source: new ol.source.XYZ({
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attributions: 'Tiles © Esri'
+  }),
+  visible: false
+});
+
+
+const map = new ol.Map({
+  target: 'map',
+  layers: [capaOSM, capaSatelite],
+  view: new ol.View({
+    center: ol.proj.fromLonLat([-51.185, -27.436]),
+    zoom: 14
+  })
+});
+
+$('#btnSatelite').on('click', function () {
+  const activo = capaSatelite.getVisible();
+  capaOSM.setVisible(activo); // el inverso
+  capaSatelite.setVisible(!activo);
+
+  $(this)
+    .toggleClass('btn-primary', !activo)
+    .toggleClass('btn-outline-primary', activo);
+});
+
+// Si hacés clic en el botón también cambia el switch
+$('#btnSatelite').on('click', function () {
+  const $switch = $('#toggleSatelite');
+  $switch.prop('checked', !$switch.prop('checked')).trigger('change');
+});
+
+  function limpiarMapa() {
+    for (const tipo in capasActivas) {
+      capasActivas[tipo].forEach(capa => map.removeLayer(capa));
+    }
+    Object.keys(capasActivas).forEach(k => delete capasActivas[k]);
+    $('#contenedorCheckboxes').empty();
+  }
+
+  $(document).ready(function () {
+    $('#id_campo');  // O el ID real del select
+    $('#id_lote');   // Si querés también en Talhão
+    const $campo = $('#id_campo');
+    const $lote = $('#id_lote');
+    const $btnCamadas = $('#btnDropdownCamadas');
+
+    $btnCamadas.prop('disabled', true);
+
+    // Toggle de capa satélite
+    $('#toggleSatelite').on('change', function () {
+      const usarSatelite = $(this).is(':checked');
+      capaOSM.setVisible(!usarSatelite);
+      capaSatelite.setVisible(usarSatelite);
+    });
+
+    $campo.change(function () {
+      const campoId = $(this).val();
+      $lote.empty().append('<option value="">-----------</option>');
+
+      if (campoId) {
+        $.ajax({
+          url: '/ajax/lotes/',
+          data: { campo_id: campoId },
+          dataType: 'json',
+          success: function (data) {
+            console.log("Lotes recibidos:", data);
+            data.lotes.forEach(function (lote) {
+              $lote.append(`<option value="${lote.id}">${lote.nombre}</option>`);
+            });
+          },
+          error: function () {
+            console.error(' Error al cargar lotes');
+          }
+        });
+      }
+    });
+
+    $lote.change(function () {
+      const loteId = $(this).val();
+      console.log('Lote seleccionado:', loteId);
+
+      limpiarMapa();
+
+      if (!loteId) return;
+
+      $.ajax({
+        url: '/get_capas_lote/',
+        type: 'GET',
+        data: { lote_id: loteId },
+        success: function (response) {
+          console.log(' Capas:', response);
+          construirPanelTipos(response.capas, loteId);
+          $btnCamadas.prop('disabled', false);
+        },
+        error: function () {
+          console.error(' Error al obtener capas');
+        }
+      });
+    });
+  });
+
+  function construirPanelTipos(capas, loteId) {
+    console.log("capas recibidas desde /get_capas_lote/:", capas);
+
+    const agrupadas = {};
+
+    capas.forEach(capa => {
+      console.log("🔎 Revisando capa:", capa);
+
+      if (capa.extension !== 'geojson') {
+        console.log(`Ignorada (no es GeoJSON): ${capa.nombre} → ${capa.extension}`);
+        return;
+      }
+
+      const tipo = capa.tipo || 'sin_tipo';
+
+      if (!agrupadas[tipo]) {
+        agrupadas[tipo] = [];
+      }
+
+      agrupadas[tipo].push(capa);
+    });
+
+    console.log("Capas agrupadas por tipo:", agrupadas);
+
+    const contenedor = $('#contenedorCheckboxes');
+    contenedor.empty();
+
+    for (const tipo in agrupadas) {
+      const id = `chk-${tipo}`;
+      const cantidad = agrupadas[tipo].length;
+
+      contenedor.append(`
+        <label class="custom-checkbox">
+          <input type="checkbox" id="${id}" data-tipo="${tipo}" data-lote="${loteId}">
+          <span class="checkmark"></span>
+          ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} (${cantidad})
+        </label>
+      `);
+    }
+
+    $('input[type="checkbox"]').off('change').on('change', function () {
+      const tipo = $(this).data('tipo');
+      const lote = $(this).data('lote');
+      const activo = $(this).is(':checked');
+
+      console.log(`☑️ Checkbox cambiado → tipo=${tipo}, lote=${lote}, activo=${activo}`);
+
+      if (activo) {
+        $.ajax({
+          url: '/get_capa_tipo/',
+          type: 'GET',
+          data: { lote_id: lote, tipo: tipo },
+          success: function (res) {
+            console.log(`Respuesta de /get_capa_tipo/ para tipo "${tipo}":`, res);
+
+            capasActivas[tipo] = [];
+
+            const features = new ol.format.GeoJSON().readFeatures(res.geojson, {
+              featureProjection: 'EPSG:3857'
+            });
+
+            console.log(`${features.length} features cargadas para tipo=${tipo}`);
+
+            const layer = new ol.layer.Vector({
+              source: new ol.source.Vector({ features }),
+              style: function (feature) {
+                const rate = feature.get('rate');
+                let color = 'rgba(0,0,0,0.3)';
+
+                if (rate !== undefined && res.leyenda && res.leyenda.length === 10) {
+                  for (let i = 0; i < res.leyenda.length; i++) {
+                    const [min, max] = res.leyenda[i].rango.split(" - ").map(Number);
+                    if (rate >= min && rate <= max) {
+                      color = res.leyenda[i].color;
+                      break;
+                    }
+                  }
+                }
+
+                const geometryType = feature.getGeometry().getType();
+
+                if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+                  return new ol.style.Style({
+                    fill: new ol.style.Fill({ color })
+                  });
+                } else {
+                  return new ol.style.Style({
+                    image: new ol.style.Circle({
+                      radius: 4,
+                      fill: new ol.style.Fill({ color }),
+                      stroke: new ol.style.Stroke({ color: 'black', width: 0.5 })
+                    })
+                  });
+                }
+              }
+            });
+
+            map.addLayer(layer);
+            capasActivas[tipo].push(layer);
+
+            const extent = layer.getSource().getExtent();
+            map.getView().fit(extent, { padding: [40, 40, 40, 40], duration: 800 });
+
+            if (res.leyenda && res.leyenda.length === 10) {
+              const contenedor = document.getElementById("leyendaContenedor");
+              contenedor.innerHTML = "";
+
+              res.leyenda.forEach(item => {
+                const fila = document.createElement("div");
+                fila.className = "d-flex align-items-center mb-1 gap-2";
+
+                const color = document.createElement("div");
+                color.style.width = "16px";
+                color.style.height = "16px";
+                color.style.backgroundColor = item.color;
+                color.style.border = "1px solid #ccc";
+                color.style.borderRadius = "3px";
+
+                const texto = document.createElement("span");
+                texto.textContent = item.rango;
+
+                fila.appendChild(color);
+                fila.appendChild(texto);
+                contenedor.appendChild(fila);
+              });
+
+              document.getElementById("leyendaMapa").style.display = "block";
+            }
+          },
+          error: function () {
+            console.error(` Error al cargar capa tipo=${tipo}`);
+          }
+        });
+      } else {
+        if (capasActivas[tipo]) {
+          console.log(` Eliminando capas del tipo=${tipo}`);
+          capasActivas[tipo].forEach(c => map.removeLayer(c));
+          delete capasActivas[tipo];
+        }
+      }
+    });
+    map.on('singleclick', function (evt) {
+      const coordenada = evt.coordinate;
+      const featuresEncontrados = {};
+    
+      console.log(" Click en:", coordenada, "→", ol.proj.toLonLat(coordenada));
+    
+      for (const tipo in capasActivas) {
+        const layer = capasActivas[tipo][0];
+        const features = layer.getSource().getFeatures();
+    
+        for (const feature of features) {
+          const geometry = feature.getGeometry();
+          if (geometry.intersectsCoordinate(coordenada)) {
+            const props = feature.getProperties();
+            console.log(` Feature intersectado en capa "${tipo}":`, props);
+            featuresEncontrados[tipo] = props;
+            break;  // solo uno por capa
+          }
+        }
+      }
+    
+      if (Object.keys(featuresEncontrados).length === 0) {
+        console.warn(' No se encontró feature en el punto clickeado');
+        return;
+      }
+    
+      // Mostrar modal
+      $('#infoModal').modal('show');
+    
+      // Coordenadas en EPSG:4326
+      const coord4326 = ol.proj.toLonLat(coordenada);
+      $('#coord').text(`${coord4326[1].toFixed(6)}, ${coord4326[0].toFixed(6)}`);
+    
+      // 🌾 Rendimento
+      const rinde = featuresEncontrados['cosecha']?.rate;
+      console.log(" Rendimento:", rinde);
+      $('#rindeValor').text(rinde?.toFixed ? `${rinde.toFixed(2)}` : '-');
+    
+
+      const comp = featuresEncontrados['compactacion']?.rate;
+      console.log(" Compactação:", comp);
+      if (typeof comp === 'number') {
+        $('#compactBar').css('width', `${comp}%`).text(`${comp}%`);
+        $('#compVal').text(comp.toFixed(2));
+      } else {
+        $('#compactBar').css('width', `0%`).text(`0%`);
+        $('#compVal').text('-');
+      }
+   
+      const claves = ['n', 'p', 'k', 's', 'ph'];
+      claves.forEach(clave => {
+        const val = featuresEncontrados[clave]?.rate;
+        console.log(`🔬 Nutriente ${clave.toUpperCase()}:`, val);
+        $(`#${clave}Val`).text(val?.toFixed ? val.toFixed(2) : '-');
+      });
+    });
+    
+  }
+</script>
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}

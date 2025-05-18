@@ -1,141 +1,169 @@
+{% load i18n %}
 <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
-      <i class="icon-cog menu-icon"></i>
-      <span class="menu-title">General</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="ui-basic">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="/01">Campo</a></li>
-        <li class="nav-item"> <a class="nav-link" href="/0101">Lote</a></li>
-        <li class="nav-item"> <a class="nav-link" href="/regLluvias">Registros LLuvia</a></li>
-        <li class="nav-item"> <a class="nav-link" href="/general/contactos">Contactos</a></li>
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
-      <i class="icon-tag menu-icon"></i>
-      <span class="menu-title">Productos</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="form-elements">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"><a class="nav-link" href="/02-rubro">Rubros</a></li>
-        <li class="nav-item"><a class="nav-link" href="/02">Productos</a></li>
-        <li class="nav-item"><a class="nav-link" href="/02-conf">Conf Producto</a></li>
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
-      <i class="icon-bar-graph-2 menu-icon"></i>
-      <span class="menu-title">Planificacion</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="charts">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="\03">Costo de produccion</a></li>
-        <li class="nav-item"> <a class="nav-link" href="\05">Planificacion</a></li>
-        <li class="nav-item"> <a class="nav-link" href="\04">Campañas</a></li>
-        <li class="nav-item"> <a class="nav-link" href="\estado-lote">Estado lote</a></li>
-        <li class="nav-item"> <a class="nav-link" href="\trazabilidad">Trazabilidad</a></li>
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
-      <i class="icon-paper menu-icon"></i>
-      <span class="menu-title">Contabilidad</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="tables">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="\06">Numeradores</a></li>
-        <li class="nav-item"> <a class="nav-link" href="\07">Comprobantes</a></li>
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#stock" aria-expanded="false" aria-controls="stock">
-      <i class="mdi mdi-home  menu-icon"></i>
-      <span class="menu-title">Stock</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="stock">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="\08">Depositos</a></li>
-        <li class="nav-item"> <a class="nav-link" href="\09">Gestion Stock</a></li>
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#Maquinaria" aria-expanded="false" aria-controls="tables">
-      <i class=" mdi mdi-truck   menu-icon"></i>
-      <span class="menu-title">Maquinaria</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="Maquinaria">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="\08">Registro</a></li>
-        <li class="nav-item"> <a class="nav-link" href="\09">Mantenimeinto</a></li>
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#Meteorologia" aria-expanded="false" aria-controls="tables">
-      <i class=" mdi mdi-weather-lightning  menu-icon"></i>
-      <span class="menu-title">Metereologia</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="Meteorologia">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="meteorologia/">Tiempo</a></li>
-       
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
-      <i class="icon-contract menu-icon"></i>
-      <span class="menu-title">Icons</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="icons">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="pages/icons/mdi.html">Mdi icons</a></li>
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
-      <i class="icon-head menu-icon"></i>
-      <span class="menu-title">User Pages</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="auth">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="pages/samples/login.html"> Login </a></li>
-        <li class="nav-item"> <a class="nav-link" href="pages/samples/register.html"> Register </a></li>
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#error" aria-expanded="false" aria-controls="error">
-      <i class="icon-ban menu-icon"></i>
-      <span class="menu-title">Error pages</span>
-      <i class="menu-arrow"></i>
-    </a>
-    <div class="collapse" id="error">
-      <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="pages/samples/error-404.html"> 404 </a></li>
-        <li class="nav-item"> <a class="nav-link" href="pages/samples/error-500.html"> 500 </a></li>
-      </ul>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="pages/documentation/documentation.html">
-      <i class="icon-paper menu-icon"></i>
-      <span class="menu-title">Documentation</span>
-    </a>
-  </li>
+  <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
+    <i class="icon-cog menu-icon"></i>
+    <span class="menu-title">{% translate "General" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="ui-basic">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="/01">{% translate "Campo" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="/0101">{% translate "Lote" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="/regLluvias">{% translate "Registros Lluvia" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="/general/contactos">{% translate "Contactos" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="/upload-arch">{% translate "Carga de datos" %}</a></li>
+    </ul>
+  </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#ui-analisis" aria-expanded="false" aria-controls="ui-basic">
+    <i class="icon-cog menu-icon"></i>
+    <span class="menu-title">{% translate "Analisis de datos" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="ui-analisis">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="/mapa-shapefile">{% translate "Generacion de mapas" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="anali-maps-coc">{% translate "Analisis cocecha" %}</a></li>
+      {% comment %} <li class="nav-item"> <a class="nav-link" href="/0101">{% translate "Lote" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="/regLluvias">{% translate "Registros Lluvia" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="/general/contactos">{% translate "Contactos" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="/upload-arch">{% translate "Carga de datos" %}</a></li> {% endcomment %}
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
+    <i class="icon-tag menu-icon"></i>
+    <span class="menu-title">{% translate "Productos" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="form-elements">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"><a class="nav-link" href="/02-rubro">{% translate "Rubros" %}</a></li>
+      <li class="nav-item"><a class="nav-link" href="/02">{% translate "Productos" %}</a></li>
+      <li class="nav-item"><a class="nav-link" href="/02-conf">{% translate "Configuración de Producto" %}</a></li>
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
+    <i class="icon-bar-graph-2 menu-icon"></i>
+    <span class="menu-title">{% translate "Planificación" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="charts">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="\03">{% translate "Costo de producción" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="\05">{% translate "Planificación" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="\04">{% translate "Campañas" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="\estado-lote">{% translate "Estado de lote" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="\trazabilidad">{% translate "Trazabilidad" %}</a></li>
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
+    <i class="icon-paper menu-icon"></i>
+    <span class="menu-title">{% translate "Contabilidad" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="tables">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="\06">{% translate "Numeradores" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="\07">{% translate "Comprobantes" %}</a></li>
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#stock" aria-expanded="false" aria-controls="stock">
+    <i class="mdi mdi-home menu-icon"></i>
+    <span class="menu-title">{% translate "Stock" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="stock">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="\08">{% translate "Depósitos" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="\09">{% translate "Gestión de Stock" %}</a></li>
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#Maquinaria" aria-expanded="false" aria-controls="tables">
+    <i class="mdi mdi-truck menu-icon"></i>
+    <span class="menu-title">{% translate "Maquinaria" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="Maquinaria">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="\08">{% translate "Registro" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="\09">{% translate "Mantenimiento" %}</a></li>
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#Meteorologia" aria-expanded="false" aria-controls="tables">
+    <i class="mdi mdi-weather-lightning menu-icon"></i>
+    <span class="menu-title">{% translate "Meteorología" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="Meteorologia">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="meteorologia/">{% translate "Tiempo" %}</a></li>
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
+    <i class="icon-contract menu-icon"></i>
+    <span class="menu-title">{% translate "Iconos" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="icons">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="pages/icons/mdi.html">{% translate "Iconos MDI" %}</a></li>
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
+    <i class="icon-head menu-icon"></i>
+    <span class="menu-title">{% translate "Páginas de usuario" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="auth">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="pages/samples/login.html">{% translate "Iniciar sesión" %}</a></li>
+      <li class="nav-item"> <a class="nav-link" href="pages/samples/register.html">{% translate "Registrarse" %}</a></li>
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" data-toggle="collapse" href="#error" aria-expanded="false" aria-controls="error">
+    <i class="icon-ban menu-icon"></i>
+    <span class="menu-title">{% translate "Páginas de error" %}</span>
+    <i class="menu-arrow"></i>
+  </a>
+  <div class="collapse" id="error">
+    <ul class="nav flex-column sub-menu">
+      <li class="nav-item"> <a class="nav-link" href="pages/samples/error-404.html">404</a></li>
+      <li class="nav-item"> <a class="nav-link" href="pages/samples/error-500.html">500</a></li>
+    </ul>
+  </div>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link" href="pages/documentation/documentation.html">
+    <i class="icon-paper menu-icon"></i>
+    <span class="menu-title">{% translate "Documentación" %}</span>
+  </a>
+</li>

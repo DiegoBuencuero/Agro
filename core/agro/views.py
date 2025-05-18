@@ -162,21 +162,29 @@ def home(request):
     def cotizacion_dia():
         ticker = yf.Ticker("USDBRL=X")
         valores = ticker.history(period="1d", interval="1d")
- 
+        
+        # Verificar si el DataFrame está vacío
+        if valores.empty:
+            return {
+                'maximo': None,
+                'minimo': None,
+                'apertura': None,
+                'cierre': None,
+            }
 
-        valor_apertura = round(valores['Open'].iloc[0], 3) #redondeo a 3 decimales
+        valor_apertura = round(valores['Open'].iloc[0], 3) 
         valor_minimo = round(valores['Low'].iloc[0], 3) 
-        valor_maximo = round(valores['High'].iloc[0], 3) #puedo acceder a los datos accediendo a la ubicacion
+        valor_maximo = round(valores['High'].iloc[0], 3) 
         valor_cierre = round(valores['Close'].iloc[0], 3)
-    
+
         valores_cotizacion = {
             'maximo': valor_maximo,
             'minimo': valor_minimo,
             'apertura': valor_apertura,
             'cierre': valor_cierre,            
         }
-        
         return valores_cotizacion
+
 
     dolar_dia = cotizacion_dia()
    
@@ -1079,46 +1087,7 @@ def vista_lluvia(request):
         }
         return JsonResponse(response)
     
-    # Si no es una solicitud POST, renderizar la plantilla con los campos y registros existentes
     return render(request, 'vista_lluvia.html', {'form':form, 'registros_lluvia': registros_lluvia, 'empresa':empresa})
-
-    # if request.method == 'GET':
-    #     campo_filter = request.GET.get('campo')
-    #     print(campo_filter)
-
-    #     if campo_filter:
-    #         # Filtrar los registros por el campo seleccionado
-    #         registros_filtrados = RegistroLluvia.objects.filter(campo=campo_filter)
-    #         #print(registros_filtrados)
-    #     else:
-    #         # Si no se proporciona un campo, obtener todos los registros
-    #         registros_filtrados = RegistroLluvia.objects.all()   
-
-    
-# @login_required
-# def editar_deposito(request, id_depo):
-#     depositos = Deposito.objects.filter(empresa = request.user.profile.empresa)
-#     try:
-#         depo = Deposito.objects.get(id = id_depo)
-#     except:
-#         return redirect('vista_deposito')
-#     empresa = request.user.profile.empresa
-#     if depo.empresa == empresa:
-#         if request.method == 'POST':
-#             form = DepositoForm(request.POST, instance = depo)
-#             if form.is_valid():
-#                 depo = form.save(commit=False)
-#                 if request.POST.get('borrar') == '':
-#                     depo.delete()
-#                 else:
-#                     depo.save()
-#                 return redirect('vista_deposito')
-#         else:
-#             form = DepositoForm(instance = depo)
-#         return render(request, 'vista_deposito.html', {'form': form, 'empresa': empresa, 'depositos':depositos, 'modificacion': 'S'})
-#     else:
-#         return redirect('vista_comprobantes')
-# 
 
 def vista_meteorologia(request):
     ciudad = request.GET.get("ciudad")

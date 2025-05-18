@@ -1,0 +1,694 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block plugin_css %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'js/select.dataTables.min.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  .content-wrapper {
+    padding: 0 !important;
+  }
+  .panel-camadas {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    width: 260px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    z-index: 1500;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .panel-header {
+    font-size: 16px;
+    color: #4B4B77;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+  }
+  .panel-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .custom-checkbox {
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    color: #333;
+  }
+  .custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .custom-checkbox .checkmark {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    height: 18px;
+    width: 18px;
+    background-color: #eee;
+    border-radius: 4px;
+    border: 2px solid #a084ca;
+  }
+  .custom-checkbox input:checked ~ .checkmark {
+    background-color: #a084ca;
+    border-color: #a084ca;
+  }
+  .custom-checkbox .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  .custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+  }
+  .custom-checkbox .checkmark:after {
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  /* Aplica a todos los <select> dentro de .formulario */
+    .formulario select {
+      font-size: 13px;
+      height: 32px;
+      padding: 2px 10px;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
+      background-color: white;
+      color: #333;
+    }
+    
+    /* Enfocado o activo: violeta */
+    .formulario select:focus {
+      border-color: #6f42c1;
+      outline: none;
+      box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+    }
+    .card-analisis {
+      position: absolute;
+      top: 90px;
+      right: 20px;
+      width: 280px;
+      background-color: white;
+      border-radius: 16px;
+      padding: 20px;
+      z-index: 1500;
+      font-family: 'Segoe UI', sans-serif;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .subcard {
+      background: #fafafa;
+      border: 1px solid #e0e0e0; /* gris sutil */
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+    
+    /* si querés violeta claro en vez de gris, usá este: */
+    /* border: 1px solid #e0d9f7; */
+    
+    .titulo {
+      font-size: 16px;
+      color: #333;
+    }
+    
+    .valor-rinde {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .barra-rangos {
+      height: 8px;
+      border-radius: 5px;
+      overflow: hidden;
+      display: flex;
+    }
+    .rango.verde { background-color: #2ecc71; }
+    .rango.amarillo { background-color: #f1c40f; }
+    .rango.rojo { background-color: #e74c3c; }
+    
+    .barra-gradiente {
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #2ecc71, #f1c40f, #e74c3c);
+    }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="toolbar" class="toolbar shadow-sm px-3 py-2 bg-white border-bottom">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div class="d-flex align-items-center flex-wrap gap-4 px-2">
+      <div class="d-flex align-items-center gap-2">
+        <label for="id_campo" class="form-label mb-0 fw-semibold" style="min-width: 70px;">
+          {% translate "Fazenda:" %}
+        </label>
+        <div class="form-control">
+          {{ form.campo }}
+          {{ form.campo.error }}
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label for="id_lote" class="form-label mb-0 fw-semibold" style="min-width: 70px;">
+          {% translate "Talhão:" %}
+        </label>
+        <div class="form-control">
+          {{ form.lote }}
+          {{ form.lote.error }}
+        </div>
+      </div>
+    </div> 
+    <div class="dropdown">
+      <button id="btnDropdownCamadas" class="btn btn-secondary btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa-solid fa-layer-group text-white"></i>
+        <span>{% translate "Camadas" %}</span>
+      </button>
+      <div class="dropdown-menu p-0 border-0 shadow" id="menuDropdownCamadas" style="min-width: 220px;">
+        <div class="panel-header px-3 pt-2 pb-1 border-bottom text-muted small">
+          <i class="fas fa-layer-group me-2"></i> {% translate "Tipos disponíveis" %}
+        </div>
+        <div class="panel-body px-2 py-2" id="contenedorCheckboxes"></div>
+      </div>
+    </div>
+
+    <!-- Botón que cambia de color cuando se activa -->
+    <button type="button" id="btnSatelite" class="btn btn-outline-primary btn-sm">
+      <i class="fas fa-satellite me-1"></i> Satélite
+    </button>
+
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" id="btnZoom" class="btn btn-outline-secondary btn-sm" title="{% translate 'Zoom ao lote' %}">
+        <i class="fas fa-crosshairs"></i>
+      </button>
+      <button type="button" id="btnRemover" class="btn btn-outline-danger btn-sm" title="{% translate 'Remover camada' %}">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+      <a href="{% url 'analizar_mapas' %}" class="btn btn-outline-primary btn-sm" id="btnCompararMapas">
+        <i class="fas fa-columns"></i> {% translate "Comparar Mapas" %}
+      </a>
+      <button type="button" id="btnUploadModal" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalUpload">
+        <i class="fas fa-upload me-1"></i> {% translate "Enviar" %}
+      </button>
+      
+    </div>
+  </div>
+</div>
+<div id="map" style="height: 100vh; position: relative;">
+
+  <div id="contenedor-analisis">
+    <div id="leyendaContenedor" class="small"></div>
+  </div> 
+</div>
+
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content border-0 rounded-4 shadow">
+      <div class="modal-header bg-dark text-white rounded-top-4">
+        <h5 class="modal-title" id="infoModalLabel">📊 Análise do Ponto Selecionado</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body bg-light">
+        <div class="container-fluid">
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                  <h6 class="fw-bold mb-3">🌾 Dados de Plantio</h6>
+                  <div class="row">
+                    <div class="col-md-3"><strong>Variedade:</strong> VY7789</div>
+                    <div class="col-md-3"><strong>Densidade:</strong> 73000</div>
+                    <div class="col-md-3"><strong>Profundidade:</strong> 4.5 cm</div>
+                    <div class="col-md-3"><strong>Data de Plantio:</strong> 10/10/2024</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card shadow-sm h-100">
+                <div class="card-body">
+                  <h6 class="fw-bold">📍 Localização</h6>
+                  <p class="mb-1"><strong>Coordenadas:</strong> <span id="coord"></span></p>
+                  <p class="mb-1"><strong>Rendimento no Ponto:</strong> <span id="rindeValor"></span> kg/ha</p>
+                  <p class="mb-1"><strong>Rendimento Máximo:</strong> 4520 kg/ha</p>
+                  <p class="mb-1"><strong>Rendimento Médio:</strong> 3660 kg/ha</p>
+                  <p class="mb-1"><strong>Rendimento Mínimo:</strong> 2100 kg/ha</p>
+                  <hr>
+                  <h6 class="fw-bold">🌱 Compactação</h6>
+                  <div class="progress">
+                    <div id="compactBar" class="progress-bar bg-success" role="progressbar" style="width: 0%">0%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="card shadow-sm h-100">
+                <div class="card-body">
+                  <h6 class="fw-bold">🔬 Análise de Nutrientes</h6>
+                  <table class="table table-sm table-bordered text-center mt-3">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Variável</th>
+                        <th>Valor do Ponto</th>
+                        <th>Valor Máximo</th>
+                        <th>Diferença</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tablaVariables">
+                      <tr data-var="n"><td>N</td><td id="nVal"></td><td id="nMax"></td><td id="nDiff"></td></tr>
+                      <tr data-var="p"><td>P</td><td id="pVal"></td><td id="pMax"></td><td id="pDiff"></td></tr>
+                      <tr data-var="k"><td>K</td><td id="kVal"></td><td id="kMax"></td><td id="kDiff"></td></tr>
+                      <tr data-var="s"><td>S</td><td id="sVal"></td><td id="sMax"></td><td id="sDiff"></td></tr>
+                      <tr data-var="ph"><td>pH</td><td id="phVal"></td><td id="phMax"></td><td id="phDiff"></td></tr>
+                      <tr data-var="comp"><td>Compactação</td><td id="compVal"></td><td id="compMax"></td><td id="compDiff"></td></tr>
+                    </tbody>
+                  </table>
+                  <canvas id="barChartComparativo" class="mt-4" height="120"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <h6 class="fw-bold">🌧️ Chuvas Acumuladas Mensais (mm)</h6>
+                  <canvas id="lluviaChart" height="100"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer bg-white border-top-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block plugin_js %}
+<script src="{% static 'vendors/chart.js/Chart.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/ol@v7.3.0/dist/ol.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+{% block custom_js %}
+<script>
+  
+    const capaOSM = new ol.layer.Tile({ source: new ol.source.OSM(), visible: true });
+    const capaSatelite = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attributions: 'Tiles © Esri'
+      }),
+      visible: false
+    });
+  
+    const map = new ol.Map({
+      target: 'map',
+      layers: [capaOSM, capaSatelite],
+      view: new ol.View({ center: ol.proj.fromLonLat([-51.185, -27.436]), zoom: 14 })
+    });
+  
+    $('#btnSatelite').on('click', function () {
+      const activo = capaSatelite.getVisible();
+      capaOSM.setVisible(activo);
+      capaSatelite.setVisible(!activo);
+      $(this)
+        .toggleClass('btn-primary', !activo)
+        .toggleClass('btn-outline-primary', activo);
+    });
+  
+    $(document).ready(function () {
+      const $campo = $('#id_campo');
+      const $lote = $('#id_lote');
+      const $contenedorAnalisis = $('#contenedor-analisis');
+      const $leyenda = $('#leyendaContenedor');
+      
+      const capasActivas = {};
+    
+      function limpiarMapa() {
+        for (const tipo in capasActivas) {
+          capasActivas[tipo].forEach(capa => map.removeLayer(capa));
+        }
+        Object.keys(capasActivas).forEach(k => delete capasActivas[k]);
+        $('#contenedor-analisis').empty();
+        // NO MÁS: $('#leyendaContenedor').empty();
+      }
+    
+      $campo.change(function () {
+        const campoId = $(this).val();
+        $lote.empty().append('<option value="">-----------</option>');
+        limpiarMapa();
+    
+        if (campoId) {
+          $.ajax({
+            url: '/ajax/lotes/',
+            data: { campo_id: campoId },
+            dataType: 'json',
+            success: function (data) {
+              data.lotes.forEach(function (lote) {
+                $lote.append(`<option value="${lote.id}">${lote.nombre}</option>`);
+              });
+            },
+            error: function () {
+              console.error('❌ Error al cargar lotes');
+            }
+          });
+        }
+      });
+
+      $lote.change(function () {
+        const loteId = $(this).val();
+        limpiarMapa();
+        if (!loteId) return;
+      
+        // 1️⃣ Cargar Cosecha (visual)
+        $.ajax({
+          url: '/api/mapa_lote/',
+          type: 'GET',
+          data: { lote_id: loteId },
+          success: function (res) {
+            const features = new ol.format.GeoJSON().readFeatures(res.geojson, {
+              featureProjection: 'EPSG:3857'
+            });
+      
+            const layer = new ol.layer.Vector({
+              source: new ol.source.Vector({ features }),
+              style: feature => new ol.style.Style({
+                fill: new ol.style.Fill({ color: feature.get('color') || '#cccccc' }),
+                stroke: new ol.style.Stroke({ color: '#555', width: 0.2 })
+              })
+            });
+      
+            map.addLayer(layer);
+            capasActivas['cosecha'] = [layer];
+      
+            const extent = layer.getSource().getExtent();
+            map.getView().fit(extent, { padding: [40, 40, 40, 40], duration: 800 });
+      
+            mostrarAnalisis(res.estadisticas);
+            mostrarRangos(res.rangos_hectareas);
+      
+            // 2️⃣ Cargar Capas adicionales (invisibles)
+            $.ajax({
+              url: '/get_capas_lote/',
+              type: 'GET',
+              data: { lote_id: loteId },
+              success: function (res) {
+                console.log("📦 RESPUESTA COMPLETA del backend:", res);
+                console.log("📦 Capas recibidas desde /get_capas_lote/:", res.capas);
+                for (const tipo in res.capas) {
+                  console.log(`🔍 Tipo de capa: "${tipo}" →`, res.capas[tipo]);
+                
+                  if (tipo === 'cosecha') continue;
+      
+                  const geojson = res.capas[tipo].geojson;
+                  if (!geojson || !geojson.features || !Array.isArray(geojson.features)) {
+                    console.warn(`⚠️ GeoJSON inválido para tipo=${tipo}`);
+                    continue;
+                  }
+      
+                  const features = new ol.format.GeoJSON().readFeatures(geojson, {
+                    featureProjection: 'EPSG:3857'
+                  });
+      
+                  const layer = new ol.layer.Vector({
+                    source: new ol.source.Vector({ features }),
+                    style: feature => new ol.style.Style({
+                      fill: new ol.style.Fill({ color: feature.get('color') || '#999999' }),
+                      stroke: new ol.style.Stroke({ color: '#333', width: 0.2 })
+                    }),
+                    visible: false
+                  });
+      
+                  map.addLayer(layer);
+                  capasActivas[tipo] = [layer];
+                }
+      
+                construirPanelTipos(res.capas, loteId);
+              },
+              error: function () {
+                console.error('❌ Error al cargar capas adicionales');
+              }
+            });
+          },
+          error: function () {
+            console.error('❌ Error al cargar capa de cosecha');
+          }
+        });
+      });
+      
+      
+
+      function construirPanelTipos(capitas, loteId) {
+        console.log("💾 Capas recibidas desde /get_capas_lote/:", capitas);
+      
+        const contenedor = $('#contenedorCheckboxes');
+        contenedor.empty();
+        console.log("🧼 Contenedor de checkboxes limpiado");
+      
+        for (const capa of capitas) {
+          const tipo = capa.tipo;
+        
+          if (tipo === 'cosecha') {
+            console.log("⏩ Tipo 'cosecha' ignorado para checkbox (ya está visible)");
+            continue;
+          }
+        
+          const id = `chk-${tipo}`;
+          contenedor.append(`
+            <label class="custom-checkbox">
+              <input type="checkbox" id="${id}" data-tipo="${tipo}" data-lote="${loteId}">
+              <span class="checkmark"></span>
+              ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}
+            </label>
+          `);
+          console.log(`✅ Checkbox agregado para tipo real: ${tipo}`);
+        }
+      
+        $('input[type="checkbox"]').off('change').on('change', function () {
+          const tipo = $(this).data('tipo');
+          const loteId = $(this).data('lote');
+          const activo = $(this).is(':checked');
+        
+          console.log(` Checkbox cambiado → tipo=${tipo}, activo=${activo}`);
+        
+          if (activo) {
+            $.ajax({
+              url: '/get_capas_selecc/',
+              type: 'GET',
+              data: {
+                tipo: tipo,
+                lote_id: loteId
+              },
+              success: function (res) {
+                console.log("✅ Respuesta del servidor:", res);
+              
+                const tipo = $(this).data('tipo');
+                const geojson = res.geojson;
+              
+                if (!geojson || !geojson.features || !Array.isArray(geojson.features)) {
+                  console.warn(`⚠️ GeoJSON inválido para tipo=${tipo}`);
+                  return;
+                }
+              
+                // 🧪 Simulación de nutrientes según tipo
+                geojson.features.forEach(f => {
+                  const props = f.properties;
+                  if (tipo === 'n') props.n = (Math.random() * (25 - 15) + 15).toFixed(2);
+                  if (tipo === 'p') props.p = (Math.random() * (15 - 5) + 5).toFixed(2);
+                  if (tipo === 'k') props.k = (Math.random() * (20 - 10) + 10).toFixed(2);
+                  if (tipo === 's') props.s = (Math.random() * (8 - 4) + 4).toFixed(2);
+                  if (tipo === 'ph') props.ph = (Math.random() * (7.5 - 5.5) + 5.5).toFixed(2);
+                  if (tipo === 'comp') props.comp = (Math.random() * (25 - 5) + 5).toFixed(2);
+                });
+              
+                // 📦 Convertir a features OpenLayers
+                const features = new ol.format.GeoJSON().readFeatures(geojson, {
+                  featureProjection: 'EPSG:3857'
+                });
+              
+                const layer = new ol.layer.Vector({
+                  source: new ol.source.Vector({ features }),
+                  style: feature => new ol.style.Style({
+                    fill: new ol.style.Fill({ color: feature.get('color') || '#999999' }),
+                    stroke: new ol.style.Stroke({ color: '#333', width: 0.2 })
+                  }),
+                  visible: false // No hace falta mostrar, solo importa el dato
+                });
+              
+                map.addLayer(layer);
+                capasActivas[tipo] = [layer];
+                console.log(`🧪 Capa de tipo ${tipo} cargada con simulación aleatoria`);
+              },
+              error: function (xhr) {
+                console.error(`❌ Error al obtener GeoJSON para tipo=${tipo}`, xhr);
+              }
+            });
+            
+        
+          } else {
+            // Eliminar la capa si estaba activa
+            if (capasActivas[tipo]) {
+              console.log(`🧹 Eliminando capa(s) del tipo=${tipo}`);
+              capasActivas[tipo].forEach(c => map.removeLayer(c));
+              delete capasActivas[tipo];
+            } else {
+              console.log(`ℹ️ No hay capas activas registradas para tipo=${tipo}`);
+            }
+          }
+        });
+        
+      
+        console.log("🧩 Panel de tipos construido exitosamente.");
+      }
+           
+      
+      function mostrarAnalisis(est) {
+        const html = `
+          <div id="panel-analisis" class="card shadow-sm border border-2"
+               style="position: absolute; top: 90px; right: 20px; width: 320px; max-height: 85vh;
+                      overflow-y: auto; border-color: #a084ca; border-radius: 16px; z-index: 1500;">
+            <div class="card-body p-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong class="titulo fs-5 text-dark">Análise</strong>
+                <button class="btn btn-sm btn-light rounded-circle" onclick="document.getElementById('panel-analisis').remove()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+      
+              <div class="subcard mb-3 p-3 rounded bg-light border border-1" style="border-color: #e6ddf5;">
+                <small class="text-muted">Rendimento Médio</small>
+                <div class="d-flex align-items-center mt-2">
+                  <i class="fas fa-tractor me-2 text-success"></i>
+                  <span class="valor-rinde fs-4 fw-bold text-dark">${est.promedio ?? '-'} <small class="fs-6">kg/ha</small></span>
+                </div>
+              </div>
+      
+              <div class="subcard mb-3 p-3 rounded bg-light border border-1" style="border-color: #e6ddf5;">
+                <div><i class="fas fa-arrow-up text-primary me-1"></i> Máximo: <span class="float-end text-muted">${est.maximo}</span></div>
+                <div><i class="fas fa-arrow-down text-danger me-1"></i> Mínimo: <span class="float-end text-muted">${est.minimo}</span></div>
+              </div>
+      
+              <div class="subcard mb-3 p-3 rounded bg-light border border-1" style="border-color: #e6ddf5;">
+                <div class="d-flex justify-content-between small"><span>Mediana:</span> <span>${est.mediana}</span></div>
+                <div class="d-flex justify-content-between small"><span>Desvio padrão:</span> <span>${est.desvio_std}</span></div>
+                <div class="d-flex justify-content-between small"><span>Coef. de variação:</span> <span>${est.coef_variacion}%</span></div>
+              </div>
+      
+              <div class="subcard mt-4">
+                <strong class="d-block mb-2 text-muted">Distribuição por faixa (ha)</strong>
+                <div id="leyendaContenedor" class="small"></div>
+              </div>
+            </div>
+          </div>`;
+      
+        $('#contenedor-analisis').html(html);
+      }    
+
+      function mostrarRangos(rangos) {
+        const $contenedor = $('#leyendaContenedor');
+        $contenedor.empty();
+        const orden = [
+          "#ff0000", "#ff3300", "#ff6600", "#ff9900", "#ffcc00",
+          "#ccff00", "#99ff00", "#66ff00", "#33ff00", "#00ff00"
+        ];
+        const keysOrdenadas = Object.keys(rangos);
+        keysOrdenadas.forEach((rango, idx) => {
+          const color = orden[idx] || '#ccc';
+          const ha = rangos[rango].toFixed(2);
+          $contenedor.append(`
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge" style="background:${color}; width: 20px;">&nbsp;</span>
+              <span class="flex-grow-1 px-2">${rango}</span>
+              <span>${ha} ha</span>
+            </div>`);
+        });
+      }
+      
+      map.on('singleclick', function (evt) {
+        const pixel = evt.pixel;
+        const features = map.getFeaturesAtPixel(pixel);
+      
+        if (!features || features.length === 0) {
+          console.log("🧐 No se encontró feature en el clic.");
+          return;
+        }
+      
+        const feature = features[0];
+        const props = feature.getProperties ? feature.getProperties() : feature.get('properties') || feature.values_ || {};
+      
+        console.log("🧬 Props combinados:", props);
+      
+        mostrarModalConDatos(props, evt.coordinate);
+      });
+      
+      
+      
+      function mostrarModalConDatos(props, coord) {
+        console.log("📦 Datos originales del punto:", props);
+      
+        // Coordenadas
+        $('#coord').text(`${coord[1].toFixed(6)}, ${coord[0].toFixed(6)}`);
+      
+        // Rinde real (de cosecha)
+        $('#rindeValor').text(props.rate ? props.rate.toFixed(2) : '-');
+      
+        // Compactación aleatoria (0% a 100%)
+        const compact = Math.floor(Math.random() * 101);
+        $('#compactBar').css('width', `${compact}%`).text(`${compact}%`);
+      
+        // Generar valores aleatorios para nutrientes
+        const vars = {
+          n: [0, 50],
+          p: [0, 40],
+          k: [0, 60],
+          s: [0, 30],
+          ph: [4.5, 7.5],
+          comp: [0, 100]
+        };
+      
+        for (const v in vars) {
+          const [min, max] = vars[v];
+          const val = +(Math.random() * (max - min) + min).toFixed(2);
+          const valMax = +(val + Math.random() * 10).toFixed(2);
+          const diff = +(valMax - val).toFixed(2);
+      
+          $(`#${v}Val`).text(val);
+          $(`#${v}Max`).text(valMax);
+          $(`#${v}Diff`).text(diff);
+        }
+      
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById('infoModal'));
+        modal.show();
+      }
+      
+      
+      
+      
+
+    });
+    
+  
+
+</script>
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}

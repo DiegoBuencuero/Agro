@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
-#from django.contrib.messages import constants as messages
+
  
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -56,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -130,14 +131,30 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'es'
+
+TIME_ZONE = 'America/Sao_Paulo'
+
+USE_L10N = True
 
 USE_I18N = True
 
 USE_TZ = True
 
+
+from django.utils.translation import gettext_lazy as _
+
+LANGUAGES = (
+  
+    ('es', _('Español')),
+    ('pt', _('Portugues')),
+  
+)
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -164,13 +181,7 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''  
 EMAIL_PORT = 587  
 
-# MEESSAGW_TAGS={
-#     messages.DEBUG:'debug', #posibles mensajes
-#     messages.INFO:'info', 
-#     messages.SUCCESS:'success', 
-#     messages.WARNING:'warning', 
-#     messages.ERROR:'danger', 
-# }
+
 LOGIN_URL = '/login'
 LOGOUT_REDIRECT_URL = "/login"
 

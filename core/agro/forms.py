@@ -5,10 +5,10 @@ from django.forms import ModelForm
 from .models import Pais, Profile, Campo, Lote, Producto, Tipo, RubroProd, CostoProd, CostoProdo, agro_Producto, Especificacion_tipo
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas
 from .models import Campana, Planificacion_cultivo, Planificacion_lote, Planificacion_etapas, Com, Num
-from .models import Deposito, RegistroLluvia
-from .models import Prod
+from .models import Deposito, RegistroLluvia, Prod, agro_Etapa
 from string import Template
 from datetime import datetime
+from django.utils.translation import gettext_lazy as _
     
 class SignupForm(UserCreationForm):  
     def __init__(self, *args, **kwargs):
@@ -51,7 +51,11 @@ class BaseForm(ModelForm):
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
 
-
+class SimpleForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(SimpleForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
 
 class LoginForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -61,13 +65,11 @@ class LoginForm(forms.Form):
     username = forms.CharField(max_length=63)
     password = forms.CharField(max_length=63, widget=forms.PasswordInput)
 
-
 class BaseForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
-
 
 class PersonalInfoForm(BaseForm):
     class Meta:
@@ -80,13 +82,11 @@ class PersonalInfoForm(BaseForm):
     apellido = forms.CharField(max_length=150)
     nombre = forms.CharField(max_length=150)
 
-
 class MyPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super(MyPasswordChangeForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
-
 
 class CampoForm(BaseForm):
     class Meta:
@@ -101,7 +101,6 @@ class LoteForm(BaseForm):
     class Meta:
         model = Lote
         fields = ['campo', 'nombre', 'image', 'ha_totales', 'ha_productivas']
-
 
 class ProductoForm(BaseForm):
     def __init__(self,*args,**kwargs):
@@ -131,7 +130,6 @@ class CostoProdForm(BaseForm):
         widgets = {
                 'fecha': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
-
 
 class CostoProd_o_Form(BaseForm):
     def __init__(self,*args,**kwargs):
@@ -169,7 +167,6 @@ class CampanaForm(BaseForm):
                 'fecha_hasta': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
 
-
 class PlanificacionCultivoForm(BaseForm):
     def __init__(self,*args,**kwargs):
         super (PlanificacionCultivoForm,self ).__init__(*args,**kwargs)
@@ -183,7 +180,6 @@ class PlanificacionCultivoForm(BaseForm):
                 'fecha_desde': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
                 'fecha_hasta': forms.DateInput(format=('%Y-%m-%d'), attrs={'class':'form-control', 'placeholder':'Select a date', 'type':'date'}),
             }
-
 
 class PlanificacionLoteForm(BaseForm):
     def __init__(self,company,*args,**kwargs):
@@ -205,7 +201,6 @@ class PlanificacionLoteForm(BaseForm):
     campo = forms.ChoiceField()
     lote_campo = forms.ChoiceField()
 
-from .models import agro_Etapa
 class FormAsignacionEtapaCosto(forms.Form):
     def __init__(self,*args,**kwargs):
         super (FormAsignacionEtapaCosto,self ).__init__(*args,**kwargs) # populates the post
@@ -223,7 +218,6 @@ class ComprobantesForm(BaseForm):
         model = Com
         fields = '__all__'
         exclude = ['empresa']
-
 
 class NumeradorForm(BaseForm):
     class Meta:
@@ -243,8 +237,6 @@ class RegLluviaForm(BaseForm):
         fields = '__all__'
         exclude = ['empresa']
 
-
-
 class RegLluviaCargaForm(forms.Form):
     def __init__(self, company, *args, **kwargs):
         super(RegLluviaCargaForm, self).__init__(*args, **kwargs)
@@ -258,3 +250,45 @@ class RegLluviaCargaForm(forms.Form):
 
     campo = forms.ModelChoiceField(queryset=Campo.objects.all(), empty_label='Seleccione campo', help_text='Required')
     anio = forms.ChoiceField()
+
+#  FORMS NUEVOS
+
+
+class UploadArchivoForm(forms.Form):
+    campo = forms.ModelChoiceField(
+        queryset=Campo.objects.all(),
+        required=True,
+        label=_("Campo"),
+        empty_label=_("Seleccione campo")
+    )
+    lote = forms.ModelChoiceField(
+        queryset=Lote.objects.none(),
+        required=True,
+        label=_("Lote"),
+        empty_label=_("Seleccione lote")
+    )
+    nombre = forms.CharField(
+        max_length=100,
+        required=True,
+        label=_("Nombre del archivo")
+    )
+    dummy_archivos = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, empresa, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['campo'].queryset = Campo.objects.filter(empresa=empresa)
+
+        if self.data.get('campo'):
+            try:
+                campo_id = int(self.data.get('campo'))
+                self.fields['lote'].queryset = Lote.objects.filter(campo_id=campo_id)
+            except (ValueError, TypeError):
+                self.fields['lote'].queryset = Lote.objects.none()
+        else:
+            campos = Campo.objects.filter(empresa=empresa)
+            if campos.count() == 1:
+                campo_unico = campos.first()
+                self.fields['campo'].initial = campo_unico
+                self.fields['lote'].queryset = Lote.objects.filter(campo=campo_unico)
+            else:
+                self.fields['lote'].queryset = Lote.objects.none()

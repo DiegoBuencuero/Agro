@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
+{% load i18n %}
+<html lang="es">
 
 <head>
   <!-- Required meta tags -->
@@ -116,6 +117,32 @@
               </a>
             </div>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="mdi mdi-flag"></i>
+              {% trans "Idioma" %}
+            </a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="languageDropdown">
+              <form action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% get_language_info_list for LANGUAGES as languages %}
+                {% for lang in languages %}
+                  <button type="submit" name="language" value="{{ lang.code }}" class="dropdown-item d-flex align-items-center">
+                    {% if lang.code == 'es' %}
+                      <img src="{% static 'img-ooh/espana.png' %}" alt="es" style="width: 20px; height: auto;" class="mr-2"> {{ lang.name_local }}
+                    {% elif lang.code == 'pt' %}
+                      <img src="{% static 'img-ooh/brasil.png' %}" alt="pt" style="width: 20px; height: auto;" class="mr-2"> {{ lang.name_local }}
+                    {% elif lang.code == 'en' %}
+                      <img src="{% static 'img/england.png' %}" alt="en" style="width: 20px; height: auto;" class="mr-2"> {{ lang.name_local }}
+                    {% endif %}
+                  </button>
+                {% endfor %}
+              </form>
+            </div>
+          </li>
+          
           <li class="nav-item nav-settings d-none d-lg-flex">
             <a class="nav-link" href="#">
               <i class="icon-ellipsis"></i>

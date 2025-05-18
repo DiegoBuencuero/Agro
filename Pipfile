@@ -5,11 +5,14 @@ name = "pypi"
 
 [packages]
 django = "*"
-psycopg2 = "*"
+psycopg2-binary = "*"
 pillow = "*"
 six = "*"
 django-allauth = "*"
 yfinance = "*"
+pyshp = "*"
+numpy = "*"
+geopandas = "*"
 
 [dev-packages]
 

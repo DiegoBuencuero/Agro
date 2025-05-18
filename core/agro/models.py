@@ -73,8 +73,6 @@ class Empresa(models.Model):
     add_date = models.DateTimeField(default=timezone.now)
     moneda = models.ForeignKey(Moneda, on_delete=models.CASCADE)
     
-
-
 class Profile(models.Model):
     class Meta:
         pass
@@ -121,7 +119,6 @@ class Campo(models.Model):
     image = models.ImageField(default='default.jpg', upload_to='campos')
     observaciones = models.TextField(null=True, blank=True)
 
-
 class Ciudades(models.Model):
     class Meta:
         pass
@@ -131,7 +128,6 @@ class Ciudades(models.Model):
     pais = models.CharField(max_length=10)
     longitud = models.DecimalField(max_digits=10, decimal_places=6)
     latitud = models.DecimalField(max_digits=10, decimal_places=6)
-
 
 class Lote(models.Model):
     class Meta:
@@ -145,7 +141,6 @@ class Lote(models.Model):
     ha_totales = models.DecimalField(max_digits=6, decimal_places=2)
     ha_productivas = models.DecimalField(max_digits=6, decimal_places=2)
 
-
 class Actividad(models.Model):
     class Meta:
         pass
@@ -154,7 +149,6 @@ class Actividad(models.Model):
     nombre = models.CharField(max_length=50)
     codigo = models.CharField(max_length=2)
     agro_tipo = models.ManyToManyField("agro_TipoProd")
-
 
 class UM(models.Model):
     class Meta:
@@ -171,7 +165,6 @@ class EstadoLote(models.Model):
     fecha_desde = models.DateField(default=timezone.now) 
     fecha_hasta = models.DateField(default=timezone.now)
     estado = models.CharField(max_length=1, choices=[('A', 'Abierto'), ('C', 'Cerrado')], default='A')
-
 
 class TrazaLote(models.Model):
     class Meta:
@@ -234,7 +227,6 @@ class agro_Etapa(models.Model):
     abreviado = models.CharField(max_length=4)
     orden = models.IntegerField()
 
-
 class agro_TipoProd(models.Model):
     class Meta:
         pass
@@ -243,7 +235,6 @@ class agro_TipoProd(models.Model):
     nombre = models.CharField(max_length=100)
     etapas = models.ManyToManyField(agro_Etapa, blank=True)
     color = models.CharField(max_length=7, default = '#FFFFFF')
-
 
 class agro_RubroProd(models.Model):
     class Meta:
@@ -255,7 +246,6 @@ class agro_RubroProd(models.Model):
     letra = models.CharField(max_length=1, default = 'A')
     color = models.CharField(max_length=7, default = '#FFFFFF')
 
-
 class Especificacion_tipo(models.Model):
     class Meta:
         pass
@@ -263,7 +253,6 @@ class Especificacion_tipo(models.Model):
         return self.nombre
     agro_tipo = models.ForeignKey(agro_TipoProd, on_delete=models.CASCADE, null=True, blank=True)
     nombre = models.CharField(max_length=100)
-
 
 class agro_Producto(models.Model):
     class Meta:
@@ -377,7 +366,6 @@ class Com(models.Model):
     tipo = models.CharField(max_length=1, choices=[('S', 'Stock'), ('V', 'Facturacion ventas'), ('P', 'Proveedores')])
     signo = models.CharField(max_length=1, choices=[('D', 'Debe'), ('H', 'Haber'), ('T', 'Transferencia')])
 
-
 class Mov (models.Model):
     class Meta:
         pass
@@ -439,15 +427,12 @@ class Campana ( models.Model):
     fecha_hasta = models.DateField(default=timezone.now)
     observaciones = models.TextField(null=True, blank=True)
 
-
-
 class Planificacion_lote( models.Model):
     class Meta:
         pass
     empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     planificacion = models.ForeignKey("Planificacion_cultivo",  on_delete=models.CASCADE)
     lote = models.ForeignKey("Lote", on_delete=models.CASCADE)
-
 
 class Planificacion_etapas(models.Model):
     def __str__(self):
@@ -457,7 +442,6 @@ class Planificacion_etapas(models.Model):
     etapa = models.ForeignKey("agro_Etapa", on_delete=models.CASCADE)
     costoo = models.ForeignKey("CostoProdo", models.CASCADE, null=True, blank=True)
     cant_aplicada = models.DecimalField(max_digits=10, decimal_places=4)  
-
 
 class Cultivo(models.Model):
     class Meta:
@@ -548,7 +532,6 @@ class agro_Ivapos(models.Model):
     descripcion = models.CharField(max_length=50)
     comprobante = models.ForeignKey(Com, on_delete=models.CASCADE)
 
-
 class Proveedor(models.Model):
     def __str__(self):
         return self.razon_social
@@ -569,3 +552,35 @@ class Proveedor(models.Model):
 
 
 
+#TABLAS NUEVAS
+
+class ArchivoDato(models.Model):
+    lote = models.ForeignKey(Lote, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=255)
+    tipo = models.CharField(max_length=50)  # rendimiento, P, K, pH, etc.
+    archivo = models.FileField(upload_to='archivos/')
+    formato = models.CharField(max_length=10)  # shp, csv, geojson
+    fecha_carga = models.DateTimeField(auto_now_add=True)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+
+class DatoGeo(models.Model):
+    archivo = models.ForeignKey(ArchivoDato, on_delete=models.CASCADE)
+    latitud = models.FloatField()
+    longitud = models.FloatField()
+    valor = models.FloatField()
+    unidad = models.CharField(max_length=20)
+    tipo = models.CharField(max_length=50)  # duplicado a propósito para fácil acceso
+    fecha = models.DateField(null=True, blank=True)  # fecha de toma del dato (opcional)
+
+
+class ArchivoLote(models.Model):
+    nombre = models.CharField(max_length=255)
+    lote = models.ForeignKey(Lote, on_delete=models.CASCADE, related_name='archivos')
+    
+    archivo = models.FileField(upload_to='lotes/')
+    extension = models.CharField(max_length=20)
+    tipo = models.CharField(max_length=20,choices=TIPO_CHOICES,verbose_name="Tipo de dado")
+    fecha_carga = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nombre

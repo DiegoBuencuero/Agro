@@ -1,0 +1,788 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block plugin_css %}
+<!-- CSS de Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- JS de Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'js/select.dataTables.min.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  .content-wrapper {
+    padding: 0 !important;
+  }
+  .panel-camadas {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    width: 260px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    z-index: 1500;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .panel-header {
+    font-size: 16px;
+    color: #4B4B77;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+  }
+  .panel-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .custom-checkbox {
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    color: #333;
+  }
+  .custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .custom-checkbox .checkmark {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    height: 18px;
+    width: 18px;
+    background-color: #eee;
+    border-radius: 4px;
+    border: 2px solid #a084ca;
+  }
+  .custom-checkbox input:checked ~ .checkmark {
+    background-color: #a084ca;
+    border-color: #a084ca;
+  }
+  .custom-checkbox .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  .custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+  }
+  .custom-checkbox .checkmark:after {
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  /* Aplica a todos los <select> dentro de .formulario */
+    .formulario select {
+      font-size: 13px;
+      height: 32px;
+      padding: 2px 10px;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
+      background-color: white;
+      color: #333;
+    }
+    
+    /* Enfocado o activo: violeta */
+    .formulario select:focus {
+      border-color: #6f42c1;
+      outline: none;
+      box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+    }
+    .map-cuadro {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="toolbar" class="toolbar shadow-sm px-3 py-2 bg-white border-bottom">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div class="d-flex align-items-center flex-wrap gap-4 px-2">
+      <div class="d-flex align-items-center gap-2">
+        <label for="id_campo" class="form-label mb-0 fw-semibold" style="min-width: 70px;">
+          {% translate "Fazenda:" %}
+        </label>
+        <div class="formulario">
+          {{ form.campo }}
+          {{ form.campo.error }}
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label for="id_lote" class="form-label mb-0 fw-semibold" style="min-width: 70px;">
+          {% translate "Talhão:" %}
+        </label>
+        <div class="formulario">
+          {{ form.lote }}
+          {{ form.lote.error }}
+        </div>
+      </div>
+    </div> 
+    <div class="dropdown">
+      <button id="btnDropdownCamadas" class="btn btn-secondary btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa-solid fa-layer-group text-white"></i>
+        <span>{% translate "Camadas" %}</span>
+      </button>
+      <div class="dropdown-menu p-0 border-0 shadow" id="menuDropdownCamadas" style="min-width: 220px;">
+        <div class="panel-header px-3 pt-2 pb-1 border-bottom text-muted small">
+          <i class="fas fa-layer-group me-2"></i> {% translate "Tipos disponíveis" %}
+        </div>
+        <div class="panel-body px-2 py-2" id="contenedorCheckboxes"></div>
+      </div>
+    </div>
+
+    <!-- Botón que cambia de color cuando se activa -->
+    <button type="button" id="btnSatelite" class="btn btn-outline-primary btn-sm">
+      <i class="fas fa-satellite me-1"></i> Satélite
+    </button>
+
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" id="btnZoom" class="btn btn-outline-secondary btn-sm" title="{% translate 'Zoom ao lote' %}">
+        <i class="fas fa-crosshairs"></i>
+      </button>
+      <button type="button" id="btnRemover" class="btn btn-outline-danger btn-sm" title="{% translate 'Remover camada' %}">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+      <a href="{% url 'analizar_mapas' %}" class="btn btn-outline-primary btn-sm" id="btnCompararMapas">
+        <i class="fas fa-columns"></i> {% translate "Comparar Mapas" %}
+      </a>
+      <button type="button" id="btnUploadModal" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalUpload">
+        <i class="fas fa-upload me-1"></i> {% translate "Enviar" %}
+      </button>
+      
+    </div>
+  </div>
+</div>
+<div class="container-fluid px-3" style="height: calc(100vh - 80px);">
+  <div class="row h-100">
+    <div class="col-md-6 p-1">
+      <div id="map1" class="map-cuadro"></div>
+    </div>
+    <div class="col-md-6 p-1">
+      <div id="map2" class="map-cuadro"></div>
+    </div>
+    <div class="col-md-6 p-1">
+      <div id="map3" class="map-cuadro"></div>
+    </div>
+    <div class="col-md-6 p-1">
+      <div id="map4" class="map-cuadro"></div>
+    </div>
+  </div>
+</div>
+
+
+
+
+{% endblock %}
+
+{% block plugin_js %}
+<script src="{% static 'vendors/chart.js/Chart.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/ol@v7.3.0/dist/ol.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+{% block custom_js %}
+<script>
+  // ✅ Vista compartida
+  const viewCompartida = new ol.View({
+    center: ol.proj.fromLonLat([-51.185, -27.436]),
+    zoom: 14
+  });
+
+  // ✅ Crear capas base para cada mapa
+  function crearCapas() {
+    return {
+      osm: new ol.layer.Tile({
+        source: new ol.source.OSM(),
+        visible: true
+      }),
+      satelite: new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+          attributions: 'Tiles © Esri'
+        }),
+        visible: false
+      })
+    };
+  }
+
+  // ✅ Crear mapa individual con sus capas
+  function crearMapa(id) {
+    const capas = crearCapas();
+    const map = new ol.Map({
+      target: id,
+      layers: [capas.osm, capas.satelite],
+      view: viewCompartida
+    });
+    return { map, capas };
+  }
+
+  // ✅ Crear 4 mapas sincronizados
+  const m1 = crearMapa('map1');
+  const m2 = crearMapa('map2');
+  const m3 = crearMapa('map3');
+  const m4 = crearMapa('map4');
+  const maps = [m1, m2, m3, m4];
+
+  // ✅ Forzar render
+  setTimeout(() => {
+    maps.forEach(({ map }, i) => {
+      map.updateSize();
+      console.log(`✅ Mapa ${i + 1} renderizado`);
+    });
+  }, 300);
+
+  // ✅ Alternar vista satelital
+  $('#btnSatelite').on('click', function () {
+    const usarSatelite = !maps[0].capas.satelite.getVisible();
+    maps.forEach(({ capas }, i) => {
+      capas.satelite.setVisible(usarSatelite);
+      capas.osm.setVisible(!usarSatelite);
+      console.log(`🛰️ Mapa ${i + 1} → ${usarSatelite ? 'SATELITAL' : 'OSM'}`);
+    });
+
+    $(this)
+      .toggleClass('btn-primary', usarSatelite)
+      .toggleClass('btn-outline-primary', !usarSatelite);
+
+    const $switch = $('#toggleSatelite');
+    if ($switch.length) {
+      $switch.prop('checked', usarSatelite).trigger('change');
+    }
+  });
+
+  // ✅ Control de capas cargadas
+  const capasActivas = {};
+  let indiceCapa = 0;
+
+  function limpiarMapa() {
+    for (const tipo in capasActivas) {
+      const { layer, mapaIndex } = capasActivas[tipo];
+      maps[mapaIndex].map.removeLayer(layer);
+    }
+    Object.keys(capasActivas).forEach(k => delete capasActivas[k]);
+    $('#contenedorCheckboxes').empty();
+    indiceCapa = 0;
+  }
+
+  $(document).ready(function () {
+    const $campo = $('#id_campo');
+    const $lote = $('#id_lote');
+    const $btnCamadas = $('#btnDropdownCamadas');
+
+    $btnCamadas.prop('disabled', true);
+
+    // 🔁 Cambia campo → carga lotes
+    $campo.change(function () {
+      const campoId = $(this).val();
+      $lote.empty().append('<option value="">-----------</option>');
+
+      if (campoId) {
+        $.ajax({
+          url: '/ajax/lotes/',
+          data: { campo_id: campoId },
+          dataType: 'json',
+          success: function (data) {
+            console.log("📦 Lotes recibidos:", data);
+            data.lotes.forEach(function (lote) {
+              $lote.append(`<option value="${lote.id}">${lote.nombre}</option>`);
+            });
+          },
+          error: function () {
+            console.error('❌ Error al cargar lotes');
+          }
+        });
+      }
+    });
+
+    // 🔁 Cambia lote → carga capas
+    $lote.change(function () {
+      const loteId = $(this).val();
+      console.log('📍 Lote seleccionado:', loteId);
+      limpiarMapa();
+
+      if (!loteId) return;
+
+      $.ajax({
+        url: '/get_capas_lote/',
+        type: 'GET',
+        data: { lote_id: loteId },
+        success: function (response) {
+          console.log('📑 Capas disponibles:', response);
+          construirPanelTipos(response.capas, loteId);
+          $btnCamadas.prop('disabled', false);
+        },
+        error: function () {
+          console.error('❌ Error al obtener capas');
+        }
+      });
+    });
+  });
+
+  // ✅ Panel lateral de tipos
+  function construirPanelTipos(capas, loteId) {
+    const agrupadas = {};
+
+    capas.forEach(capa => {
+      if (capa.extension !== 'geojson') return;
+      const tipo = capa.tipo || 'sin_tipo';
+      if (!agrupadas[tipo]) agrupadas[tipo] = [];
+      agrupadas[tipo].push(capa);
+    });
+
+    const contenedor = $('#contenedorCheckboxes');
+    contenedor.empty();
+
+    for (const tipo in agrupadas) {
+      const id = `chk-${tipo}`;
+      const cantidad = agrupadas[tipo].length;
+
+      contenedor.append(`
+        <label class="custom-checkbox">
+          <input type="checkbox" id="${id}" data-tipo="${tipo}" data-lote="${loteId}">
+          <span class="checkmark"></span>
+          ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} (${cantidad})
+        </label>
+      `);
+    }
+
+    $('input[type="checkbox"]').off('change').on('change', function () {
+      const tipo = $(this).data('tipo');
+      const lote = $(this).data('lote');
+      const activo = $(this).is(':checked');
+
+      if (activo) {
+        const mapaIndex = indiceCapa % maps.length;
+        const mapa = maps[mapaIndex];
+        console.log(`🟣 Asignando tipo "${tipo}" al mapa ${mapaIndex + 1}`);
+
+        $.ajax({
+          url: '/get_capa_tipo/',
+          type: 'GET',
+          data: { lote_id: lote, tipo: tipo },
+          success: function (res) {
+            const features = new ol.format.GeoJSON().readFeatures(res.geojson, {
+              featureProjection: 'EPSG:3857'
+            });
+
+            const layer = new ol.layer.Vector({
+              source: new ol.source.Vector({ features }),
+              style: function (feature) {
+                const rate = feature.get('rate');
+                let color = 'rgba(0,0,0,0.3)';
+                if (rate !== undefined && res.leyenda) {
+                  res.leyenda.forEach(item => {
+                    const [min, max] = item.rango.split(" - ").map(Number);
+                    if (rate >= min && rate <= max) color = item.color;
+                  });
+                }
+                const geometryType = feature.getGeometry().getType();
+                if (geometryType.includes('Polygon')) {
+                  return new ol.style.Style({ fill: new ol.style.Fill({ color }) });
+                } else {
+                  return new ol.style.Style({
+                    image: new ol.style.Circle({
+                      radius: 4,
+                      fill: new ol.style.Fill({ color }),
+                      stroke: new ol.style.Stroke({ color: 'black', width: 0.5 })
+                    })
+                  });
+                }
+              }
+            });
+
+            mapa.map.addLayer(layer);
+            capasActivas[tipo] = { layer, mapaIndex };
+            indiceCapa++;
+
+            const extent = layer.getSource().getExtent();
+            mapa.map.getView().fit(extent, { padding: [40, 40, 40, 40], duration: 800 });
+
+            // Leyenda
+            if (res.leyenda) {
+              const leyendaDiv = document.getElementById("leyendaContenedor");
+              leyendaDiv.innerHTML = "";
+              res.leyenda.forEach(item => {
+                const fila = document.createElement("div");
+                fila.className = "d-flex align-items-center mb-1 gap-2";
+                const color = document.createElement("div");
+                color.style.width = "16px";
+                color.style.height = "16px";
+                color.style.backgroundColor = item.color;
+                color.style.border = "1px solid #ccc";
+                color.style.borderRadius = "3px";
+                const texto = document.createElement("span");
+                texto.textContent = item.rango;
+                fila.appendChild(color);
+                fila.appendChild(texto);
+                leyendaDiv.appendChild(fila);
+              });
+              document.getElementById("leyendaMapa").style.display = "block";
+            }
+          }
+        });
+      } else {
+        if (capasActivas[tipo]) {
+          const { layer, mapaIndex } = capasActivas[tipo];
+          maps[mapaIndex].map.removeLayer(layer);
+          delete capasActivas[tipo];
+          console.log(`🗑️ Capa "${tipo}" eliminada del mapa ${mapaIndex + 1}`);
+        }
+      }
+    });
+  }
+</script>
+
+{% comment %} <script>
+ // ✅ 1. Vista compartida
+const viewCompartida = new ol.View({
+  center: ol.proj.fromLonLat([-51.185, -27.436]),
+  zoom: 14
+});
+
+// ✅ 2. Crear capas OSM y satelital por mapa
+function crearCapas() {
+  return {
+    osm: new ol.layer.Tile({
+      source: new ol.source.OSM(),
+      visible: true
+    }),
+    satelite: new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attributions: 'Tiles © Esri'
+      }),
+      visible: false
+    })
+  };
+}
+
+// ✅ 3. Función para crear mapa con capas separadas
+function crearMapa(id) {
+  const capas = crearCapas();
+  const map = new ol.Map({
+    target: id,
+    layers: [capas.osm, capas.satelite],
+    view: viewCompartida
+  });
+  return { map, capas };
+}
+
+// ✅ 4. Crear los 4 mapas
+const m1 = crearMapa('map1');
+const m2 = crearMapa('map2');
+const m3 = crearMapa('map3');
+const m4 = crearMapa('map4');
+
+const maps = [m1, m2, m3, m4];
+
+// ✅ 5. Forzar que se rendericen correctamente
+setTimeout(() => {
+  maps.forEach(({ map }, i) => {
+    map.updateSize();
+    console.log(`✅ Mapa ${i + 1} renderizado`);
+  });
+}, 300);
+
+// ✅ 6. Botón para alternar satélite en todos los mapas
+$('#btnSatelite').on('click', function () {
+  const usarSatelite = !maps[0].capas.satelite.getVisible(); // basta revisar uno solo
+
+  maps.forEach(({ capas }, i) => {
+    capas.satelite.setVisible(usarSatelite);
+    capas.osm.setVisible(!usarSatelite);
+    console.log(`🛰️ Mapa ${i + 1} → ${usarSatelite ? 'SATELITAL' : 'OSM'}`);
+  });
+
+  // Estilo del botón
+  $(this)
+    .toggleClass('btn-primary', usarSatelite)
+    .toggleClass('btn-outline-primary', !usarSatelite);
+
+  // Si hay un switch satelital también
+  const $switch = $('#toggleSatelite');
+  if ($switch.length) {
+    $switch.prop('checked', usarSatelite).trigger('change');
+  }
+});
+
+
+function limpiarMapa() {
+  for (const tipo in capasActivas) {
+    capasActivas[tipo].forEach(capa => {
+      m1.map.removeLayer(capa); // si aplicás solo a uno, o hacelo en todos si querés
+    });
+  }
+  Object.keys(capasActivas).forEach(k => delete capasActivas[k]);
+  $('#contenedorCheckboxes').empty();
+}
+
+$(document).ready(function () {
+  const $campo = $('#id_campo');
+  const $lote = $('#id_lote');
+  const $btnCamadas = $('#btnDropdownCamadas');
+
+  $btnCamadas.prop('disabled', true);
+
+  $campo.change(function () {
+    const campoId = $(this).val();
+    $lote.empty().append('<option value="">-----------</option>');
+
+    if (campoId) {
+      $.ajax({
+        url: '/ajax/lotes/',
+        data: { campo_id: campoId },
+        dataType: 'json',
+        success: function (data) {
+          console.log("📦 Lotes recibidos:", data);
+          data.lotes.forEach(function (lote) {
+            $lote.append(`<option value="${lote.id}">${lote.nombre}</option>`);
+          });
+        },
+        error: function () {
+          console.error('❌ Error al cargar lotes');
+        }
+      });
+    }
+  });
+
+  $lote.change(function () {
+    const loteId = $(this).val();
+    console.log('📍 Lote seleccionado:', loteId);
+    limpiarMapa();
+
+    if (!loteId) return;
+
+    $.ajax({
+      url: '/get_capas_lote/',
+      type: 'GET',
+      data: { lote_id: loteId },
+      success: function (response) {
+        console.log('📑 Capas disponibles:', response);
+        construirPanelTipos(response.capas, loteId);
+        $btnCamadas.prop('disabled', false);
+      },
+      error: function () {
+        console.error('❌ Error al obtener capas');
+      }
+    });
+  });
+});
+
+
+  {% comment %} $(document).ready(function () {
+    $('#id_campo').select2();  // O el ID real del select
+    $('#id_lote').select2();   // Si querés también en Talhão
+    const $campo = $('#id_campo');
+    const $lote = $('#id_lote');
+    const $btnCamadas = $('#btnDropdownCamadas');
+
+    $btnCamadas.prop('disabled', true);
+
+    // Toggle de capa satélite
+    $('#toggleSatelite').on('change', function () {
+      const usarSatelite = $(this).is(':checked');
+      capaOSM.setVisible(!usarSatelite);
+      capaSatelite.setVisible(usarSatelite);
+    });
+
+    $campo.change(function () {
+      const campoId = $(this).val();
+      $lote.empty().append('<option value="">-----------</option>');
+
+      if (campoId) {
+        $.ajax({
+          url: '/ajax/lotes/',
+          data: { campo_id: campoId },
+          dataType: 'json',
+          success: function (data) {
+            console.log("Lotes recibidos:", data);
+            data.lotes.forEach(function (lote) {
+              $lote.append(`<option value="${lote.id}">${lote.nombre}</option>`);
+            });
+          },
+          error: function () {
+            console.error(' Error al cargar lotes');
+          }
+        });
+      }
+    });
+
+    $lote.change(function () {
+      const loteId = $(this).val();
+      console.log('Lote seleccionado:', loteId);
+
+      limpiarMapa();
+
+      if (!loteId) return;
+
+      $.ajax({
+        url: '/get_capas_lote/',
+        type: 'GET',
+        data: { lote_id: loteId },
+        success: function (response) {
+          console.log(' Capas:', response);
+          construirPanelTipos(response.capas, loteId);
+          $btnCamadas.prop('disabled', false);
+        },
+        error: function () {
+          console.error(' Error al obtener capas');
+        }
+      });
+    });
+  });  
+  
+  function construirPanelTipos(capas, loteId) {
+    console.log("capas recibidas desde /get_capas_lote/:", capas);
+  
+    const agrupadas = {};
+  
+    capas.forEach(capa => {
+      console.log("🔎 Revisando capa:", capa);
+      if (capa.extension !== 'geojson') {
+        console.log(`Ignorada (no es GeoJSON): ${capa.nombre} → ${capa.extension}`);
+        return;
+      }
+      const tipo = capa.tipo || 'sin_tipo';
+      if (!agrupadas[tipo]) agrupadas[tipo] = [];
+      agrupadas[tipo].push(capa);
+    });
+  
+    console.log("Capas agrupadas por tipo:", agrupadas);
+  
+    const contenedor = $('#contenedorCheckboxes');
+    contenedor.empty();
+  
+    for (const tipo in agrupadas) {
+      const id = `chk-${tipo}`;
+      const cantidad = agrupadas[tipo].length;
+  
+      contenedor.append(`
+        <label class="custom-checkbox">
+          <input type="checkbox" id="${id}" data-tipo="${tipo}" data-lote="${loteId}">
+          <span class="checkmark"></span>
+          ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} (${cantidad})
+        </label>
+      `);
+    }
+  
+    $('input[type="checkbox"]').off('change').on('change', function () {
+      const tipo = $(this).data('tipo');
+      const lote = $(this).data('lote');
+      const activo = $(this).is(':checked');
+  
+      console.log(`☑️ Checkbox cambiado → tipo=${tipo}, lote=${lote}, activo=${activo}`);
+  
+      if (activo) {
+        const mapaIndex = indiceCapa % maps.length;
+        const mapa = maps[mapaIndex];
+        console.log(`📌 Asignando tipo "${tipo}" al mapa ${mapaIndex + 1}`);
+  
+        $.ajax({
+          url: '/get_capa_tipo/',
+          type: 'GET',
+          data: { lote_id: lote, tipo: tipo },
+          success: function (res) {
+            console.log(`Respuesta de /get_capa_tipo/ para tipo "${tipo}":`, res);
+  
+            const features = new ol.format.GeoJSON().readFeatures(res.geojson, {
+              featureProjection: 'EPSG:3857'
+            });
+  
+            const layer = new ol.layer.Vector({
+              source: new ol.source.Vector({ features }),
+              style: function (feature) {
+                const rate = feature.get('rate');
+                let color = 'rgba(0,0,0,0.3)';
+                if (rate !== undefined && res.leyenda && res.leyenda.length === 10) {
+                  for (let i = 0; i < res.leyenda.length; i++) {
+                    const [min, max] = res.leyenda[i].rango.split(" - ").map(Number);
+                    if (rate >= min && rate <= max) {
+                      color = res.leyenda[i].color;
+                      break;
+                    }
+                  }
+                }
+                const geometryType = feature.getGeometry().getType();
+                if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+                  return new ol.style.Style({
+                    fill: new ol.style.Fill({ color })
+                  });
+                } else {
+                  return new ol.style.Style({
+                    image: new ol.style.Circle({
+                      radius: 4,
+                      fill: new ol.style.Fill({ color }),
+                      stroke: new ol.style.Stroke({ color: 'black', width: 0.5 })
+                    })
+                  });
+                }
+              }
+            });
+  
+            mapa.addLayer(layer);
+            capasActivas[tipo] = { layer, mapaIndex };
+            indiceCapa++; // avanzar para que el próximo tipo se asigne al siguiente cuadrante
+  
+            const extent = layer.getSource().getExtent();
+            mapa.getView().fit(extent, { padding: [40, 40, 40, 40], duration: 800 });
+  
+            // leyenda
+            if (res.leyenda && res.leyenda.length === 10) {
+              const leyendaDiv = document.getElementById("leyendaContenedor");
+              leyendaDiv.innerHTML = "";
+              res.leyenda.forEach(item => {
+                const fila = document.createElement("div");
+                fila.className = "d-flex align-items-center mb-1 gap-2";
+  
+                const color = document.createElement("div");
+                color.style.width = "16px";
+                color.style.height = "16px";
+                color.style.backgroundColor = item.color;
+                color.style.border = "1px solid #ccc";
+                color.style.borderRadius = "3px";
+  
+                const texto = document.createElement("span");
+                texto.textContent = item.rango;
+  
+                fila.appendChild(color);
+                fila.appendChild(texto);
+                leyendaDiv.appendChild(fila);
+              });
+              document.getElementById("leyendaMapa").style.display = "block";
+            }
+          },
+          error: function () {
+            console.error(`❌ Error al cargar capa tipo=${tipo}`);
+          }
+        });
+      } else {
+        if (capasActivas[tipo]) {
+          const { layer, mapaIndex } = capasActivas[tipo];
+          maps[mapaIndex].removeLayer(layer);
+          delete capasActivas[tipo];
+          console.log(`🗑️ Capa "${tipo}" eliminada del mapa ${mapaIndex + 1}`);
+        }
+      }
+    });
+  }
+
+</script> {% endcomment %}
+{% endblock %}
+{% block nav %}
+{% include 'nav_home.html' %}
+{% endblock %}

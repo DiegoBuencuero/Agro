@@ -3,7 +3,7 @@ from .models import Profile, Pais, Provincia, Ciudad, Tipodoc, Nacionalidad, Emp
 from .models import Especificacion, UM, Moneda, agro_CostoProd, agro_CostoProdo, agro_Producto, agro_TipoProd, agro_RubroProd, Especificacion_tipo
 from .models import CostoProd, CostoProdo, Producto, agro_Etapa, Lote, Planificacion_etapas, Actividad
 from .models import Com, Num, RegistroLluvia, agro_CategoriaContacto, EstadoLote, TrazaLote, TrazaLoteItem
-from .models import Prod, TipoProd, RubroProd, ClaseProd
+from .models import Prod, TipoProd, RubroProd, ClaseProd, ArchivoDato, DatoGeo, ArchivoLote
 # Register your models here.
 
 admin.site.register(Profile)
@@ -46,3 +46,20 @@ admin.site.register(Prod)
 admin.site.register(RubroProd)
 admin.site.register(TipoProd)
 admin.site.register(ClaseProd)
+
+@admin.register(ArchivoDato)
+class ArchivoDatoAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nombre', 'lote', 'tipo', 'formato', 'usuario', 'archivo']
+    search_fields = ['nombre', 'lote__nombre', 'usuario__username']
+    list_filter = ['tipo', 'formato', 'lote']
+    ordering = ['-id']
+
+
+@admin.register(DatoGeo)
+class DatoGeoAdmin(admin.ModelAdmin):
+    list_display = ['id', 'archivo', 'latitud', 'longitud', 'valor', 'unidad', 'tipo']
+    search_fields = ['archivo__nombre', 'valor']
+    list_filter = ['tipo', 'unidad']
+    ordering = ['-id']
+
+admin.site.register(ArchivoLote)

@@ -1,0 +1,219 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-14 14:59-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: agro/forms.py:261 templates/nav_home.html:10
+msgid "Campo"
+msgstr "Fazenda"
+
+#: agro/forms.py:262
+msgid "Seleccione campo"
+msgstr ""
+
+#: agro/forms.py:267 templates/nav_home.html:11
+msgid "Lote"
+msgstr "Talhão"
+
+#: agro/forms.py:268
+msgid "Seleccione lote"
+msgstr ""
+
+#: agro/forms.py:273
+msgid "Nombre del archivo"
+msgstr ""
+
+#: core/settings.py:150
+msgid "Español"
+msgstr "Espanhol"
+
+#: core/settings.py:151
+msgid "Portugues"
+msgstr "Português"
+
+#: templates/base.html:123
+msgid "Idioma"
+msgstr "Idioma"
+
+#: templates/mapa_shapefile.html:91
+msgid "Campo:"
+msgstr "Fazenda:"
+
+#: templates/mapa_shapefile.html:99
+msgid "Lote:"
+msgstr "Talhão:"
+
+#: templates/mapa_shapefile.html:108
+msgid "Zoom ao lote"
+msgstr "Zoom no talhão"
+
+#: templates/mapa_shapefile.html:111
+msgid "Remover camada"
+msgstr "Remover camada"
+
+#: templates/mapa_shapefile.html:115
+msgid "Comparar Mapas"
+msgstr "Comparar Mapas"
+
+#: templates/mapa_shapefile.html:118
+msgid "Enviar"
+msgstr "Enviar"
+
+#: templates/mapa_shapefile.html:123
+msgid "Camadas"
+msgstr "Camadas"
+
+#: templates/mapa_shapefile.html:127
+msgid "Tipos disponíveis"
+msgstr "Tipos disponíveis"
+
+#: templates/mapa_shapefile.html:149
+msgid "Leyenda"
+msgstr "Legenda"
+
+#: templates/mapa_shapefile.html:150
+msgid "Cerrar"
+msgstr "Fechar"
+
+#: templates/nav_home.html:5
+msgid "General"
+msgstr "Geral"
+
+#: templates/nav_home.html:12
+msgid "Registros Lluvia"
+msgstr "Registros de Chuva"
+
+#: templates/nav_home.html:13
+msgid "Contactos"
+msgstr "Contatos"
+
+#: templates/nav_home.html:14
+msgid "Carga de datos"
+msgstr "Carregamento de dados"
+
+#: templates/nav_home.html:21
+msgid "Analisis de datos"
+msgstr "Análise de dados"
+
+#: templates/nav_home.html:26
+msgid "Generacion de mapas"
+msgstr "Geração de mapas"
+
+#: templates/nav_home.html:39 templates/nav_home.html:45
+msgid "Productos"
+msgstr "Produtos"
+
+#: templates/nav_home.html:44
+msgid "Rubros"
+msgstr "Categorias"
+
+#: templates/nav_home.html:46
+msgid "Configuración de Producto"
+msgstr "Configuração do Produto"
+
+#: templates/nav_home.html:54 templates/nav_home.html:60
+msgid "Planificación"
+msgstr "Planejamento"
+
+#: templates/nav_home.html:59
+msgid "Costo de producción"
+msgstr "Custo de Produção"
+
+#: templates/nav_home.html:61
+msgid "Campañas"
+msgstr "Campanhas"
+
+#: templates/nav_home.html:62
+msgid "Estado de lote"
+msgstr "Estado do Talhão"
+
+#: templates/nav_home.html:63
+msgid "Trazabilidad"
+msgstr "Rastreabilidade"
+
+#: templates/nav_home.html:71
+msgid "Contabilidad"
+msgstr "Contabilidade"
+
+#: templates/nav_home.html:76
+msgid "Numeradores"
+msgstr "Numeração"
+
+#: templates/nav_home.html:77
+msgid "Comprobantes"
+msgstr "Comprovantes"
+
+#: templates/nav_home.html:85
+msgid "Stock"
+msgstr "Estoque"
+
+#: templates/nav_home.html:90
+msgid "Depósitos"
+msgstr "Depósitos"
+
+#: templates/nav_home.html:91
+msgid "Gestión de Stock"
+msgstr "Gestão de Estoque"
+
+#: templates/nav_home.html:99
+msgid "Maquinaria"
+msgstr "Máquinas"
+
+#: templates/nav_home.html:104
+msgid "Registro"
+msgstr "Cadastro"
+
+#: templates/nav_home.html:105
+msgid "Mantenimiento"
+msgstr "Manutenção"
+
+#: templates/nav_home.html:113
+msgid "Meteorología"
+msgstr "Meteorologia"
+
+#: templates/nav_home.html:118
+msgid "Tiempo"
+msgstr "Tempo"
+
+#: templates/nav_home.html:126
+msgid "Iconos"
+msgstr "Ícones"
+
+#: templates/nav_home.html:131
+msgid "Iconos MDI"
+msgstr "Ícones MDI"
+
+#: templates/nav_home.html:139
+msgid "Páginas de usuario"
+msgstr "Páginas de Usuário"
+
+#: templates/nav_home.html:144
+msgid "Iniciar sesión"
+msgstr "Entrar"
+
+#: templates/nav_home.html:145
+msgid "Registrarse"
+msgstr "Registrar-se"
+
+#: templates/nav_home.html:153
+msgid "Páginas de error"
+msgstr "Páginas de Erro"
+
+#: templates/nav_home.html:167
+msgid "Documentación"
+msgstr "Documentação"
